@@ -1,0 +1,398 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     13579,        390]
+NotebookOptionsPosition[     13237,        374]
+NotebookOutlinePosition[     13576,        389]
+CellTagsIndexPosition[     13533,        386]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"Mathematica", " ", "Package"}], " ", "*)"}], "\n", "\n", 
+  RowBox[{
+   RowBox[{"BeginPackage", "[", "\"\<SymBuild`\>\"", "]"}], "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "Exported", " ", "symbols", " ", "added", " ", "here", " ", "with", " ", 
+     RowBox[{"SymbolName", "::", "usage"}]}], " ", "*)"}], "  ", "\n", "\n", 
+   "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"sparseArrayGlueRight", "::", "usage"}], "=", 
+     "\"\<sparseArrayGlueRight[matrix1, matrix2] glues the two sparse \
+matrices with the same number of rows, placing them left and right.\>\""}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"sparseArrayGlue", "::", "usage"}], "=", 
+     "\"\<sparseArrayGlue[matrix1, matrix2] glues two matrices with the same \
+number of columns, placing them top and bottom. If the function is instead \
+given an array of matrices with the same number of columns, then it glues \
+them all. \>\""}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"sparseArrayZeroRowCut", "::", "usage"}], "=", 
+     "\"\<sparseArrayZeroRowCut[matrix] removes the zero rows at the bottom \
+of the sparse matrix.\>\""}], ";"}], "\n", "\n"}]}]], "Code",
+ CellChangeTimes->{{3.7388262038797493`*^9, 3.738826233367301*^9}, {
+  3.738826383357204*^9, 3.7388264379992933`*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Begin", " ", "Private", " ", "Context"}], " ", "*)"}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{"End", "[", "]"}], " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{"End", " ", "Private", " ", "Context"}], " ", "*)"}]}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.738826397324922*^9, 3.738826409128441*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Sparse", " ", "Matrix", " ", "Manipulation"}], "*)"}], 
+  "\[IndentingNewLine]", "\n", 
+  RowBox[{"(*", 
+   RowBox[{"--", 
+    RowBox[{"--", 
+     RowBox[{"--", 
+      RowBox[{"--", 
+       RowBox[{"--", 
+        RowBox[{"--", 
+         RowBox[{"--", 
+          RowBox[{"--", 
+           RowBox[{"--", 
+            RowBox[{"--", 
+             RowBox[{"--", 
+              RowBox[{"--", 
+               RowBox[{"--", 
+                RowBox[{"--", 
+                 RowBox[{"--", 
+                  RowBox[{"--", 
+                   RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{
+                    "--", "-"}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}\
+]}]}]}]}]}]}]}]}]}], "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"sparseArrayGlueRight", "::", "nnarg"}], "=", 
+     "\"\< The dimensions of the matrices are mismatched \>\""}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"sparseArrayGlueRight", "[", 
+       RowBox[{"A1_", ",", "A2_"}], "]"}], "/;", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+          RowBox[{"[", "1", "]"}], "]"}], "==", " ", 
+         RowBox[{
+          RowBox[{"Dimensions", "[", "A2", "]"}], "[", 
+          RowBox[{"[", "1", "]"}], "]"}]}], ",", "True", ",", 
+        RowBox[{
+         RowBox[{"Message", "[", 
+          RowBox[{"sparseArrayGlueRight", "::", "nnarg"}], "]"}], ";", 
+         "False"}]}], "]"}]}], ":=", 
+     RowBox[{"SparseArray", "[", 
+      RowBox[{
+       RowBox[{"Union", "[", 
+        RowBox[{
+         RowBox[{"A1", "//", "ArrayRules"}], ",", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"A2", "//", "ArrayRules"}], ")"}], "/.", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"a1_", ",", "a2_"}], "}"}], "\[RuleDelayed]", " ", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"a1", ",", 
+              RowBox[{"a2", "+", 
+               RowBox[{
+                RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+                RowBox[{"[", "2", "]"}], "]"}]}]}], "}"}], "/;", 
+            RowBox[{"!", 
+             RowBox[{"(", 
+              RowBox[{"a1", "===", "_"}], ")"}]}]}]}]}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+          RowBox[{"[", "1", "]"}], "]"}], ",", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+           RowBox[{"[", "2", "]"}], "]"}], "+", 
+          RowBox[{
+           RowBox[{"Dimensions", "[", "A2", "]"}], "[", 
+           RowBox[{"[", "2", "]"}], "]"}]}]}], "}"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"--", 
+     RowBox[{"--", 
+      RowBox[{"--", 
+       RowBox[{"--", 
+        RowBox[{"--", 
+         RowBox[{"--", 
+          RowBox[{"--", 
+           RowBox[{"--", 
+            RowBox[{"--", 
+             RowBox[{"--", 
+              RowBox[{"--", 
+               RowBox[{"--", 
+                RowBox[{"--", 
+                 RowBox[{"--", 
+                  RowBox[{"--", 
+                   RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{
+                    "--", "-"}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}\
+]}]}]}]}]}]}]}]}]}], "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"sparseArrayGlue", "::", "nnarg"}], "=", 
+     "\"\< The dimensions of the matrices are mismatched \>\""}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"sparseArrayGlue", "[", 
+       RowBox[{"A1_", ",", "A2_"}], "]"}], "/;", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+          RowBox[{"[", "2", "]"}], "]"}], "==", " ", 
+         RowBox[{
+          RowBox[{"Dimensions", "[", "A2", "]"}], "[", 
+          RowBox[{"[", "2", "]"}], "]"}]}], ",", "True", ",", 
+        RowBox[{
+         RowBox[{"Message", "[", 
+          RowBox[{"sparseArrayGlue", "::", "nnarg"}], "]"}], ";", "False"}]}],
+        "]"}]}], ":=", 
+     RowBox[{"SparseArray", "[", 
+      RowBox[{
+       RowBox[{"Union", "[", 
+        RowBox[{
+         RowBox[{"A1", "//", "ArrayRules"}], ",", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"A2", "//", "ArrayRules"}], ")"}], "/.", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"a1_", ",", "a2_"}], "}"}], "\[RuleDelayed]", " ", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"a1", "+", 
+               RowBox[{
+                RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+                RowBox[{"[", "1", "]"}], "]"}]}], ",", "a2"}], "}"}], "/;", 
+            RowBox[{"!", 
+             RowBox[{"(", 
+              RowBox[{"a1", "===", "_"}], ")"}]}]}]}]}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+           RowBox[{"[", "1", "]"}], "]"}], "+", 
+          RowBox[{
+           RowBox[{"Dimensions", "[", "A2", "]"}], "[", 
+           RowBox[{"[", "1", "]"}], "]"}]}], ",", 
+         RowBox[{
+          RowBox[{"Dimensions", "[", "A1", "]"}], "[", 
+          RowBox[{"[", "2", "]"}], "]"}]}], "}"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"sparseArrayGlue", "[", "A_", "]"}], ":=", 
+     RowBox[{"Which", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Length", "[", "A", "]"}], "\[Equal]", "0"}], ",", "A", ",", 
+       RowBox[{
+        RowBox[{"Length", "[", "A", "]"}], "\[Equal]", "1"}], ",", 
+       RowBox[{"A", "[", 
+        RowBox[{"[", "1", "]"}], "]"}], ",", " ", 
+       RowBox[{
+        RowBox[{"Length", "[", "A", "]"}], "\[Equal]", "2"}], ",", 
+       RowBox[{"sparseArrayGlue", "[", 
+        RowBox[{
+         RowBox[{"A", "[", 
+          RowBox[{"[", "1", "]"}], "]"}], ",", 
+         RowBox[{"A", "[", 
+          RowBox[{"[", "2", "]"}], "]"}]}], "]"}], ",", 
+       RowBox[{
+        RowBox[{"Length", "[", "A", "]"}], ">", "2"}], ",", " ", 
+       RowBox[{"sparseArrayGlue", "[", 
+        RowBox[{"Join", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"sparseArrayGlue", "[", 
+            RowBox[{
+             RowBox[{"A", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], ",", 
+             RowBox[{"A", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], "]"}], "}"}], ",", 
+          RowBox[{"Drop", "[", 
+           RowBox[{"A", ",", "2"}], "]"}]}], "]"}], "]"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"--", 
+     RowBox[{"--", 
+      RowBox[{"--", 
+       RowBox[{"--", 
+        RowBox[{"--", 
+         RowBox[{"--", 
+          RowBox[{"--", 
+           RowBox[{"--", 
+            RowBox[{"--", 
+             RowBox[{"--", 
+              RowBox[{"--", 
+               RowBox[{"--", 
+                RowBox[{"--", 
+                 RowBox[{"--", 
+                  RowBox[{"--", 
+                   RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{"--", 
+                    RowBox[{
+                    "--", "-"}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}\
+]}]}]}]}]}]}]}]}]}], "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"sparseArrayZeroRowCut", "[", "sarray_", "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"entriesPosition", "=", 
+          RowBox[{"Drop", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{"sarray", "//", "ArrayRules"}], ")"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+            RowBox[{"-", "1"}]}], "]"}]}], ",", 
+         RowBox[{"dimArray", "=", 
+          RowBox[{"Dimensions", "[", "sarray", "]"}]}]}], "}"}], ",", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"entriesPosition", "===", 
+          RowBox[{"{", "}"}]}], ",", 
+         RowBox[{"SparseArray", "[", 
+          RowBox[{"sarray", ",", 
+           RowBox[{"{", 
+            RowBox[{"1", ",", 
+             RowBox[{"dimArray", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], "}"}]}], "]"}], ",", 
+         RowBox[{"SparseArray", "[", 
+          RowBox[{"sarray", ",", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"Max", "[", 
+              RowBox[{"entriesPosition", "[", 
+               RowBox[{"[", 
+                RowBox[{"All", ",", "1"}], "]"}], "]"}], "]"}], ",", 
+             RowBox[{"dimArray", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], "}"}]}], "]"}]}], "]"}]}], 
+      "\[IndentingNewLine]", "]"}]}], ";"}], "\n", "\n", "\n", 
+   RowBox[{"EndPackage", "[", "]"}]}]}]], "Code",
+ CellChangeTimes->{{3.738826111844392*^9, 3.7388261175314417`*^9}, {
+  3.738826368736144*^9, 3.7388264231594267`*^9}}]
+},
+WindowSize->{1855, 1056},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"11.0 for Linux x86 (64-bit) (September 21, 2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 1337, 30, 260, "Code"],
+Cell[1898, 52, 427, 11, 93, "Input",
+ InitializationCell->True],
+Cell[2328, 65, 10905, 307, 553, "Code"]
+}
+]
+*)
+

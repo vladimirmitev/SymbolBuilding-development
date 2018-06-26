@@ -1,0 +1,916 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     33265,        908]
+NotebookOptionsPosition[     30336,        810]
+NotebookOutlinePosition[     30675,        825]
+CellTagsIndexPosition[     30632,        822]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Initiation", "Section",
+ CellChangeTimes->{{3.736156167166985*^9, 3.736156168915152*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "Get", "[", "\"\</home/vladimir/SpaSM/src/spasm_m/spasm_m.wl\>\"", "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+   "SpaSMExchangePath", "=", "\"\</home/vladimir/SpaSM/exchange\>\""}], ";"}],
+   " "}], "\n", 
+ RowBox[{
+  RowBox[{
+  "SpaSMPath", " ", "=", " ", "\"\</home/vladimir/SpaSM/spasm/bench\>\""}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.7361556368508997`*^9, 3.736155636851466*^9}, {
+  3.736155679925746*^9, 3.736155688809822*^9}, {3.736155776147298*^9, 
+  3.736155816933123*^9}, {3.736155963810305*^9, 3.736155971587401*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["First Example: row reduction in a finite field", "Section",
+ CellChangeTimes->{{3.736156170842156*^9, 3.73615617168322*^9}, {
+  3.736156308389702*^9, 3.736156321358027*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"matrixTest", "=", 
+     RowBox[{"SparseArray", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+         "1", ",", "1", ",", "0", ",", "3", ",", "1", ",", "0", ",", "0", ",",
+           "0"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+         "1", ",", "2", ",", "3", ",", "1", ",", "4", ",", "0", ",", "0", ",",
+           "0"}], "}"}]}], "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"primeNumber", "=", 
+     RowBox[{"Prime", "[", "5", "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"temporaryFileName", "=", "\"\<matrixTest.txt\>\""}], 
+    ";"}]}]}]], "Input",
+ CellChangeTimes->{{3.7361559943923283`*^9, 3.736156079904613*^9}}],
+
+Cell[BoxData[
+ RowBox[{"(*", 
+  RowBox[{
+   RowBox[{"For", " ", "a", " ", "single", " ", "process"}], ",", 
+   RowBox[{"the", " ", "password", " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"here", " ", "password"}], "=", "temporaryFileName"}], ")"}], 
+    " ", "is", " ", 
+    RowBox[{"arbitrary", ".", "\[IndentingNewLine]", "For"}], " ", "parallel",
+     " ", "computation"}], ",", " ", 
+   RowBox[{"password", " ", "should", " ", 
+    RowBox[{"ToString", "[", "$KernelID", "]"}]}], ",", 
+   RowBox[{
+   "to", " ", "make", " ", "sure", " ", "different", " ", "processes", " ", 
+    "do", " ", "not", " ", "overwrite", " ", "the", " ", "same", " ", 
+    RowBox[{"file", ".", "You"}], " ", "can", " ", "see", " ", "the", " ", 
+    "example", " ", 
+    RowBox[{"SpasmRREF", ".", "nb"}], " ", "for", " ", "the", " ", 
+    RowBox[{"usage", "."}]}]}], "*)"}]], "Input",
+ CellChangeTimes->{{3.736156174217078*^9, 3.7361561913931227`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"testResult", "=", 
+  RowBox[{"SpaSMRREF", "[", 
+   RowBox[{"matrixTest", ",", "primeNumber", ",", "temporaryFileName", ",", 
+    RowBox[{"Reduction", "\[Rule]", "True"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.73615598757967*^9, 3.736155987581457*^9}, {
+  3.736156041222361*^9, 3.736156043507317*^9}, {3.736156084480032*^9, 
+  3.736156098205798*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrixmatrixTest.txt.sms \
+| /home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 11 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 11 > \
+/home/vladimir/SpaSM/exchange/RREFmatrixTest.txt.sms\"\>"], "Print",
+ CellChangeTimes->{{3.736156087282164*^9, 3.736156098704728*^9}, 
+   3.736158555263129*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.057335`5.209964810339955"}],
+  SequenceForm["SpaSM running time: ", 0.057335`5.209964810339955],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.736156087282164*^9, 3.736156098704728*^9}, 
+   3.736158555297415*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.070969`5.302613679272392"}],
+  SequenceForm["RREF total running time: ", 0.070969`5.302613679272392],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.736156087282164*^9, 3.736156098704728*^9}, 
+   3.736158555333467*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ TagBox[
+  TemplateBox[{RowBox[{
+      StyleBox[
+       TagBox["SparseArray", "SummaryHead"], "NonInterpretableSummary"], 
+      StyleBox["[", "NonInterpretableSummary"], 
+      DynamicModuleBox[{Typeset`open$$ = False}, 
+       PanelBox[
+        PaneSelectorBox[{False -> GridBox[{{
+              PaneBox[
+               ButtonBox[
+                DynamicBox[
+                 FEPrivate`FrontEndResource[
+                 "FEBitmaps", "SquarePlusIconMedium"]], 
+                ButtonFunction :> (Typeset`open$$ = True), Appearance -> None,
+                 Evaluator -> Automatic, Method -> "Preemptive"], 
+               Alignment -> {Center, Center}, ImageSize -> 
+               Dynamic[{
+                 Automatic, 
+                  3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                   Magnification])}]], 
+              GraphicsBox[
+               RasterBox[CompressedData["
+1:eJxTTMoPSmVmYGBgAmIOIAaxrcp3x81SOmc/x3jRFvMfV+xfLFJ8HLjqlb1i
+i9/LEIYL9oHK2t/Ozb9tv+JFjuoMvjf2G/LjLu9yuWgfbKLQ8zL4kb1u3TpB
+mU9v7Xd2G7ju3PLC/ob78nU1097an4zI/Rf/9T1O9bjsJVUclztxqWe+4xIx
+6cpj+wpZzVtXfryyX5IduER4y3v7zcsSzx7+eM3efgP79ps1z+xT0m9wKru8
+x+kvarkfAIPUyjM=
+                "], {{0, 0}, {8, 2}}, {0, 1}], AspectRatio -> 
+               1, Axes -> False, Frame -> False, FrameLabel -> {None, None}, 
+               FrameStyle -> Directive[
+                 Opacity[0.5], 
+                 Thickness[Tiny], 
+                 RGBColor[0.368417, 0.506779, 0.709798]], 
+               FrameTicks -> {{None, None}, {None, None}}, GridLinesStyle -> 
+               Directive[
+                 GrayLevel[0.5, 0.4]], ImageSize -> 
+               Dynamic[{
+                 Automatic, 
+                  3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                   Magnification])}], 
+               Method -> {
+                "AxisPadding" -> Scaled[0.02], "DefaultBoundaryStyle" -> 
+                 Automatic, "DefaultPlotStyle" -> Automatic, "DomainPadding" -> 
+                 Scaled[0.02], "RangePadding" -> Scaled[0.05]}], 
+              GridBox[{{
+                 RowBox[{
+                   TagBox[
+                   "\"Specified elements: \"", "SummaryItemAnnotation"], 
+                   "\[InvisibleSpace]", 
+                   TagBox["8", "SummaryItem"]}]}, {
+                 RowBox[{
+                   TagBox["\"Dimensions: \"", "SummaryItemAnnotation"], 
+                   "\[InvisibleSpace]", 
+                   TagBox[
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "8"}], "}"}], "SummaryItem"]}]}}, 
+               GridBoxAlignment -> {
+                "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+               False, GridBoxItemSize -> {
+                "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {
+                "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+               BaseStyle -> {
+                ShowStringCharacters -> False, NumberMarks -> False, 
+                 PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+            GridBoxAlignment -> {"Rows" -> {{Top}}}, AutoDelete -> False, 
+            GridBoxItemSize -> {
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+            BaselinePosition -> {1, 1}], True -> GridBox[{{
+              PaneBox[
+               ButtonBox[
+                DynamicBox[
+                 FEPrivate`FrontEndResource[
+                 "FEBitmaps", "SquareMinusIconMedium"]], 
+                ButtonFunction :> (Typeset`open$$ = False), Appearance -> 
+                None, Evaluator -> Automatic, Method -> "Preemptive"], 
+               Alignment -> {Center, Center}, ImageSize -> 
+               Dynamic[{
+                 Automatic, 
+                  3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                   Magnification])}]], 
+              GraphicsBox[
+               RasterBox[CompressedData["
+1:eJxTTMoPSmVmYGBgAmIOIAaxrcp3x81SOmc/x3jRFvMfV+xfLFJ8HLjqlb1i
+i9/LEIYL9oHK2t/Ozb9tv+JFjuoMvjf2G/LjLu9yuWgfbKLQ8zL4kb1u3TpB
+mU9v7Xd2G7ju3PLC/ob78nU1097an4zI/Rf/9T1O9bjsJVUclztxqWe+4xIx
+6cpj+wpZzVtXfryyX5IduER4y3v7zcsSzx7+eM3efgP79ps1z+xT0m9wKru8
+x+kvarkfAIPUyjM=
+                "], {{0, 0}, {8, 2}}, {0, 1}], AspectRatio -> 
+               1, Axes -> False, Frame -> False, FrameLabel -> {None, None}, 
+               FrameStyle -> Directive[
+                 Opacity[0.5], 
+                 Thickness[Tiny], 
+                 RGBColor[0.368417, 0.506779, 0.709798]], 
+               FrameTicks -> {{None, None}, {None, None}}, GridLinesStyle -> 
+               Directive[
+                 GrayLevel[0.5, 0.4]], ImageSize -> 
+               Dynamic[{
+                 Automatic, 
+                  3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                   Magnification])}], 
+               Method -> {
+                "AxisPadding" -> Scaled[0.02], "DefaultBoundaryStyle" -> 
+                 Automatic, "DefaultPlotStyle" -> Automatic, "DomainPadding" -> 
+                 Scaled[0.02], "RangePadding" -> Scaled[0.05]}], 
+              GridBox[{{
+                 RowBox[{
+                   TagBox[
+                   "\"Specified elements: \"", "SummaryItemAnnotation"], 
+                   "\[InvisibleSpace]", 
+                   TagBox["8", "SummaryItem"]}]}, {
+                 RowBox[{
+                   TagBox["\"Dimensions: \"", "SummaryItemAnnotation"], 
+                   "\[InvisibleSpace]", 
+                   TagBox[
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "8"}], "}"}], "SummaryItem"]}]}, {
+                 RowBox[{
+                   TagBox["\"Default: \"", "SummaryItemAnnotation"], 
+                   "\[InvisibleSpace]", 
+                   TagBox["0", "SummaryItem"]}]}, {
+                 RowBox[{
+                   TagBox["\"Density: \"", "SummaryItemAnnotation"], 
+                   "\[InvisibleSpace]", 
+                   TagBox["0.5`", "SummaryItem"]}]}, {
+                 RowBox[{
+                   TagBox["\"Elements:\"", "SummaryItemAnnotation"], 
+                   "\[InvisibleSpace]", 
+                   TagBox["\"\"", "SummaryItem"]}]}, {
+                 TagBox[
+                  TagBox[
+                   GridBox[{{
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "1"}], "}"}], "\[Rule]", 
+                    StyleBox[
+                    PaneBox[
+                    "1", ContentPadding -> False, FrameMargins -> 0, 
+                    StripOnInput -> True, BaselinePosition -> Baseline, 
+                    ImageSize -> {{1, 300}, Automatic}], LineBreakWithin -> 
+                    False]}]}, {
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "5"}], "}"}], "\[Rule]", 
+                    StyleBox[
+                    PaneBox[
+                    "9", ContentPadding -> False, FrameMargins -> 0, 
+                    StripOnInput -> True, BaselinePosition -> Baseline, 
+                    ImageSize -> {{1, 300}, Automatic}], LineBreakWithin -> 
+                    False]}]}, {
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "4"}], "}"}], "\[Rule]", 
+                    StyleBox[
+                    PaneBox[
+                    "5", ContentPadding -> False, FrameMargins -> 0, 
+                    StripOnInput -> True, BaselinePosition -> Baseline, 
+                    ImageSize -> {{1, 300}, Automatic}], LineBreakWithin -> 
+                    False]}]}, {
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "3"}], "}"}], "\[Rule]", 
+                    StyleBox[
+                    PaneBox[
+                    "8", ContentPadding -> False, FrameMargins -> 0, 
+                    StripOnInput -> True, BaselinePosition -> Baseline, 
+                    ImageSize -> {{1, 300}, Automatic}], LineBreakWithin -> 
+                    False]}]}, {
+                    ItemBox[
+                    "\"\[VerticalEllipsis]\"", Alignment -> Center, 
+                    StripOnInput -> False]}}, 
+                    GridBoxAlignment -> {"Columns" -> {{Left}}}, 
+                    DefaultBaseStyle -> "Column", 
+                    GridBoxItemSize -> {
+                    "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}], 
+                   "Column"], "SummaryItem"]}}, 
+               GridBoxAlignment -> {
+                "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+               False, GridBoxItemSize -> {
+                "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {
+                "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+               BaseStyle -> {
+                ShowStringCharacters -> False, NumberMarks -> False, 
+                 PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+            GridBoxAlignment -> {"Rows" -> {{Top}}}, AutoDelete -> False, 
+            GridBoxItemSize -> {
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+            BaselinePosition -> {1, 1}]}, 
+         Dynamic[Typeset`open$$], ImageSize -> Automatic], BaselinePosition -> 
+        Baseline], DynamicModuleValues :> {}], 
+      StyleBox["]", "NonInterpretableSummary"]}]},
+   "CopyTag",
+   DisplayFunction->(#& ),
+   InterpretationFunction->("SparseArray[<8>, {2, 8}]"& )],
+  False,
+  Editable->False,
+  SelectWithContents->True,
+  Selectable->False]], "Output",
+ CellChangeTimes->{{3.7361560874896593`*^9, 3.736156098748251*^9}, 
+   3.7361585553862677`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"testResult", "//", "MatrixForm"}]], "Input",
+ CellChangeTimes->{{3.736156099371503*^9, 3.7361561022215023`*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {"1", "0", "8", "5", "9", "0", "0", "0"},
+     {"0", "1", "3", "9", "3", "0", "0", "0"}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}, "RowsIndexed" -> {}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[
+   SparseArray[
+    Automatic, {2, 8}, 0, {
+     1, {{0, 4, 8}, {{1}, {5}, {4}, {3}, {2}, {4}, {3}, {5}}}, {1, 9, 5, 8, 1,
+       9, 3, 3}}]]]]], "Output",
+ CellChangeTimes->{3.736156102543377*^9, 3.7361585573282013`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"matrixTest", "//", "RowReduce"}], "//", "MatrixForm"}]], "Input",
+ CellChangeTimes->{{3.736156110505829*^9, 3.736156119459611*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {"1", "0", 
+      RowBox[{"-", "3"}], "5", 
+      RowBox[{"-", "2"}], "0", "0", "0"},
+     {"0", "1", "3", 
+      RowBox[{"-", "2"}], "3", "0", "0", "0"}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}, "RowsIndexed" -> {}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{{3.736156115812601*^9, 3.73615611970077*^9}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Second example: Mathematica code for row reduction via modular method\
+\>", "Section",
+ CellChangeTimes->{{3.736156324064683*^9, 3.7361563527360563`*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "Import", "[", 
+   "\"\</home/vladimir/SpaSM/src/Farey_fraction/Eculidean_lift.wl\>\"", "]"}],
+   ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+  "Import", "[", 
+   "\"\</home/vladimir/SpaSM/src/Modular_Linear_Algebra/FF_linear_algebra.wl\>\
+\"", "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.736156408750388*^9, 3.7361564785150433`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"wrongResult", "=", 
+   RowBox[{"FFRREF", "[", 
+    RowBox[{"matrixTest", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "5", ",", "7", ",", "11"}], "}"}], ",", 
+     RowBox[{"MatrixDirectory", "\[Rule]", "SpaSMExchangePath"}], ",", 
+     RowBox[{"Nkernel", "\[Rule]", "2"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.736158562409231*^9, 3.7361586025634613`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Array rules found ...\"\>", "\[InvisibleSpace]", 
+   "0.00003`1.9286662482156358"}],
+  SequenceForm["Array rules found ...", 0.00003`1.9286662482156358],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.736158569638527*^9, 3.736158602912888*^9}}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix4.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 3 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 3 > \
+/home/vladimir/SpaSM/exchange/RREF4.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158603567314*^9}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix3.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 7 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 7 > \
+/home/vladimir/SpaSM/exchange/RREF3.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158603572328*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.119306`5.528207278753636"}],
+  SequenceForm["SpaSM running time: ", 0.119306`5.528207278753636],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158603656501*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.118575`5.525538126819884"}],
+  SequenceForm["SpaSM running time: ", 0.118575`5.525538126819884],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586037308273`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.207499`5.768561001553586"}],
+  SequenceForm["RREF total running time: ", 0.207499`5.768561001553586],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586038218184`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.238241`5.828561496828732"}],
+  SequenceForm["RREF total running time: ", 0.238241`5.828561496828732],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.73615860382874*^9}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix4.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 5 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 5 > \
+/home/vladimir/SpaSM/exchange/RREF4.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158603890033*^9}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix3.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 11 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 11 > \
+/home/vladimir/SpaSM/exchange/RREF3.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.73615860393161*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.087058`5.391353679302181"}],
+  SequenceForm["SpaSM running time: ", 0.087058`5.391353679302181],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586039842863`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.087811`5.395093916464356"}],
+  SequenceForm["SpaSM running time: ", 0.087811`5.395093916464356],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158604033309*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.114664`5.510972081358728"}],
+  SequenceForm["RREF total running time: ", 0.114664`5.510972081358728],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.73615860408563*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.099122`5.447715049779647"}],
+  SequenceForm["RREF total running time: ", 0.099122`5.447715049779647],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586041318693`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"all data points loaded ... \"\>", "\[InvisibleSpace]", 
+   "0.008804`4.396225027377284"}],
+  SequenceForm["all data points loaded ... ", 0.008804`4.396225027377284],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.736158569638527*^9, 3.736158604189776*^9}}],
+
+Cell[BoxData["\<\"Start lift the numbers.\"\>"], "Print",
+ CellChangeTimes->{{3.736158569638527*^9, 3.7361586041913977`*^9}}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"8", "\[InvisibleSpace]", "\<\" numbers to be fitted.\"\>"}],
+  SequenceForm[8, " numbers to be fitted."],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.736158569638527*^9, 3.7361586041925383`*^9}}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Liftting finished... \"\>", "\[InvisibleSpace]", 
+   "0.016165`4.66012070244355"}],
+  SequenceForm["Liftting finished... ", 0.016165`4.66012070244355],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.736158569638527*^9, 3.7361586041936007`*^9}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ReducedMatrix", "=", 
+   RowBox[{"FFRREF", "[", 
+    RowBox[{"matrixTest", ",", 
+     RowBox[{"RandomSample", "[", 
+      RowBox[{
+       RowBox[{"Prime", "[", 
+        RowBox[{"Range", "[", "1000", "]"}], "]"}], ",", "4"}], "]"}], ",", 
+     RowBox[{"MatrixDirectory", "\[Rule]", "SpaSMExchangePath"}], ",", 
+     RowBox[{"Nkernel", "\[Rule]", "2"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.736156507510503*^9, 3.736156553268477*^9}, 
+   3.7361565839292307`*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Array rules found ...\"\>", "\[InvisibleSpace]", 
+   "0.000016`1.6556649761518978"}],
+  SequenceForm["Array rules found ...", 0.000016`1.6556649761518978],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.736156523685364*^9, 3.736156584980389*^9, 
+  3.7361586111910677`*^9}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix6.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 1951 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 1951 > \
+/home/vladimir/SpaSM/exchange/RREF6.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586117847157`*^9}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix5.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 3019 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 3019 > \
+/home/vladimir/SpaSM/exchange/RREF5.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158611806789*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.082954`5.370382325821924"}],
+  SequenceForm["SpaSM running time: ", 0.082954`5.370382325821924],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586118626413`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.125907`5.551594869567799"}],
+  SequenceForm["SpaSM running time: ", 0.125907`5.551594869567799],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158611901546*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.188486`5.72682409154683"}],
+  SequenceForm["RREF total running time: ", 0.188486`5.72682409154683],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158611972937*^9}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix5.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 4567 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 4567 > \
+/home/vladimir/SpaSM/exchange/RREF5.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158612004608*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.217174`5.788352823932032"}],
+  SequenceForm["RREF total running time: ", 0.217174`5.788352823932032],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158612048314*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.066386`5.273621495095716"}],
+  SequenceForm["SpaSM running time: ", 0.066386`5.273621495095716],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586120889072`*^9}],
+
+Cell[BoxData["\<\"cat /home/vladimir/SpaSM/exchange/matrix6.sms | \
+/home/vladimir/SpaSM/spasm/bench/rref_gplu --modulus 5399 | \
+/home/vladimir/SpaSM/spasm/bench/rref --modulus 5399 > \
+/home/vladimir/SpaSM/exchange/RREF6.sms\"\>"], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158612116987*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.093639`5.423001760579499"}],
+  SequenceForm["RREF total running time: ", 0.093639`5.423001760579499],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158612155066*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"SpaSM running time: \"\>", "\[InvisibleSpace]", 
+   "0.081599`5.363229829980923"}],
+  SequenceForm["SpaSM running time: ", 0.081599`5.363229829980923],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.7361586121858387`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"RREF total running time: \"\>", "\[InvisibleSpace]", 
+   "0.09279`5.419046168218814"}],
+  SequenceForm["RREF total running time: ", 0.09279`5.419046168218814],
+  Editable->False]], "Print",
+ ShowCellLabel->True,
+ CellChangeTimes->{3.736158612223707*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"all data points loaded ... \"\>", "\[InvisibleSpace]", 
+   "0.0059`4.222397005138115"}],
+  SequenceForm["all data points loaded ... ", 0.0059`4.222397005138115],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.736156523685364*^9, 3.736156584980389*^9, 
+  3.736158612256538*^9}],
+
+Cell[BoxData["\<\"Start lift the numbers.\"\>"], "Print",
+ CellChangeTimes->{3.736156523685364*^9, 3.736156584980389*^9, 
+  3.736158612262377*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"8", "\[InvisibleSpace]", "\<\" numbers to be fitted.\"\>"}],
+  SequenceForm[8, " numbers to be fitted."],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.736156523685364*^9, 3.736156584980389*^9, 
+  3.736158612263816*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Liftting finished... \"\>", "\[InvisibleSpace]", 
+   "0.016459`4.667948438729766"}],
+  SequenceForm["Liftting finished... ", 0.016459`4.667948438729766],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.736156523685364*^9, 3.736156584980389*^9, 
+  3.7361586122653646`*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"wrongResult", "//", "Normal"}]], "Input",
+ CellChangeTimes->{{3.736158615942292*^9, 3.73615863064727*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+    "1", ",", "0", ",", "xx", ",", "5", ",", "xx", ",", "0", ",", "0", ",", 
+     "0"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "0", ",", "1", ",", "3", ",", "xx", ",", "3", ",", "0", ",", "0", ",", 
+     "0"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.7361586173581533`*^9, 3.736158631171854*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Cases", "[", 
+   RowBox[{
+    RowBox[{"wrongResult", "//", "ArrayRules"}], ",", "xx", ",", "Infinity"}],
+    "]"}], " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Check", " ", "that", " ", "there", " ", "are", " ", "xx", " ", 
+    RowBox[{"present", ".", " ", "Have"}], " ", "to", " ", "use", " ", 
+    "ArrayRules", " ", 
+    RowBox[{
+     RowBox[{"first", "!!"}], "!"}]}], " ", "*)"}]}]], "Input",
+ CellChangeTimes->{{3.736158619129628*^9, 3.736158667792939*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"xx", ",", "xx", ",", "xx"}], "}"}]], "Output",
+ CellChangeTimes->{{3.736158625640061*^9, 3.736158649733676*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ReducedMatrix", "//", "MatrixForm"}]], "Input",
+ CellChangeTimes->{{3.73615653890473*^9, 3.736156540452854*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {"1", "0", 
+      RowBox[{"-", "3"}], "5", 
+      RowBox[{"-", "2"}], "0", "0", "0"},
+     {"0", "1", "3", 
+      RowBox[{"-", "2"}], "3", "0", "0", "0"}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}, "RowsIndexed" -> {}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[
+   SparseArray[
+    Automatic, {2, 8}, 0, {
+     1, {{0, 4, 8}, {{1}, {3}, {4}, {5}, {2}, {3}, {4}, {5}}}, {1, -3, 5, -2, 
+      1, 3, -2, 3}}]]]]], "Output",
+ CellChangeTimes->{{3.736156536990241*^9, 3.736156540665378*^9}, 
+   3.736156588497752*^9, 3.736158613772444*^9}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1855, 1056},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"11.0 for Linux x86 (64-bit) (September 21, 2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 95, 1, 65, "Section"],
+Cell[678, 25, 587, 16, 80, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1302, 46, 179, 2, 65, "Section"],
+Cell[1484, 50, 803, 22, 102, "Input"],
+Cell[2290, 74, 939, 20, 79, "Input"],
+Cell[CellGroupData[{
+Cell[3254, 98, 378, 7, 34, "Input"],
+Cell[CellGroupData[{
+Cell[3657, 109, 356, 5, 45, "Print"],
+Cell[4016, 116, 322, 7, 24, "Print"],
+Cell[4341, 125, 332, 7, 24, "Print"]
+}, Open  ]],
+Cell[4688, 135, 9627, 201, 65, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14352, 341, 136, 2, 32, "Input"],
+Cell[14491, 345, 842, 22, 48, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15370, 372, 166, 3, 32, "Input"],
+Cell[15539, 377, 776, 21, 48, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16364, 404, 164, 3, 65, "Section"],
+Cell[16531, 409, 366, 11, 57, "Input"],
+Cell[CellGroupData[{
+Cell[16922, 424, 407, 9, 34, "Input"],
+Cell[CellGroupData[{
+Cell[17354, 437, 298, 6, 24, "Print"],
+Cell[17655, 445, 300, 5, 24, "Print"],
+Cell[17958, 452, 300, 5, 24, "Print"],
+Cell[18261, 459, 294, 7, 24, "Print"],
+Cell[18558, 468, 296, 7, 24, "Print"],
+Cell[18857, 477, 306, 7, 24, "Print"],
+Cell[19166, 486, 303, 7, 24, "Print"],
+Cell[19472, 495, 300, 5, 24, "Print"],
+Cell[19775, 502, 301, 5, 24, "Print"],
+Cell[20079, 509, 296, 7, 24, "Print"],
+Cell[20378, 518, 294, 7, 24, "Print"],
+Cell[20675, 527, 303, 7, 24, "Print"],
+Cell[20981, 536, 306, 7, 24, "Print"],
+Cell[21290, 545, 310, 6, 24, "Print"],
+Cell[21603, 553, 125, 1, 24, "Print"],
+Cell[21731, 556, 248, 5, 24, "Print"],
+Cell[21982, 563, 298, 6, 24, "Print"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[22329, 575, 508, 12, 34, "Input"],
+Cell[CellGroupData[{
+Cell[22862, 591, 325, 7, 24, "Print"],
+Cell[23190, 600, 308, 5, 24, "Print"],
+Cell[23501, 607, 306, 5, 24, "Print"],
+Cell[23810, 614, 296, 7, 24, "Print"],
+Cell[24109, 623, 294, 7, 24, "Print"],
+Cell[24406, 632, 302, 7, 24, "Print"],
+Cell[24711, 641, 306, 5, 24, "Print"],
+Cell[25020, 648, 304, 7, 24, "Print"],
+Cell[25327, 657, 296, 7, 24, "Print"],
+Cell[25626, 666, 306, 5, 24, "Print"],
+Cell[25935, 673, 304, 7, 24, "Print"],
+Cell[26242, 682, 296, 7, 24, "Print"],
+Cell[26541, 691, 302, 7, 24, "Print"],
+Cell[26846, 700, 329, 7, 24, "Print"],
+Cell[27178, 709, 146, 2, 24, "Print"],
+Cell[27327, 713, 269, 6, 24, "Print"],
+Cell[27599, 721, 323, 7, 24, "Print"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[27971, 734, 130, 2, 32, "Input"],
+Cell[28104, 738, 384, 11, 34, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[28525, 754, 493, 12, 34, "Input"],
+Cell[29021, 768, 152, 3, 34, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[29210, 776, 136, 2, 32, "Input"],
+Cell[29349, 780, 959, 26, 48, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
