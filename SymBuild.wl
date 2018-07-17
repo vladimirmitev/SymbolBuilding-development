@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*Beginning/ First declarations *)*)
 
 
@@ -18,7 +18,7 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University
 
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*Descriptions of the exported symbols*)*)
 
 
@@ -30,7 +30,7 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University
 
 
 (* ::Chapter::Initialization:: *)
-(*(*General command on lists and matrices manipulations*)*)
+(*(*General command on lists and matrices manipulations (ALL PRIVATE????)*)*)
 
 
 (*----------------------------------------------------------------------------------------------------------*)
@@ -64,7 +64,6 @@ determineLeftInverse::usage="determineLeftInverse[sparseMatrix_] is a function t
 
 (* ::Chapter::Initialization:: *)
 (*(*Symbol tensors and their manipulations*)*)
-(**)
 
 
 (*---------------------------------------------------------------------*)
@@ -96,11 +95,10 @@ The function 'expressTensorAsSymbols' is applied to an array of tensors. ";
 (**)
 
 
+(* ::Input::Initialization:: *)
 (*---------------------------------------------------------------------*)
 shuffles::usage="shuffles[list1, list2] gives a list that contains all the shuffles of the lists 1 and 2. ";
 
-
-(* ::Input::Initialization:: *)
 (*---------------------------------------------------------------------*)
 shuffleProduct::usage="shuffleProduct[symbol1, symbol2] takes two formal sums of symbols SB[___], multiplies them together and replaces the products of SB[___] by the appropriate shuffle products. ";
 
@@ -130,20 +128,6 @@ subProductProjection::usage="subProductProjection[symbol]  takes a symbol SB[A] 
 
 (*---------------------------------------------------------------------*)
 productProjection::usage="productProjection[symbol] applies 'subProductProjection' to each element of a sum of formal symbols SB[\!\(\*SubscriptBox[\(A\), \(i\)]\)]. This projects away all the elements that can be written as products of symbols of lower weight. ";
-
-
-
-(* ::Chapter:: *)
-(*Null space commands*)
-
-
-
-(*---------------------------------------------------------------------*)
-getNullSpaceFromRowReducedMatrix::usage="getNullSpaceFromRowReducedMatrix[row reduced sparse matrix] takes a sparse matrix A that has been brought into row echelon form and generates a matrix whose rows are a basis of the kernel of A. ";
-
-getNullSpaceStepByStep::usage="getNullSpaceStepByStep[matrix, step] computes the null space of a matrix by dividing it into subpieces with 'step' number of rows. At each iteration the nullspace computed previously is plugged into the next subpiece which reduces the number of columns in the computation. ";
-
-getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null space of 'matrix'. If the number of rows of 'matrix' is smaller than the global variable 'globalGetNullSpaceLowerThreshold', it uses the standard Mathematica command NullSpace. If bigger than that number but smaller than 'globalGetNullSpaceSpaSMThreshold', it uses the command 'getNullSpace' which computes the null space iteratively after dividing the matrix into several small ones that have at most 'globalGetNullSpaceStep' rows. If the number of rows of 'matrix' is larger than the global variable 'globalGetNullSpaceSpaSMThreshold', then this command calls the external program SpaSM. The rows of the returned matrix are a basis for the null space. ";
 
 
 
@@ -180,27 +164,6 @@ rewritePartition::usage="The function 'rewritePartition[partition_]' takes an in
 dimProductSymbols::usage="The function dimProductSymbols[L_] gives the number of integrable symbols at weight L that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n. ";
 
 dimIrreducibleSymbols::usage="The function dimIrreducibleSymbols[cutoffWeight_] gives a table {dimQ[0], dimQ[1], ..., dimQ[cutoffWeight]} of the number of irreducible integrable symbols (i.e. those that cannot be written as products) of weight smaller or equal to cutoffWeight. The answer is given as a function of dimH[n], which is the total number of integrable symbols of weight n.";
-
-
-(* ::Chapter:: *)
-(*Commands about row reduction and rational reconstruction*)
-
-
-(*---------------------------------------------------------------------*)
-(*Rational reconstruction*)
-rationalReconstructionAlgorithm::usage="rationalReconstructionAlgorithm[q, prime number p] a reasonable guess for the fraction r in the field Q of the rationals such that r = q in the field of the prime number p. ";
-
-rationalReconstructionArray::usage="rationalReconstructionArray[array, prime number p] applies the function rationalReconstructionAlgorithm[#,p] on each non-zero element of the array. ";
-
-applyChineseRemainder::usage="The command 'applyChineseRemainder[matrixList_,primesList_]' takes the list of matrices 'matrixList = {M_1, M_2,... , M_Q}' and applies the chinese remainder algorithm using the primes in 'primesList={p_1,p_2,....p_Q}'.";
-
-rowReduceOverPrimes::usage="Use the finite field reduction over primes. Start with 'globalRowReduceOverPrimesInitialNumberOfIterations' (mostly equal to 2) number of primes, then compare the reconstructions. If there is no majority opinion, keep adding primes and then constructing bigger rational reconstructions by using the chinese remainder algorithm. At each step, check if a majority of the reconstructions agree. If they do, pick the majority opinion. ";
-
-
-(*---------------------------------------------------------------------*)
-(*Row reduction (over the finite fields)*)
-rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' compute the row-eshelon form of a matrix. FINISH THE DESCRIPTION!! ";
-
 
 
 (* ::Chapter:: *)
@@ -243,7 +206,48 @@ expressionArray= { coefficients_{n1n2...} * \[Rho]1^n1 \[Rho]2^n2....., .....} a
 
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Chapter:: *)
+(*Null space commands*)
+
+
+(*---------------------------------------------------------------------*)
+modifiedRowReduce::usage="modifiedRowReduce[sparse matrix] transforms a sparse array into a dense one and then applies row reduction on it. 
+This is needed since acting with RowReduce on zero matrices can make the kernel crash. This is used for example in the command 'getNullSpaceStepByStep'. ";
+
+(*---------------------------------------------------------------------*)
+getNullSpaceFromRowReducedMatrix::usage="getNullSpaceFromRowReducedMatrix[row reduced sparse matrix] takes a sparse matrix A that has been brought into row echelon form and generates a matrix whose rows are a basis of the kernel of A. ";
+
+getNullSpaceStepByStep::usage="getNullSpaceStepByStep[matrix, step] computes the null space of a matrix by dividing it into subpieces with 'step' number of rows. At each iteration the nullspace computed previously is plugged into the next subpiece which reduces the number of columns in the computation. ";
+
+
+getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null space of 'matrix'. If the number of rows of 'matrix' is smaller than the global variable 'globalGetNullSpaceLowerThreshold', it uses the standard Mathematica command NullSpace. If bigger than that number but smaller than 'globalGetNullSpaceSpaSMThreshold', it uses the command 'getNullSpace' which computes the null space iteratively after dividing the matrix into several small ones that have at most 'globalGetNullSpaceStep' rows. If the number of rows of 'matrix' is larger than the global variable 'globalGetNullSpaceSpaSMThreshold', then this command calls the external program SpaSM. The rows of the returned matrix are a basis for the null space. ";
+
+
+
+(* ::Chapter:: *)
+(*Row reduction of the finite fields*)
+
+
+
+(*---------------------------------------------------------------------*)
+(*Rational reconstruction*)
+rationalReconstructionAlgorithm::usage="rationalReconstructionAlgorithm[q, prime number p] a reasonable guess for the fraction r in the field Q of the rationals such that r = q in the field of the prime number p. ";
+
+rationalReconstructionArray::usage="rationalReconstructionArray[array, prime number p] applies the function rationalReconstructionAlgorithm[#,p] on each non-zero element of the array. ";
+
+applyChineseRemainder::usage="The command 'applyChineseRemainder[matrixList_,primesList_]' takes the list of matrices 'matrixList = {M_1, M_2,... , M_Q}' and applies the chinese remainder algorithm using the primes in 'primesList={p_1,p_2,....p_Q}'.";
+
+rowReduceOverPrimes::usage="Use the finite field reduction over primes. Start with 'globalRowReduceOverPrimesInitialNumberOfIterations' (mostly equal to 2) number of primes, then compare the reconstructions. If there is no majority opinion, keep adding primes and then constructing bigger rational reconstructions by using the chinese remainder algorithm. At each step, check if a majority of the reconstructions agree. If they do, pick the majority opinion. ";
+
+
+
+(*---------------------------------------------------------------------*)
+(*Row reduction (over the finite fields)*)
+rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' compute the row-eshelon form of a matrix. FINISH THE DESCRIPTION!! ";
+
+
+
+(* ::Title::Initialization:: *)
 (*(*Global variables: definitions and descriptions *)*)
 
 
@@ -347,21 +351,139 @@ Return["The global variables have been reset to their standard values. "]
 
 
 
-(* ::Title::Initialization::Closed:: *)
-(*(*Private part of the package*)*)
+(* ::Title::Initialization:: *)
+(*(*The private part of the package*)*)
+
+
+(* ::Section:: *)
+(*Beginning*)
 
 
 Begin["`Private`"] (* Begin Private Context *)
 
 
+(* ::Subsubsection:: *)
+(*Formal symbols manipulations*)
+
+
 (* ::Input::Initialization:: *)
 
 
-(*---------------------------------------------------------------------*)
-modifiedRowReduce::usage="modifiedRowReduce[sparse matrix] transforms a sparse array into a dense one and then applies row reduction on it. This is needed since acting with RowReduce on zero matrices can make the kernel crash. This is used for example in the command 'getNullSpaceStepByStep'. ";
+shuffles[A1_,A2_]:=Module[{nfoobar,p1,p2,shuffledz,A12},nfoobar=Length/@{A1,A2};
+{p1,p2}=Subsets[Range@Tr@nfoobar,{#}]&/@nfoobar;
+p2=Reverse@p2;
+A12=shuffledz=Join[A1,A2];
+(shuffledz[[#]]=A12;shuffledz)&/@Join[p1,p2,2]];
+
+
+
+(* ::Subsubsection:: *)
+(*Miscellaneous*)
+
+
+(* ::Input::Initialization:: *)
+
 
 modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
 
+
+
+(* ::Subsubsection::Initialization:: *)
+(*Rational reconstruction*)
+
+
+(* ::Input::Initialization:: *)
+
+rationalReconstructionAlgorithm[q_,prime_]:=Module[{r0=q, s0=1, r1=prime,s1=0,rnew,snew,qnew},
+If[q==0,Return[q]];
+While[prime-r1^2<  0,
+ qnew=Floor[r0/r1]; rnew=r0-qnew r1; snew=s0-qnew s1;
+{r0,s0}={r1,s1};
+{r1,s1}={rnew,snew};];
+Return[r1/s1]
+];
+
+rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]},Map[rationalReconstructionAlgorithm[#,prime]&,TEMPArray,{Depth[TEMPArray]-1}]];
+
+
+(* ::Subsubsection:: *)
+(*Row Reduction over the finite fields for a dense matrix*)
+
+
+
+applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},SparseArray[Table[foo->ChineseRemainder[Table[matrixFoo[[Sequence@@foo]],{matrixFoo,matrixList}],primesList],{foo,listOfEntries}],Dimensions[First[matrixList]]]
+];
+
+
+
+
+rowReduceOverPrimes[matrix_]:=Module[{samplePrimes,primeList,reducedMatrix,reducedMatrixReconstructed,
+TEMPlistOfBigPrimes=globalSetOfBigPrimes,TEMPmatrixList,TEMPprimeList,tallyList,iterbar},
+Which[globalRowReduceOverPrimesMethod=="Systematic", samplePrimes=Take[TEMPlistOfBigPrimes,globalRowReduceOverPrimesMaxNumberOfIterations];,
+globalRowReduceOverPrimesMethod=="Random",  samplePrimes=RandomSample[TEMPlistOfBigPrimes,globalRowReduceOverPrimesMaxNumberOfIterations];,
+True,Return["Error, the variable 'globalRowReduceOverPrimesMethod' should be either 'Systematic' or 'Random'!" ]];
+reducedMatrix=Table[RowReduce[matrix,Modulus->samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
+reducedMatrixReconstructed=Table[rationalReconstructionArray[reducedMatrix[[iterfoo]],samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
+tallyList=Tally[reducedMatrixReconstructed];
+If[tallyList[[1,2]]/globalRowReduceOverPrimesInitialNumberOfIterations>1/2,Return[tallyList[[1,1]]]];
+(*Print[MatrixForm[#]&/@reducedMatrixReconstructed];*)
+For[iterbar=globalRowReduceOverPrimesInitialNumberOfIterations+1,iterbar< globalRowReduceOverPrimesMaxNumberOfIterations+1,iterbar++,
+PrintTemporary["Need more than " <>ToString[globalRowReduceOverPrimesInitialNumberOfIterations]<>" primes. Trying with "<>ToString[iterbar]<>" primes."];
+reducedMatrix=Append[reducedMatrix,RowReduce[matrix,Modulus->samplePrimes[[iterbar]]]];
+primeList=Take[samplePrimes,iterbar];
+(*The 'SparseArray' part in the table below removes rare instances of sparse matrices in which entries of the type {a,b}\[Rule] 0 have been saved separately. *)
+reducedMatrixReconstructed=Table[TEMPmatrixList=Drop[reducedMatrix,{iter}];TEMPprimeList=Drop[primeList,{iter}];
+SparseArray[rationalReconstructionArray[applyChineseRemainder[TEMPmatrixList,TEMPprimeList],Times@@TEMPprimeList]]
+,{iter,1,Length[reducedMatrix]}];
+tallyList=Tally[reducedMatrixReconstructed];
+If[tallyList[[1,2]]/iterbar>1/2,Return[tallyList[[1,1]]]];
+];
+Return["No solution! Choose different primes or increase the iteration! "];
+];
+
+
+(* ::Subsubsection:: *)
+(*Null space commands*)
+
+
+
+getNullSpaceFromRowReducedMatrix[rowReducedMatrix_]:=Block[{freeCoeff,dependentCoeff,trivialIntgrb,solutions,matrixNumberOfColumns=Dimensions[rowReducedMatrix][[2]],sortedEntries},
+sortedEntries=GatherBy[Map[First,Most[ArrayRules[rowReducedMatrix]]],First[#]&];
+freeCoeff=Union[Last/@Flatten[Rest/@sortedEntries,1]];dependentCoeff=Map[Last[First[#]]&,sortedEntries];trivialIntgrb=Map[{#->1}&,Complement[Range[matrixNumberOfColumns],dependentCoeff,freeCoeff]];solutions=Map[Map[dependentCoeff[[First[First[#]]]]-> Last[#]&,Most[ArrayRules[rowReducedMatrix.SparseArray[#->-1,{matrixNumberOfColumns}]]]]&,freeCoeff];solutions=MapThread[Join,{solutions,Map[{#->1}&,freeCoeff]}];solutions=Join[trivialIntgrb,solutions];
+SparseArray[Map[SparseArray[#,{matrixNumberOfColumns}]&, solutions],{Length[solutions],Dimensions[rowReducedMatrix][[2]]}]
+]; 
+
+
+(*---------------------------------------------------------------------*)
+
+getNullSpaceStepByStep::nnarg=" The variable 'step' should be smaller than the number of rows in the matrix! ";
+
+getNullSpaceStepByStep[matrix_,step_]/;If[Dimensions[matrix][[1]]>= step,True,Message[getNullSpace::nnarg];False]:=Module[
+{outputMonitoring="Preparing to compute the null space.",n0,numberOfIterations,
+TEMPmatrix,oldRank,newRank,lenMatrix=First[Dimensions[matrix]]},
+numberOfIterations=IntegerPart[lenMatrix/step]-1;
+PrintTemporary["The number of full steps for the row reduction is "<>ToString[Ceiling[lenMatrix/step]]];
+Monitor[
+n0=getNullSpaceFromRowReducedMatrix[SparseArray[modifiedRowReduce[Take[matrix,step]]]];
+oldRank=First[Dimensions[n0]];
+Do[
+TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step j+1,step(j+1)}].Transpose[n0]]]; 
+n0=getNullSpaceFromRowReducedMatrix[TEMPmatrix].n0;
+newRank=First[Dimensions[n0]];If[oldRank<newRank,Print["Error in getting the null space"]];oldRank=newRank;outputMonitoring={j,Last[Dimensions[n0]],n0["Density"]},
+{j,1,numberOfIterations}];
+If[Length[matrix]>step(numberOfIterations+1),
+TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step(numberOfIterations+1)+1,lenMatrix}].Transpose[n0]]];
+n0=getNullSpaceFromRowReducedMatrix[TEMPmatrix].n0;
+newRank=First[Dimensions[n0]];
+If[oldRank<newRank,Print["Error in getting the null space!"]];
+outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Last[Dimensions[n0]]],"Density of the sparse array: "<>ToString[n0["Density"]]};Return[n0],
+Return[n0]];
+,outputMonitoring]
+];
+
+
+(* ::Section:: *)
+(*End*)
 
 
 
@@ -369,7 +491,7 @@ End[] (* End Private Context *)
 
 
 (* ::Title::Initialization:: *)
-(*(*Public part of the package*)*)
+(*(*The public part of the package*)*)
 
 
 (* ::Chapter::Initialization:: *)
@@ -440,7 +562,7 @@ Return[SparseArray[TEMPmatrix[[1;;columnLength, columnLength+1;;]]]];
 ];
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Symbol tensors and their manipulation*)*)
 
 
@@ -507,7 +629,7 @@ Table[Sum[sparseArrayRules[[ifoo,2]]sym[S[sparseArrayRules[[ifoo,1]]//First],Dro
 ];
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Formal Symbols*)*)
 
 
@@ -515,11 +637,7 @@ Table[Sum[sparseArrayRules[[ifoo,2]]sym[S[sparseArrayRules[[ifoo,1]]//First],Dro
 (*(*Shuffle products*)*)
 
 
-shuffles[A1_,A2_]:=Module[{nfoobar,p1,p2,shuffledz,A12},nfoobar=Length/@{A1,A2};
-{p1,p2}=Subsets[Range@Tr@nfoobar,{#}]&/@nfoobar;
-p2=Reverse@p2;
-A12=shuffledz=Join[A1,A2];
-(shuffledz[[#]]=A12;shuffledz)&/@Join[p1,p2,2]];
+
 
 
 shuffleProduct[symbol1_,symbol2_]:=(symbol1 (symbol2/.SB[A_]:> SB2[A])//Expand)/.SB[A_]SB2[B_]:> Sum[SB[foo],{foo,shuffles[A,B]}];
@@ -594,39 +712,6 @@ productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProje
 
 
 
-getNullSpaceFromRowReducedMatrix[rowReducedMatrix_]:=Block[{freeCoeff,dependentCoeff,trivialIntgrb,solutions,matrixNumberOfColumns=Dimensions[rowReducedMatrix][[2]],sortedEntries},
-sortedEntries=GatherBy[Map[First,Most[ArrayRules[rowReducedMatrix]]],First[#]&];
-freeCoeff=Union[Last/@Flatten[Rest/@sortedEntries,1]];dependentCoeff=Map[Last[First[#]]&,sortedEntries];trivialIntgrb=Map[{#->1}&,Complement[Range[matrixNumberOfColumns],dependentCoeff,freeCoeff]];solutions=Map[Map[dependentCoeff[[First[First[#]]]]-> Last[#]&,Most[ArrayRules[rowReducedMatrix.SparseArray[#->-1,{matrixNumberOfColumns}]]]]&,freeCoeff];solutions=MapThread[Join,{solutions,Map[{#->1}&,freeCoeff]}];solutions=Join[trivialIntgrb,solutions];
-SparseArray[Map[SparseArray[#,{matrixNumberOfColumns}]&, solutions],{Length[solutions],Dimensions[rowReducedMatrix][[2]]}]
-]; 
-
-
-getNullSpaceStepByStep::nnarg=" The variable 'step' should be smaller than the number of rows in the matrix! ";
-
-getNullSpaceStepByStep[matrix_,step_]/;If[Dimensions[matrix][[1]]>= step,True,Message[getNullSpace::nnarg];False]:=Module[
-{outputMonitoring="Preparing to compute the null space.",n0,numberOfIterations,
-TEMPmatrix,oldRank,newRank,lenMatrix=First[Dimensions[matrix]]},
-numberOfIterations=IntegerPart[lenMatrix/step]-1;
-PrintTemporary["The number of full steps for the row reduction is "<>ToString[Ceiling[lenMatrix/step]]];
-Monitor[
-n0=getNullSpaceFromRowReducedMatrix[SparseArray[modifiedRowReduce[Take[matrix,step]]]];
-oldRank=First[Dimensions[n0]];
-Do[
-TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step j+1,step(j+1)}].Transpose[n0]]]; 
-n0=getNullSpaceFromRowReducedMatrix[TEMPmatrix].n0;
-newRank=First[Dimensions[n0]];If[oldRank<newRank,Print["Error in getting the null space"]];oldRank=newRank;outputMonitoring={j,Last[Dimensions[n0]],n0["Density"]},
-{j,1,numberOfIterations}];
-If[Length[matrix]>step(numberOfIterations+1),
-TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step(numberOfIterations+1)+1,lenMatrix}].Transpose[n0]]];
-n0=getNullSpaceFromRowReducedMatrix[TEMPmatrix].n0;
-newRank=First[Dimensions[n0]];
-If[oldRank<newRank,Print["Error in getting the null space!"]];
-outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Last[Dimensions[n0]]],"Density of the sparse array: "<>ToString[n0["Density"]]};Return[n0],
-Return[n0]];
-,outputMonitoring]
-];
-
-(*---------------------------------------------------------------------*)
 
 getNullSpace[matrix_]:=Which[Length[matrix]<globalGetNullSpaceLowerThreshold,SparseArray[NullSpace[matrix]],
 Length[matrix]<globalGetNullSpaceSpaSMThreshold,getNullSpaceStepByStep[matrix,globalGetNullSpaceStep],
@@ -634,7 +719,7 @@ True,getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrime
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Checking the independence of the alphabet*)*)
 
 
@@ -667,14 +752,14 @@ Return[TEMPeqn]
 
 
 
-findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_]:=Module[{TEMPdLogEquations,TEMPmatrix,TEMPNullSpace},
+findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]:=Module[{TEMPdLogEquations,TEMPmatrix,TEMPNullSpace},
 
 TEMPdLogEquations=dLogAlphabet[alphabet,allvariables,listOfRoots,listOfRootPowers];
 TEMPdLogEquations=resolveRootViaGroebnerBasisMatrix[TEMPdLogEquations,listOfRoots,listOfRootPowers];
 TEMPdLogEquations=collectRootCoefficients[TEMPdLogEquations,Table[ToExpression["\[Rho]"<>ToString[iter]],{iter,1,Length[listOfRoots]}]];
 
 TEMPmatrix=buildFMatrixReducedForASetOfEquations[TEMPdLogEquations,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
-TEMPNullSpace=getNullSpaceFromRowReducedMatrix[rationalReconstructionArray[TEMPmatrix,chosenPrime]];
+TEMPNullSpace=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
 Return[If[TEMPNullSpace=={},"The alphabet is indepedent.", {"The alphabet is dependent with these linear relations:", TEMPNullSpace}]]
 ];
 
@@ -722,66 +807,12 @@ dimIrreducibleSymbols[cutoffWeight_]:=
 Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Rational reconstruction algorithms*)*)
-
-
-(* ::Section::Initialization:: *)
-(*(*Rational reconstruction*)*)
-
-
-(* ::Input::Initialization:: *)
-
-rationalReconstructionAlgorithm[q_,prime_]:=Module[{r0=q, s0=1, r1=prime,s1=0,rnew,snew,qnew},
-If[q==0,Return[q]];
-While[prime-r1^2<  0,
- qnew=Floor[r0/r1]; rnew=r0-qnew r1; snew=s0-qnew s1;
-{r0,s0}={r1,s1};
-{r1,s1}={rnew,snew};];
-Return[r1/s1]
-];
-
-rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]},Map[rationalReconstructionAlgorithm[#,prime]&,TEMPArray,{Depth[TEMPArray]-1}]];
 
 
 (* ::Chapter::Initialization:: *)
 (*(*Row reduction (over the finite fields)*)*)
-
-
-(* ::Section::Initialization:: *)
-(*(*Row Reduction over the finite fields for a dense matrix *)*)
-
-
-
-applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},SparseArray[Table[foo->ChineseRemainder[Table[matrixFoo[[Sequence@@foo]],{matrixFoo,matrixList}],primesList],{foo,listOfEntries}],Dimensions[First[matrixList]]]
-];
-
-
-
-
-rowReduceOverPrimes[matrix_]:=Module[{samplePrimes,primeList,reducedMatrix,reducedMatrixReconstructed,
-TEMPlistOfBigPrimes=globalSetOfBigPrimes,TEMPmatrixList,TEMPprimeList,tallyList,iterbar},
-Which[globalRowReduceOverPrimesMethod=="Systematic", samplePrimes=Take[TEMPlistOfBigPrimes,globalRowReduceOverPrimesMaxNumberOfIterations];,
-globalRowReduceOverPrimesMethod=="Random",  samplePrimes=RandomSample[TEMPlistOfBigPrimes,globalRowReduceOverPrimesMaxNumberOfIterations];,
-True,Return["Error, the variable 'globalRowReduceOverPrimesMethod' should be either 'Systematic' or 'Random'!" ]];
-reducedMatrix=Table[RowReduce[matrix,Modulus->samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
-reducedMatrixReconstructed=Table[rationalReconstructionArray[reducedMatrix[[iterfoo]],samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
-tallyList=Tally[reducedMatrixReconstructed];
-If[tallyList[[1,2]]/globalRowReduceOverPrimesInitialNumberOfIterations>1/2,Return[tallyList[[1,1]]]];
-(*Print[MatrixForm[#]&/@reducedMatrixReconstructed];*)
-For[iterbar=globalRowReduceOverPrimesInitialNumberOfIterations+1,iterbar< globalRowReduceOverPrimesMaxNumberOfIterations+1,iterbar++,
-PrintTemporary["Need more than " <>ToString[globalRowReduceOverPrimesInitialNumberOfIterations]<>" primes. Trying with "<>ToString[iterbar]<>" primes."];
-reducedMatrix=Append[reducedMatrix,RowReduce[matrix,Modulus->samplePrimes[[iterbar]]]];
-primeList=Take[samplePrimes,iterbar];
-(*The 'SparseArray' part in the table below removes rare instances of sparse matrices in which entries of the type {a,b}\[Rule] 0 have been saved separately. *)
-reducedMatrixReconstructed=Table[TEMPmatrixList=Drop[reducedMatrix,{iter}];TEMPprimeList=Drop[primeList,{iter}];
-SparseArray[rationalReconstructionArray[applyChineseRemainder[TEMPmatrixList,TEMPprimeList],Times@@TEMPprimeList]]
-,{iter,1,Length[reducedMatrix]}];
-tallyList=Tally[reducedMatrixReconstructed];
-If[tallyList[[1,2]]/iterbar>1/2,Return[tallyList[[1,1]]]];
-];
-Return["No solution! Choose different primes or increase the iteration! "];
-];
 
 
 (* ::Section::Initialization:: *)
@@ -794,7 +825,7 @@ True,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSM
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
@@ -909,7 +940,7 @@ Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRoots,listO
 
 
 
-(* ::Section::Initialization::Closed:: *)
+(* ::Section::Initialization:: *)
 (*(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)*)
 
 
@@ -924,7 +955,7 @@ listPrimes=Prime[Range[sampleSize]];
 newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];
 variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariables]}];
 variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];
-TEMPsetOfEquations=setOfEquations/.variablesRedef;
+TEMPsetOfEquations=SparseArray[(setOfEquations//ArrayRules)/. variablesRedef];
 
 TEMPmatrix={};
 
@@ -969,7 +1000,7 @@ Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
 ];
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Computing the integrable symbols*)*)
 
 
