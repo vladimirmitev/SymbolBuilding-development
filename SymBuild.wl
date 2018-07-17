@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-(* ::Title::Initialization:: *)
+(* ::Title::Initialization::Closed:: *)
 (*(*Beginning/ First declarations *)*)
 
 
@@ -247,7 +247,7 @@ rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' compute the row-
 
 
 
-(* ::Title::Initialization:: *)
+(* ::Title::Initialization::Closed:: *)
 (*(*Global variables: definitions and descriptions *)*)
 
 
@@ -351,7 +351,7 @@ Return["The global variables have been reset to their standard values. "]
 
 
 
-(* ::Title::Initialization:: *)
+(* ::Title::Initialization::Closed:: *)
 (*(*The private part of the package*)*)
 
 
@@ -1000,7 +1000,7 @@ Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
 ];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Computing the integrable symbols*)*)
 
 
@@ -1086,6 +1086,7 @@ determineNextWeightSymbols::usage="ADD A DESCRIPTION! ";
 
 determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_]:=Module[{integrabilityEquations=findNextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor],nextWeightNullSpace,sizeAlphabet=Length[listOfSymbolSigns],nextWeightEven,nextWeightOdd},
 nextWeightNullSpace=getNullSpace[integrabilityEquations];
+If[(previousWeightSymbolsSigns//Flatten//DeleteDuplicates)==={0}&&(listOfSymbolSigns//Flatten//DeleteDuplicates)==={0},Return[{solutionSpaceToSymbolsTensor[getNullSpace[nextWeightNullSpace],sizeAlphabet],Table[0,Length[previousWeightSymbolsSigns]*Length[listOfSymbolSigns]]}]];
 nextWeightEven=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,0].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];
 nextWeightOdd=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,1].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];
 Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,Dimensions[nextWeightEven][[3]]],Table[1,Dimensions[nextWeightOdd][[3]]]]}];
@@ -1118,11 +1119,17 @@ odd2=Position[listOfSymbolSigns,1]//Flatten;
 If[evenOrOdd==0,
 mat1=makeSparseMatrixOutOfIndexLists[even1,odd2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
 mat2=makeSparseMatrixOutOfIndexLists[odd1,even2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
-Which[mat1==={},Return[mat2],mat2==={},Return[mat1],True,Return[sparseArrayGlue[mat1,mat2]]];
+Which[mat1==={}&&mat2==={},Return[SparseArray[{Table[0,Length[previousIntegrableSymbolsSigns]*Length[listOfSymbolSigns]]}]];,
+mat1==={},Return[mat2];,
+mat2==={},Return[mat1];,
+True,Return[sparseArrayGlue[mat1,mat2]]];
 ,
 mat1=makeSparseMatrixOutOfIndexLists[even1,even2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
 mat2=makeSparseMatrixOutOfIndexLists[odd1,odd2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
-Which[mat1==={},Return[mat2],mat2==={},Return[mat1],True,Return[sparseArrayGlue[mat1,mat2]]];
+Which[mat1==={}&&mat2==={},Return[SparseArray[{Table[0,Length[previousIntegrableSymbolsSigns]*Length[listOfSymbolSigns]]}]];,
+mat1==={},Return[mat2];,
+mat2==={},Return[mat1];,
+True,Return[sparseArrayGlue[mat1,mat2]]];
 ];
 ];
 
