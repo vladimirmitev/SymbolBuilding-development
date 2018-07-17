@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Title::Initialization:: *)
-(*Beginning*)
+(*(*Beginning*)*)
 
 
 (*----------------------------------------------------------------------------------------------------------------------------------*)
@@ -19,17 +19,18 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University
 
 
 (* ::Title::Initialization:: *)
-(*Descriptions of the exported symbols*)
+(*(*Descriptions of the exported symbols*)*)
 
 
 (*----------------------------------------------------------------------------------------------------------*)
-(* Exported symbols added here with SymbolName::usage *)  
+(* The descriptions of the exported symbols are added here with 'SymbolName::usage' *)
+(* They are divided into subsection according to their use *)  
 (*----------------------------------------------------------------------------------------------------------*)
 
 
 
 (* ::Chapter::Initialization:: *)
-(*General command on lists and matrices manipulations*)
+(*(*General command on lists and matrices manipulations*)*)
 
 
 (*----------------------------------------------------------------------------------------------------------*)
@@ -62,8 +63,8 @@ determineLeftInverse::usage="determineLeftInverse[sparseMatrix_] is a function t
 
 
 (* ::Chapter::Initialization:: *)
-(*Symbol tensors and their manipulations*)
-
+(*(*Symbol tensors and their manipulations*)*)
+(**)
 
 
 (*---------------------------------------------------------------------*)
@@ -88,20 +89,164 @@ If 'options= 1', then the output is of the type 'W[\!\(\*SubscriptBox[\(i\), \(1
 
 
 (* ::Chapter::Initialization:: *)
-(*Formal symbols*)
-
+(*(*Formal symbols*)*)
+(**)
 
 
 (*---------------------------------------------------------------------*)
 shuffles::usage="shuffles[list1, list2] gives a list that contains all the shuffles of the lists 1 and 2. ";
 
 
+(* ::Input::Initialization:: *)
+(*---------------------------------------------------------------------*)
+shuffleProduct::usage="shuffleProduct[symbol1, symbol2] takes two formal sums of symbols SB[___], multiplies them together and replaces the products of SB[___] by the appropriate shuffle products. ";
+
+SB::usage="SB[list] is a formal way of writing integrable symbols. It satisfies the properties: 1) SB[{..., const,...}]=0 2) SB[{..., A B ,...}]=SB[{...,A,...}]+SB[{...,B,...}] and 3) SB[{...,\!\(\*SuperscriptBox[\(A\), \(-1\)]\),...}]=-SB[{...,A,...}]. ";
+
+
+(*---------------------------------------------------------------------*)
+listifySum::usage="listifySum[expression] takes a sum A_1+....+A_n and turns it into a list {A1,...,A_n}. If applied to an expression A that is not a sum it just returns {A}.";
+
+
+(*---------------------------------------------------------------------*)
+factorSymbols::usage="factorSymbols[expression] takes a formal sum of SB[A] and then factors the list A. Furthermore, it applies factor lists so as to for example identify entries in the lists like '1-x' and 'x-1'. ";
+
+
+(*---------------------------------------------------------------------*)
+extractSingularPart::usage="extractSingularPart[sum of symbols, variable] takes a formal sum of symbols SB[A] and extracts those that are logarithmically singular in the limit variable -> 0. ";
+
+(*---------------------------------------------------------------------*)
+takeLimitOfSymbol::usage="takeLimitOfSymbol[sum of symbols, variable] takes a formal sum of symbols SB[A] and expands in the limit variable->0. In such a limit (x->0) SB[x+y,...]  becomes SB[y,...] but SB[x,...] remains SB[x,...] because the latter is a logarithmic singularity. ";
+
+(*---------------------------------------------------------------------*)
+
+expandInSymbolBasis::usage="The function expandInSymbolBasis[exp_,basis_] takes an expression exp=Sum_i c_i SB[list_i] and expands it in the basis 'basis={Sum_i a_i SB[list_i],....}. The answer is the list of coefficients in the expansion. ";
+
+(*---------------------------------------------------------------------*)
+subProductProjection::usage="subProductProjection[symbol]  takes a symbol SB[A] and sends to zero the part of SB[A] that is can be written as a product of symbols of lower weight. See for example 1401.6446 for the definition of the map. ";
+
+(*---------------------------------------------------------------------*)
+productProjection::usage="productProjection[symbol] applies 'subProductProjection' to each element of a sum of formal symbols SB[\!\(\*SubscriptBox[\(A\), \(i\)]\)]. This projects away all the elements that can be written as products of symbols of lower weight. ";
+
+
+
+(* ::Chapter:: *)
+(*Null space commands*)
+
+
+(*---------------------------------------------------------------------*)
+modifiedRowReduce::usage="modifiedRowReduce[sparse matrix] transforms a sparse array into a dense one and then applies row reduction on it. This is needed since acting with RowReduce on zero matrices can make the kernel crash. ";
+
+(*---------------------------------------------------------------------*)
+getNullSpaceFromRowReducedMatrix::usage="getNullSpaceFromRowReducedMatrix[row reduced sparse matrix] takes a sparse matrix A that has been brought into row echelon form and generates a matrix whose rows are a basis of the kernel of A. ";
+
+getNullSpaceStepByStep::usage="getNullSpaceStepByStep[matrix, step] computes the null space of a matrix by dividing it into subpieces with 'step' number of rows. At each iteration the nullspace computed previously is plugged into the next subpiece which reduces the number of columns in the computation. ";
+
+getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null space of 'matrix'. If the number of rows of 'matrix' is smaller than the global variable 'globalGetNullSpaceLowerThreshold', it uses the standard Mathematica command NullSpace. If bigger than that number but smaller than 'globalGetNullSpaceSpaSMThreshold', it uses the command 'getNullSpace' which computes the null space iteratively after dividing the matrix into several small ones that have at most 'globalGetNullSpaceStep' rows. If the number of rows of 'matrix' is larger than the global variable 'globalGetNullSpaceSpaSMThreshold', then this command calls the external program SpaSM. The rows of the returned matrix are a basis for the null space. ";
+
+
+
+(* ::Chapter:: *)
+(*Commands used in checking the independence of the alphabet*)
+
+
+(*---------------------------------------------------------------------*)
+
+(*---------------------------------------------------------------------*)
+dLogAlphabet::usage="Compute the dLog of an alphabet (with roots). Used then in the command 'findRelationsInAlphabet' to determine if an alphabet is independent or not. ";
+
+findRelationsInAlphabet::usage="The command 'findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_]' determines if the dlog of the functions in 'alphabet' are linearly independent or not. The parameters 'chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_' play the same role as in the command 'buildFMatrixReducedIterativelyForASetOfEquations'. If the alphabet is not idenpendent, the command will generate a matrix whose rows are the linear combinations of letters that are zero. ";
+
+
+
+(* ::Chapter:: *)
+(*Computing the difference equation if given a sequence of dimensions*)
+
+
+(*---------------------------------------------------------------------*)
+computeCoefficientsOfDifferenceEquation::usage="The function computeAlphas[dimSequence_] takes a sequence {dimH[0],dimH[1], dimH[2],...} of the dimensions of all integrable symbols at given weight (up to some cutoff) and attemps to guess a sequence of numbers {\[Alpha]_0=1,\[Alpha]_1, \[Alpha]_2,...  \[Alpha]_s} such that Sum[\[Alpha]_r (-1)^{r} dimH[L-r] ,{r,0,s}]=0. This provides a difference equation that the dimensions of the spaces of integrable symbols have to satisfy.  ";
+
+
+
+(* ::Chapter:: *)
+(*Counting the number of products and of irreducible symbols*)
+
+
+(*---------------------------------------------------------------------*)
+rewritePartition::usage="The function 'rewritePartition[partition_]' takes an integer partition of N, i.e. a list 'partition'= {n_1,n_2,n_3,...n_r} with N=Sum_i n_i and n_i>= n_{i+1}, and rewrites it as a table {m_1,m_2,...,m_s}, where m_j is the number of times the number j appears in 'partition' and s is the largest number that appears in 'partition'. For instance, rewritePartition[{5,1,1}]={2,0,2,0,1}. ";
+
+dimProductSymbols::usage="The function dimProductSymbols[L_] gives the number of integrable symbols at weight L that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n. ";
+
+dimIrreducibleSymbols::usage="The function dimIrreducibleSymbols[cutoffWeight_] gives a table {dimQ[0], dimQ[1], ..., dimQ[cutoffWeight]} of the number of irreducible integrable symbols (i.e. those that cannot be written as products) of weight smaller or equal to cutoffWeight. The answer is given as a function of dimH[n], which is the total number of integrable symbols of weight n.";
+
+
+(* ::Chapter:: *)
+(*Commands about row reduction and rational reconstruction*)
+
+
+(*---------------------------------------------------------------------*)
+(*Rational reconstruction*)
+rationalReconstructionAlgorithm::usage="rationalReconstructionAlgorithm[q, prime number p] a reasonable guess for the fraction r in the field Q of the rationals such that r = q in the field of the prime number p. ";
+
+rationalReconstructionArray::usage="rationalReconstructionArray[array, prime number p] applies the function rationalReconstructionAlgorithm[#,p] on each non-zero element of the array. ";
+
+applyChineseRemainder::usage="The command 'applyChineseRemainder[matrixList_,primesList_]' takes the list of matrices 'matrixList = {M_1, M_2,... , M_Q}' and applies the chinese remainder algorithm using the primes in 'primesList={p_1,p_2,....p_Q}'.";
+
+rowReduceOverPrimes::usage="Use the finite field reduction over primes. Start with 'globalRowReduceOverPrimesInitialNumberOfIterations' (mostly equal to 2) number of primes, then compare the reconstructions. If there is no majority opinion, keep adding primes and then constructing bigger rational reconstructions by using the chinese remainder algorithm. At each step, check if a majority of the reconstructions agree. If they do, pick the majority opinion. ";
+
+
+(*---------------------------------------------------------------------*)
+(*Row reduction (over the finite fields)*)
+rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' compute the row-eshelon form of a matrix. FINISH THE DESCRIPTION!! ";
+
+
+
+(* ::Chapter:: *)
+(*Computing the integrability tensor \[DoubleStruckCapitalF]*)
+
+
+(*---------------------------------------------------------------------*)
+matrixFReducedToTensor::usage="matrixFReducedToTensor[sparse matrix] transforms a R x Binomial[len,2] sparse matrix into a R x len x len tensor. This is used to transform the \[DoubleStruckCapitalM] matrix into the \[DoubleStruckCapitalF] tensor that then enters into the computations of the integrable symbols.  Here, 'len' is the length of the alphabet which the command inferres from the size of the matrix. ";
+
+integrableEquationsRational::usage="integrableEquationsRational[alphabet, list of variables] takes an alphabet of rational functions in the variables and generates a matrix of size Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2], each entry of which is a rational function.  ";
+
+integrableEquationsWithRoots::usage="integrableEquationsWithRoots[alphabet, list of variables, list of roots, list of root powers] takes an alphabet of rational functions in the variables and in the roots and generates a matrix of size Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2]. The 'list of roots', should be a list of rational functions \!\(\*SubscriptBox[\(\[CapitalDelta]\), \(i\)]\) in the variables and the 'list of root powers' contains the powers \!\(\*SubscriptBox[\(n\), \(i\)]\) such that root[i\!\(\*SuperscriptBox[\(]\), SubscriptBox[\(n\), \(i\)]]\) = \!\(\*SubscriptBox[\(\[CapitalDelta]\), \(i\)]\). The roots should be represented in the alphabet as formal functions root[i][variable 1, variable 2,....]. ";
+
+
+(*---------------------------------------------------------------------*)
+(*Resolve the roots using Gr\[ODoubleDot]bner bases*)
+resolveRootViaGroebnerBasis::usage="resolveRootViaGroebnerBasis[expressionToSimplify, list of roots, list of root powers] takes a rational function 
+in the formal root[i][variable1, variable2,...] (such as the entries of the matrix generated by 'integrableEquationsWithRoots') and uses Gr\[ODoubleDot]bner bases to simplify them, 
+such as the output is of the form: Sum[r[s1,s2,...] \[Rho]1^s1 \[Rho]2^s2...,{s1,0,n1-1},{s2,0,n2-1}], where the powers n1, n2,... satisfy the conditions
+root[i]^(ni) = \[CapitalDelta]i. Here, 'list of roots' = {\[CapitalDelta]1,...} and 'list of root powers' ={n1,n2,...}. ";
+
+(*---------------------------------------------------------------------*)
+(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)
+buildFMatrixReducedForASetOfEquations::usage="buildFMatrixReducedForASetOfEquations[setOfEquations_,allvariables_,sampleSize_,maxSamplePoints_,toleranceForRetries_] 
+takes first a matrix of rational functions in the 'list of variables'. Proceeding row by row, the command samples the functions over random prime numbers of a maximal
+ size given by 'sampleSize'. If a division by zero happens randomly, it tries again a number of times given by 'tolerance for retries'.
+ The number of sample points per row is given by 'maxSamplePoints'. After the sampling is done, the command 'rowReduceMatrix' to row reduce the sampled matrix and then the zero rows are removed. ";
+ 
+ 
+ (*---------------------------------------------------------------------*)
+(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots *) 
+takeSecondEntry::usage="'takeSecondEntry[array_]' is an auxiliary command used for example in 'collectRootCoefficients'. 
+It is applied to a list. If that list is of the type '{entry \[Rule] X}' it gives X and if the array is {} it gives zero. ";
+
+(*---------------------------------------------------------------------*)
+(* The speed needs to be IMPROVED !!!! *)
+collectRootCoefficients::usage="The command collectRootCoefficients[expressionArray_,namesOfRoots_] start with an array 
+expressionArray= { coefficients_{n1n2...} * \[Rho]1^n1 \[Rho]2^n2....., .....} and turns it into an array 
+{coefficients_{n1n2...},..} such that each row corresponds to the same powers of the roots \[Rho]i. Here, 'namesOfRoots'={\[Rho]1,\[Rho]2,....} is the list of the different roots. ";
+
+
+
 (* ::Title::Initialization:: *)
-(*Global variables*)
+(*(*Global variables*)*)
 
 
 (* ::Section::Initialization:: *)
-(*SpaSM global variables*)
+(*(*SpaSM global variables*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -110,7 +255,6 @@ shuffles::usage="shuffles[list1, list2] gives a list that contains all the shuff
 
 
 (* ::Input::Initialization:: *)
-
 globalSpaSMExchangePath::usage=" This is a global parameter that specifies the folder in which the temporary files used by SpaSM are to be stored. (YANG?)";globalSpaSMExchangePath="/home/vladimir/SpaSM/exchange"; 
 
 globalSpaSMPath::usage=" This is a global parameter that specifies the bench path for SpaSM. (YANG?)";
@@ -125,7 +269,7 @@ globalSpaSMNumberOfKernels=2;
 
 
 (* ::Section::Initialization:: *)
-(*Global parameters for 'getNullSpace'*)
+(*(*Global parameters for 'getNullSpace'*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -144,11 +288,10 @@ globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
 (* ::Section::Initialization:: *)
-(*Global parameters of 'rowReduceMatrix' and 'rowReduceOverPrimes'*)
+(*(*Global parameters of 'rowReduceMatrix' and 'rowReduceOverPrimes'*)*)
 
 
 (* ::Input::Initialization:: *)
-
 globalSetOfBigPrimes::usage=" This is a global parameter in the command 'rowReduceOverPrimes'. It is a list of very big primes that are used in performing a row reduction over a dense matrix.  ";
 globalSetOfBigPrimes=Select[2^63-Range[983],PrimeQ];
 
@@ -175,7 +318,7 @@ globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
 (* ::Section::Initialization::Closed:: *)
-(*Resetting the global parameters/choosing various prepackages possibilities*)
+(*(*Resetting the global parameters/choosing various prepackages possibilities*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -203,7 +346,7 @@ Return["The global variables have been reset to their standard values. "]
 
 
 (* ::Title::Initialization:: *)
-(*Private part of the package*)
+(*(*Private part of the package*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -213,11 +356,11 @@ End[] (* End Private Context *)
 
 
 (* ::Title::Initialization:: *)
-(*Public part of the package*)
+(*(*Public part of the package*)*)
 
 
 (* ::Chapter::Initialization:: *)
-(*General command on lists and matrices manipulations*)
+(*(*General command on lists and matrices manipulations*)*)
 
 
 (*Sparse Matrix Manipulation*)
@@ -285,15 +428,14 @@ Return[SparseArray[TEMPmatrix[[1;;columnLength, columnLength+1;;]]]];
 
 
 (* ::Chapter::Initialization:: *)
-(*Symbol tensors and their manipulation*)
+(*(*Symbol tensors and their manipulation*)*)
 
 
 (* ::Section::Initialization::Closed:: *)
-(*Glue two lists of tensors that give integrable symbols*)
+(*(*Glue two lists of tensors that give integrable symbols*)*)
 
 
 (* ::Input::Initialization:: *)
-
 integrableSymbolsTensorsGlue::nnarg=" The dimensions of the tensors are mismatched! ";
 
 integrableSymbolsTensorsGlue[A1_,A2_]/;If[Dimensions[A1][[1]]== Dimensions[A2][[1]]&&Dimensions[A1][[2]]== Dimensions[A2][[2]],True,Message[integrableSymbolsTensorsGlue::nnarg];False]:=Module[{dim=Dimensions[A1][[3]]},
@@ -302,11 +444,10 @@ SparseArray[Union[ArrayRules[A1],(ArrayRules[A2]/. {a1_,a2_,a3_}:>{a1,a2,a3+dim}
 
 
 (* ::Section::Initialization::Closed:: *)
-(*Writing the null spaces into tensors and doing the reverse*)
+(*(*Writing the null spaces into tensors and doing the reverse*)*)
 
 
 (* ::Input::Initialization:: *)
-
 solutionSpaceToSymbolsTensor::nnarg=" The dimensions of 'sparseSolutionSpace' do not match the size of the alphabet.";
 
 solutionSpaceToSymbolsTensor[sparseSolutionSpace_,sizeAlphabet_]/;If[Mod[Dimensions[sparseSolutionSpace][[2]],sizeAlphabet]==0,True,Message[solutionSpaceToSymbolsTensor::nnarg];False]:=Module[{previousSolSpaceLenth},previousSolSpaceLenth=Dimensions[sparseSolutionSpace][[2]]/sizeAlphabet;
@@ -329,7 +470,7 @@ SparseArray[Most[ArrayRules[symbolsTensor]]/. ({a1_,a2_,a3_}->a4_):>{a3,(a1-1) s
 
 
 (* ::Section::Initialization:: *)
-(*Rewriting the tensors into sums of formal symbols*)
+(*(*Rewriting the tensors into sums of formal symbols*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -354,14 +495,11 @@ Table[Sum[sparseArrayRules[[ifoo,2]]sym[S[sparseArrayRules[[ifoo,1]]//First],Dro
 
 
 (* ::Chapter::Initialization:: *)
-(*Formal Symbols*)
+(*(*Formal Symbols*)*)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Shuffle products*)
-
-
-(* ::Input::Initialization:: *)
+(*(*Shuffle products*)*)
 
 
 shuffles[A1_,A2_]:=Module[{nfoobar,p1,p2,shuffledz,A12},nfoobar=Length/@{A1,A2};
@@ -371,19 +509,14 @@ A12=shuffledz=Join[A1,A2];
 (shuffledz[[#]]=A12;shuffledz)&/@Join[p1,p2,2]];
 
 
-(*---------------------------------------------------------------------*)
-shuffleProduct::usage="shuffleProduct[symbol1, symbol2] takes two formal sums of symbols SB[___], multiplies them together and replaces the products of SB[___] by the appropriate shuffle products. ";
-
 shuffleProduct[symbol1_,symbol2_]:=(symbol1 (symbol2/.SB[A_]:> SB2[A])//Expand)/.SB[A_]SB2[B_]:> Sum[SB[foo],{foo,shuffles[A,B]}];
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Define the formal symbols*)
+(*(*Define the formal symbols*)*)
 
 
 (* ::Input::Initialization:: *)
-
-SB::usage="SB[list] is a formal way of writing integrable symbols. It satisfies the properties: 1) SB[{..., const,...}]=0 2) SB[{..., A B ,...}]=SB[{...,A,...}]+SB[{...,B,...}] and 3) SB[{...,\!\(\*SuperscriptBox[\(A\), \(-1\)]\),...}]=-SB[{...,A,...}]. ";
 
 SB[{}]:=1;
 SB[{A1___,A_,A2___}]:=0/;NumericQ[A];
@@ -393,28 +526,19 @@ SB[{A___,A1_/A2_,B___}]:=SB[{A,A1,B}]-SB[{A,A2,B}];
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Extracting limits of formal symbols*)
+(*(*Extracting limits of formal symbols*)*)
 
 
 (* ::Input::Initialization:: *)
 
-(*---------------------------------------------------------------------*)
-listifySum::usage="listifySum[expression] takes a sum A_1+....+A_n and turns it into a list {A1,...,A_n}. If applied to an expression A that is not a sum it just returns {A}.";
-
 listifySum[A_]:=If[Head[A]===Plus,List@@A,{A}];
 
-(*---------------------------------------------------------------------*)
-factorSymbols::usage="factorSymbols[expression] takes a formal sum of SB[A] and then factors the list A. Furthermore, it applies factor lists so as to for example identify entries in the lists like '1-x' and 'x-1'. ";
 
 factorSymbols[symbolsExpression_]:=symbolsExpression/.SB[A_]:> SB[Factor/@A]/.SB[A_]:> SB[FactorList[#][[2,1]]&/@A];
 
-(*---------------------------------------------------------------------*)
-extractSingularPart::usage="extractSingularPart[sum of symbols, variable] takes a formal sum of symbols SB[A] and extracts those that are logarithmically singular in the limit variable -> 0. ";
 
 extractSingularPart[symbol_,var_]:=Module[{listsymbol=listifySum[Expand[symbol]],logs},logs=Cases[listsymbol,SB[{A___,var,B___}],Infinity]//DeleteDuplicates;Sum[Coefficient[symbol,currentlog]currentlog,{currentlog,logs}]];
 
-(*---------------------------------------------------------------------*)
-takeLimitOfSymbol::usage="takeLimitOfSymbol[sum of symbols, variable] takes a formal sum of symbols SB[A] and expands in the limit variable->0. In such a limit (x->0) SB[x+y,...]  becomes SB[y,...] but SB[x,...] remains SB[x,...] because the latter is a logarithmic singularity. ";
 
 takeLimitOfSymbol[symbol_,var_]:=Module[{symbolSimple=Expand[Factor[factorSymbols[symbol]]],singularPart},
 singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-singularPart//Expand)/.var-> 0)+singularPart/.SB[A_]:> SB[Table[If[(afoo/.var-> 0)===0,afoo,afoo/.var-> 0],{afoo,A}]]]
@@ -422,7 +546,7 @@ singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Expanding formal symbols in a given basis*)
+(*(*Expanding formal symbols in a given basis*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -430,9 +554,7 @@ singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-
 
 
 (* ::Input::Initialization:: *)
-(*---------------------------------------------------------------------*)
 
-expandInSymbolBasis::usage="The function expandInSymbolBasis[exp_,basis_] takes an expression exp=Sum_i c_i SB[list_i] and expands it in the basis 'basis={Sum_i a_i SB[list_i],....}. The answer is the list of coefficients in the expansion. ";
 
 expandInSymbolBasis[exp_,basis_]:=Module[{coefficientsTEMP,ansatzTEMP,solTEMP,expTEMP=factorSymbols[exp],basisTEMP=factorSymbols[basis],varSBTEMP},
 varSBTEMP=Cases[basisTEMP,SB[___],Infinity]//DeleteDuplicates;
@@ -443,12 +565,10 @@ True,"The supposed basis is not linearly independent."]
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Projecting products away*)
+(*(*Projecting products away*)*)
 
 
 (* ::Input::Initialization:: *)
-(*---------------------------------------------------------------------*)
-subProductProjection::usage="subProductProjection[symbol]  takes a symbol SB[A] and sends to zero the part of SB[A] that is can be written as a product of symbols of lower weight. See for example 1401.6446 for the definition of the map. ";
 
 subProductProjection[symbol_]:=Module[{list=(symbol/.SB[A_]:> A),lengthList},
 lengthList=Length[list]; 
@@ -456,35 +576,25 @@ If[lengthList==1,Return[symbol]];
 (lengthList-1)/lengthList ((subProductProjection[SB[Drop[list,-1]]]/.SB[A_]:> SB[Join[A,{list[[lengthList]]}]])-(subProductProjection[SB[Drop[list,1]]]/.SB[A_]:> SB[Join[A,{list[[1]]}]]))
 ];
 
-(*---------------------------------------------------------------------*)
-productProjection::usage="productProjection[symbol] applies 'subProductProjection' to each element of a sum of formal symbols SB[\!\(\*SubscriptBox[\(A\), \(i\)]\)]. This projects away all the elements that can be written as products of symbols of lower weight. ";
 
 productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProjection[SB[A]];
 
 
-(* ::Chapter::Initialization::Closed:: *)
-(*Null Space commands*)
+(* ::Chapter::Initialization:: *)
+(*(*Null Space commands*)*)
 
 
 (* ::Input::Initialization:: *)
 
-(*---------------------------------------------------------------------*)
-modifiedRowReduce::usage="modifiedRowReduce[sparse matrix] transforms a sparse array into a dense one and then applies row reduction on it. This is needed since acting with RowReduce on zero matrices can make the kernel crash. ";
 modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
 
 
-(*---------------------------------------------------------------------*)
-getNullSpaceFromRowReducedMatrix::usage="getNullSpaceFromRowReducedMatrix[row reduced sparse matrix] takes a sparse matrix A that has been brought into row echelon form and generates a matrix whose rows are a basis of the kernel of A. ";
 
 getNullSpaceFromRowReducedMatrix[rowReducedMatrix_]:=Block[{freeCoeff,dependentCoeff,trivialIntgrb,solutions,matrixNumberOfColumns=Dimensions[rowReducedMatrix][[2]],sortedEntries},
 sortedEntries=GatherBy[Map[First,Most[ArrayRules[rowReducedMatrix]]],First[#]&];
 freeCoeff=Union[Last/@Flatten[Rest/@sortedEntries,1]];dependentCoeff=Map[Last[First[#]]&,sortedEntries];trivialIntgrb=Map[{#->1}&,Complement[Range[matrixNumberOfColumns],dependentCoeff,freeCoeff]];solutions=Map[Map[dependentCoeff[[First[First[#]]]]-> Last[#]&,Most[ArrayRules[rowReducedMatrix.SparseArray[#->-1,{matrixNumberOfColumns}]]]]&,freeCoeff];solutions=MapThread[Join,{solutions,Map[{#->1}&,freeCoeff]}];solutions=Join[trivialIntgrb,solutions];
 SparseArray[Map[SparseArray[#,{matrixNumberOfColumns}]&, solutions],{Length[solutions],Dimensions[rowReducedMatrix][[2]]}]
 ]; 
-
-
-(*---------------------------------------------------------------------*)
-getNullSpaceStepByStep::usage="getNullSpaceStepByStep[matrix, step] computes the null space of a matrix by dividing it into subpieces with 'step' number of rows. At each iteration the nullspace computed previously is plugged into the next subpiece which reduces the number of columns in the computation. ";
 
 
 getNullSpaceStepByStep::nnarg=" The variable 'step' should be smaller than the number of rows in the matrix! ";
@@ -513,7 +623,6 @@ Return[n0]];
 ];
 
 (*---------------------------------------------------------------------*)
-getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null space of 'matrix'. If the number of rows of 'matrix' is smaller than the global variable 'globalGetNullSpaceLowerThreshold', it uses the standard Mathematica command NullSpace. If bigger than that number but smaller than 'globalGetNullSpaceSpaSMThreshold', it uses the command 'getNullSpace' which computes the null space iteratively after dividing the matrix into several small ones that have at most 'globalGetNullSpaceStep' rows. If the number of rows of 'matrix' is larger than the global variable 'globalGetNullSpaceSpaSMThreshold', then this command calls the external program SpaSM. The rows of the returned matrix are a basis for the null space. ";
 
 getNullSpace[matrix_]:=Which[Length[matrix]<globalGetNullSpaceLowerThreshold,SparseArray[NullSpace[matrix]],
 Length[matrix]<globalGetNullSpaceSpaSMThreshold,getNullSpaceStepByStep[matrix,globalGetNullSpaceStep],
@@ -521,14 +630,11 @@ True,getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrime
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
-(*Checking the independence of the alphabet*)
+(* ::Chapter::Initialization:: *)
+(*(*Checking the independence of the alphabet*)*)
 
 
 (* ::Input::Initialization:: *)
-
-(*---------------------------------------------------------------------*)
-dLogAlphabet::usage="Compute the dLog of an alphabet (with roots). Used then in the command 'findRelationsInAlphabet' to determine if an alphabet is independent or not. ";
 
 dLogAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_]:=Module[{TEMPeqn,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
 
@@ -555,8 +661,7 @@ TEMPeqn=TEMPeqn/.root[a_][X__]:> root[a]/.root[a_]:> ToExpression["\[Rho]"<>ToSt
 Return[TEMPeqn]
 ];
 
-(*---------------------------------------------------------------------*)
-findRelationsInAlphabet::usage="The command 'findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_]' determines if the dlog of the functions in 'alphabet' are linearly independent or not. The parameters 'chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_' play the same role as in the command 'buildFMatrixReducedIterativelyForASetOfEquations'. If the alphabet is not idenpendent, the command will generate a matrix whose rows are the linear combinations of letters that are zero. ";
+
 
 findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_]:=Module[{TEMPdLogEquations,TEMPmatrix,TEMPNullSpace},
 
@@ -570,18 +675,16 @@ Return[If[TEMPNullSpace=={},"The alphabet is indepedent.", {"The alphabet is dep
 ];
 
 
-(* ::Chapter::Initialization::Closed:: *)
-(*Difference equations/Counting products and irreducible symbols*)
+(* ::Chapter::Initialization:: *)
+(*(*Difference equations/Counting products and irreducible symbols*)*)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Computing the difference equation if given a sequence of dimensions*)
+(*(*Computing the difference equation if given a sequence of dimensions*)*)
 
 
 (* ::Input::Initialization:: *)
 
-(*---------------------------------------------------------------------*)
-computeCoefficientsOfDifferenceEquation::usage="The function computeAlphas[dimSequence_] takes a sequence {dimH[0],dimH[1], dimH[2],...} of the dimensions of all integrable symbols at given weight (up to some cutoff) and attemps to guess a sequence of numbers {\[Alpha]_0=1,\[Alpha]_1, \[Alpha]_2,...  \[Alpha]_s} such that Sum[\[Alpha]_r (-1\!\(\*SuperscriptBox[\()\), \(r\)]\) dimH[L-r] ,{r,0,s}]=0. This provides a difference equation that the dimensions of the spaces of integrable symbols have to satisfy.  ";
 
 computeCoefficientsOfDifferenceEquation[dimSequence_]:=Module[{M=dimSequence[[2]],Rsequence,TEMPeqn,varAlpha,tempDim,tempCond,tempa},
 Rsequence=Table[M dimSequence[[i-1]]-dimSequence[[i]],{i,2,Length[dimSequence]}];
@@ -594,17 +697,14 @@ Return[Table[tempa[i],{i,0,Length[varAlpha]}]/.Solve[TEMPeqn==0,varAlpha][[1]]/.
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Counting the number of products and of irreducible symbols*)
+(*(*Counting the number of products and of irreducible symbols*)*)
 
 
 (* ::Input::Initialization:: *)
-(*---------------------------------------------------------------------*)
-rewritePartition::usage="The function 'rewritePartition[partition_]' takes an integer partition of N, i.e. a list 'partition'= {n_1,n_2,n_3,...n_r} with N=Sum_i n_i and n_i>= n_{i+1}, and rewrites it as a table {m_1,m_2,...,m_s}, where m_j is the number of times the number j appears in 'partition' and s is the largest number that appears in 'partition'. For instance, rewritePartition[{5,1,1}]={2,0,2,0,1}. ";
+
 
 rewritePartition[partition_]:=Module[{max=Max[partition]},Table[Count[partition,i],{i,1,max}]];
 
-(*---------------------------------------------------------------------*)
-dimProductSymbols::usage="The function dimProductSymbols[L_] gives the number of integrable symbols at weight L that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n. ";
 
 dimProductSymbols[L_]:=Module[{tempPartitions},
 If[L==0,Return[0]];
@@ -612,45 +712,21 @@ tempPartitions=Drop[(rewritePartition[#]&/@IntegerPartitions[L]),1];
 Sum[Product[Binomial[dimQ[jfoo]+fooPartition[[jfoo]]-1,fooPartition[[jfoo]]],{jfoo,1,Length[fooPartition]}],{fooPartition,tempPartitions}]
 ];
 
-(*---------------------------------------------------------------------*)
-dimIrreducibleSymbols::usage="The function dimIrreducibleSymbols[cutoffWeight_] gives a table {dimQ[0], dimQ[1], ..., dimQ[cutoffWeight]} of the number of irreducible integrable symbols (i.e. those that cannot be written as products) of weight smaller or equal to cutoffWeight. The answer is given as a function of dimH[n], which is the total number of integrable symbols of weight n.";
+
 
 dimIrreducibleSymbols[cutoffWeight_]:=
 Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
 
 
-(* ::Chapter::Initialization::Closed:: *)
-(*Rational reconstruction algorithms*)
-
-
-(* ::Section::Initialization::Closed:: *)
-(*The extended Euclidean Algorithm*)
-
-
-(* ::Input::Initialization:: *)
-
-(*---------------------------------------------------------------------*)
-extendeEuclideanAlgorithm::usage="extendeEuclideanAlgorithm[a,b] returns an array {r0,s0,t0} comprised of the greatest common divisor r0 of a and b and the two numbers s0 and t0 such that a s0 + b to = r0. ";
-
-extendeEuclideanAlgorithm[a_,b_]:=Module[{r0=a, s0=1, t0=0, r1=b,s1=0,t1=1,rnew,snew,tnew,qnew},While[r1!= 0, qnew=Floor[r0/r1]; rnew=r0-qnew r1; snew=s0-qnew s1; tnew=t0-qnew t1; 
-Print[{qnew,rnew,snew,tnew}];
-{r0,s0,t0}={r1,s1,t1};
-{r1,s1,t1}={rnew,snew,tnew};];
-Return[{r0,s0,t0}]
-];
-
-
-
+(* ::Chapter::Initialization:: *)
+(*(*Rational reconstruction algorithms*)*)
 
 
 (* ::Section::Initialization:: *)
-(*Rational reconstruction*)
+(*(*Rational reconstruction*)*)
 
 
 (* ::Input::Initialization:: *)
-
-(*---------------------------------------------------------------------*)
-rationalReconstructionAlgorithm::usage="rationalReconstructionAlgorithm[q, prime number p] a reasonable guess for the fraction r in the field Q of the rationals such that r = q in the field of the prime number p. ";
 
 rationalReconstructionAlgorithm[q_,prime_]:=Module[{r0=q, s0=1, r1=prime,s1=0,rnew,snew,qnew},
 If[q==0,Return[q]];
@@ -661,35 +737,23 @@ While[prime-r1^2<  0,
 Return[r1/s1]
 ];
 
-(*---------------------------------------------------------------------*)
-
-rationalReconstructionArray::usage="rationalReconstructionArray[array, prime number p] applies the function rationalReconstructionAlgorithm[#,p] on each non-zero element of the array. ";
-
-rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]},
-Map[rationalReconstructionAlgorithm[#,prime]&,TEMPArray,{Depth[TEMPArray]-1}]];
+rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]},Map[rationalReconstructionAlgorithm[#,prime]&,TEMPArray,{Depth[TEMPArray]-1}]];
 
 
-(* ::Chapter::Initialization:: *)
-(*Row reduction (over the finite fields)*)
+(* ::Chapter::Initialization::Closed:: *)
+(*(*Row reduction (over the finite fields)*)*)
 
 
 (* ::Section::Initialization:: *)
-(*Row Reduction over the finite fields for a dense matrix *)
+(*(*Row Reduction over the finite fields for a dense matrix *)*)
 
 
-(* ::Input::Initialization:: *)
-
-
-(*---------------------------------------------------------------------*)
-applyChineseRemainder::usage="The command 'applyChineseRemainder[matrixList_,primesList_]' takes the list of matrices 'matrixList = {M_1, M_2,... , M_Q}' and applies the chinese remainder algorithm using the primes in 'primesList={p_1,p_2,....p_Q}'.";
 
 applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},SparseArray[Table[foo->ChineseRemainder[Table[matrixFoo[[Sequence@@foo]],{matrixFoo,matrixList}],primesList],{foo,listOfEntries}],Dimensions[First[matrixList]]]
 ];
 
 
 
-(*---------------------------------------------------------------------*)
-rowReduceOverPrimes::usage="Use the finite field reduction over primes. Start with 'globalRowReduceOverPrimesInitialNumberOfIterations' (mostly equal to 2) number of primes, then compare the reconstructions. If there is no majority opinion, keep adding primes and then constructing bigger rational reconstructions by using the chinese remainder algorithm. At each step, check if a majority of the reconstructions agree. If they do, pick the majority opinion. ";
 
 rowReduceOverPrimes[matrix_]:=Module[{samplePrimes,primeList,reducedMatrix,reducedMatrixReconstructed,
 TEMPlistOfBigPrimes=globalSetOfBigPrimes,TEMPmatrixList,TEMPprimeList,tallyList,iterbar},
@@ -716,17 +780,8 @@ Return["No solution! Choose different primes or increase the iteration! "];
 ];
 
 
-(* ::Input::Initialization:: *)
-
-
-
 (* ::Section::Initialization:: *)
-(*The general row reduction command*)
-
-
-(* ::Input::Initialization:: *)
-(*---------------------------------------------------------------------*)
-rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' compute the row-eshelon form of a matrix. FINISH THE DESCRIPTION!! ";
+(*(*The general row reduction command*)*)
 
 
 rowReduceMatrix[matrix_]:=Which[Length[matrix]<globalRowReduceMatrixLowerThreshold,SparseArray[RowReduce[Normal[matrix]]],
@@ -735,18 +790,15 @@ True,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSM
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
-(*Computing the integrability tensor \[DoubleStruckCapitalF]*)
+(* ::Chapter::Initialization:: *)
+(*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
-(* ::Section::Initialization:: *)
-(*Transforming the reduced \[DoubleStruckCapitalM] matrix into the integrability tensor \[DoubleStruckCapitalF]*)
+(* ::Section::Initialization::Closed:: *)
+(*(*Transforming the reduced \[DoubleStruckCapitalM] matrix into the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
 (* ::Input::Initialization:: *)
-
-(*---------------------------------------------------------------------*)
-matrixFReducedToTensor::usage="matrixFReducedToTensor[sparse matrix] transforms a R x Binomial[len,2] sparse matrix into a R x len x len tensor. This is used to transform the \[DoubleStruckCapitalM] matrix into the \[DoubleStruckCapitalF] tensor that then enters into the computations of the integrable symbols.  Here, 'len' is the length of the alphabet which the command inferres from the size of the matrix. ";
 
 matrixFReducedToTensor[sparseMatrix_]:=Module[{TEMPdim=Dimensions[sparseMatrix],TEMPIndexTable,len},
 len=(Sqrt[8TEMPdim[[2]]+1]+1)/2;
@@ -757,14 +809,9 @@ SparseArray[Flatten[Table[{Join[{foo[[1,1]]},TEMPIndexTable[[foo[[1,2]]]]]-> foo
 
 
 (* ::Section::Initialization::Closed:: *)
-(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)
+(*(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)*)
 
 
-(* ::Input::Initialization:: *)
-
-
-(*---------------------------------------------------------------------*)
-integrableEquationsRational::usage="integrableEquationsRational[alphabet, list of variables] takes an alphabet of rational functions in the variables and generates a matrix of size Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2], each entry of which is a rational function.  ";
 
 integrableEquationsRational[alphabet_,allvariables_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
 
@@ -781,8 +828,6 @@ Return[TEMPeqn/.variablesRedefReverse]
 ];
 
 
-(*---------------------------------------------------------------------*)
-integrableEquationsWithRoots::usage="integrableEquationsWithRoots[alphabet, list of variables, list of roots, list of root powers] takes an alphabet of rational functions in the variables and in the roots and generates a matrix of size Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2]. The 'list of roots', should be a list of rational functions \!\(\*SubscriptBox[\(\[CapitalDelta]\), \(i\)]\) in the variables and the 'list of root powers' contains the powers \!\(\*SubscriptBox[\(n\), \(i\)]\) such that root[i\!\(\*SuperscriptBox[\(]\), SubscriptBox[\(n\), \(i\)]]\) = \!\(\*SubscriptBox[\(\[CapitalDelta]\), \(i\)]\). The roots should be represented in the alphabet as formal functions root[i][variable 1, variable 2,....]. ";
 
 integrableEquationsWithRoots[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
 listOfIndices=Flatten[Table[{iter1,iter2},{iter1,1,Length[allvariables]-1},{iter2,iter1+1,Length[allvariables]}],1];
@@ -814,13 +859,11 @@ Return[TEMPeqn]
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Resolve the roots using Gr\[ODoubleDot]bner bases*)
+(*(*Resolve the roots using Gr\[ODoubleDot]bner bases*)*)
 
 
 (* ::Input::Initialization:: *)
 
-(*---------------------------------------------------------------------*)
-resolveRootViaGroebnerBasis::usage="resolveRootViaGroebnerBasis[expressionToSimplify, list of roots, list of root powers] takes a rational function in the formal root[i][variable1, variable2,...] (such as the entries of the matrix generated by 'integrableEquationsWithRoots') and uses Gr\[ODoubleDot]bner bases to simplify them, such as the output is of the form: Sum[r[s1,s2,...]\!\(\*SuperscriptBox[\(\[Rho]1\), \(s1\)]\)\!\(\*SuperscriptBox[\(\[Rho]2\), \(s2\)]\)...,{s1,0,n1-1},{s2,0,n2-1}], where the powers n1, n2,... satisfy root[i\!\(\*SuperscriptBox[\(]\), SubscriptBox[\(n\), \(i\)]]\) = \!\(\*SubscriptBox[\(\[CapitalDelta]\), \(i\)]\). Here, 'list of roots' = {\[CapitalDelta]1,...} and 'list of root powers' ={n1,n2,...}. ";
 
 resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRoots_,listOfRootPowers_]:=Module[{
 TEMPExpression,TEMPgrobBasis,TEMPsol,TEMPgrobBasisTry,
@@ -863,13 +906,7 @@ Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRoots,listO
 
 
 (* ::Section::Initialization::Closed:: *)
-(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)
-
-
-(* ::Input::Initialization:: *)
-
-(*---------------------------------------------------------------------*)
-buildFMatrixReducedForASetOfEquations::usage="buildFMatrixReducedForASetOfEquations[setOfEquations_,allvariables_,sampleSize_,maxSamplePoints_,toleranceForRetries_] takes first a matrix of rational functions in the 'list of variables'. Proceeding row by row, the command samples the functions over random prime numbers of a maximal size given by 'sampleSize'. If a division by zero happens randomly, it tries again a number of times given by 'tolerance for retries'. The number of sample points per row is given by 'maxSamplePoints'. After the sampling is done, the command 'rowReduceMatrix' to row reduce the sampled matrix and then the zero rows are removed. ";
+(*(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -914,20 +951,12 @@ Return[rowReduceMatrix[TEMPmatrix//Normal]//SparseArray//sparseArrayZeroRowCut]
 
 
 (* ::Section::Initialization::Closed:: *)
-(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots (IMPROVE speed!!)*)
+(*(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots (IMPROVE speed!!)*)*)
 
 
 (* ::Input::Initialization:: *)
-(*---------------------------------------------------------------------*)
-(* The speed needs to be IMPROVED !!!! *)
-takeSecondEntry::usage="'takeSecondEntry[array_]' is an auxiliary command used for example in 'collectRootCoefficients'. It is applied to a list. If that list is of the type '{entry \[Rule] X}' it gives X and if the array is {} it gives zero. ";
 
 takeSecondEntry[array_]:=If[#==={},0,#[[1,2]]]&/@array;
-
-
-(*---------------------------------------------------------------------*)
-(* The speed needs to be IMPROVED !!!! *)
-collectRootCoefficients::usage="The command collectRootCoefficients[expressionArray_,namesOfRoots_] start with an array expressionArray= { coefficients_{n1n2...} * \!\(\*SuperscriptBox[\(\[Rho]1\), \(n1\)]\)* \!\(\*SuperscriptBox[\(\[Rho]2\), \(n2\)]\)....., .....} and turns it into an array {coefficients_{n1n2...},..} such that each row corresponds to the same powers of the roots \[Rho]i. Here, 'namesOfRoots'={\[Rho]1,\[Rho]2,....} is the list of the different roots. ";
 
 
 collectRootCoefficients[expressionArray_,namesOfRoots_]:=Module[{arrayOfRootCoefficients=Map[CoefficientRules[#,namesOfRoots]&,expressionArray,{2}], possiblePowers,eqnMatrix},possiblePowers=Sort[DeleteDuplicates[Flatten[Table[arrayOfRootCoefficients[[iter]][[All,All,1]],{iter,1,Length[arrayOfRootCoefficients]}],2]]];
@@ -937,15 +966,15 @@ Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
 
 
 (* ::Chapter::Initialization:: *)
-(*Computing the integrable symbols*)
+(*(*Computing the integrable symbols*)*)
 
 
 (* ::Section::Initialization:: *)
-(*Compute the tensors for the integrable symbols (CLEAN UP, COMBINE WITH SpaSM)*)
+(*(*Compute the tensors for the integrable symbols)*)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*n-Entry conditions*)
+(*(*n-Entry conditions*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -979,10 +1008,7 @@ SparseArray[Drop[preTensor,-1]/.Rule[a__,b_]:>Rule[Append[a,Last[listOfForbidden
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Computing the next level symbols*)
-
-
-(* ::Input::Initialization:: *)
+(*(*Computing the next level symbols*)*)
 
 
 (*---------------------------------------------------------------------*)
@@ -1035,11 +1061,10 @@ Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Commands for the computation of Even + odd symbols *)
+(*(*Commands for the computation of Even + odd symbols *)*)
 
 
 (* ::Input::Initialization:: *)
-
 (*---------------------------------------------------------------------*)
 makeSparseMatrixOutOfIndexLists::usage="makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_] makes a sparse matrix of size (Length[index1]*Length[index2])x (size1*size1) with entries 1 and 0. \[IndentingNewLine]The position of the 1s is given by the entries of index1 and index2 in a tensorial way. ";
 
@@ -1069,7 +1094,7 @@ Which[mat1==={},Return[mat2],mat2==={},Return[mat1],True,Return[sparseArrayGlue[
 
 
 (* ::Title::Initialization:: *)
-(*End *)
+(*(*End *)*)
 
 
 EndPackage[]
