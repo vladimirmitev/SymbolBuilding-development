@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
-(* ::Title::Initialization:: *)
-(*(*Beginning*)*)
+(* ::Title::Initialization::Closed:: *)
+(*(*Beginning/ First declarations *)*)
 
 
 (*----------------------------------------------------------------------------------------------------------------------------------*)
@@ -18,7 +18,7 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University
 
 
 
-(* ::Title::Initialization:: *)
+(* ::Title::Initialization::Closed:: *)
 (*(*Descriptions of the exported symbols*)*)
 
 
@@ -83,8 +83,11 @@ symbolsTensorToSolutionSpace::usage="The command 'symbolsTensorToSolutionSpace[s
 
 expressTensorAsSymbols::usage="ADD A BETTER DESCRIPTION!
 
-Express the list of tensors as a list of symbols in 3 different ways: If 'options= -1' then the output is of the type 'SB[First]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]...'.
-If 'options= 1', then the output is of the type 'W[\!\(\*SubscriptBox[\(i\), \(1\)]\)]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]....'. If 'options= 0', them the first part is ignored and the output is of the type 'W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(3\)]\)]\[CircleTimes]...'. The function 'expressTensorAsSymbols' is applied to an array of tensors. ";
+Express the list of tensors as a list of symbols in 3 different ways: If 'options= -1' then the output is of the type 
+'SB[First]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]...'.
+If 'options= 1', then the output is of the type 'W[\!\(\*SubscriptBox[\(i\), \(1\)]\)]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]....'. 
+If 'options= 0', them the first part is ignored and the output is of the type 'W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(3\)]\)]\[CircleTimes]...'. 
+The function 'expressTensorAsSymbols' is applied to an array of tensors. ";
 
 
 
@@ -134,8 +137,6 @@ productProjection::usage="productProjection[symbol] applies 'subProductProjectio
 (*Null space commands*)
 
 
-(*---------------------------------------------------------------------*)
-modifiedRowReduce::usage="modifiedRowReduce[sparse matrix] transforms a sparse array into a dense one and then applies row reduction on it. This is needed since acting with RowReduce on zero matrices can make the kernel crash. ";
 
 (*---------------------------------------------------------------------*)
 getNullSpaceFromRowReducedMatrix::usage="getNullSpaceFromRowReducedMatrix[row reduced sparse matrix] takes a sparse matrix A that has been brought into row echelon form and generates a matrix whose rows are a basis of the kernel of A. ";
@@ -152,7 +153,6 @@ getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null spac
 
 (*---------------------------------------------------------------------*)
 
-(*---------------------------------------------------------------------*)
 dLogAlphabet::usage="Compute the dLog of an alphabet (with roots). Used then in the command 'findRelationsInAlphabet' to determine if an alphabet is independent or not. ";
 
 findRelationsInAlphabet::usage="The command 'findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_]' determines if the dlog of the functions in 'alphabet' are linearly independent or not. The parameters 'chosenPrime_,sampleSize_,maxSamplePoints_,toleranceForRetries_,toleranceForextraSamples_' play the same role as in the command 'buildFMatrixReducedIterativelyForASetOfEquations'. If the alphabet is not idenpendent, the command will generate a matrix whose rows are the linear combinations of letters that are zero. ";
@@ -164,7 +164,9 @@ findRelationsInAlphabet::usage="The command 'findRelationsInAlphabet[alphabet_,a
 
 
 (*---------------------------------------------------------------------*)
-computeCoefficientsOfDifferenceEquation::usage="The function computeAlphas[dimSequence_] takes a sequence {dimH[0],dimH[1], dimH[2],...} of the dimensions of all integrable symbols at given weight (up to some cutoff) and attemps to guess a sequence of numbers {\[Alpha]_0=1,\[Alpha]_1, \[Alpha]_2,...  \[Alpha]_s} such that Sum[\[Alpha]_r (-1)^{r} dimH[L-r] ,{r,0,s}]=0. This provides a difference equation that the dimensions of the spaces of integrable symbols have to satisfy.  ";
+computeCoefficientsOfDifferenceEquation::usage="The function computeAlphas[dimSequence_] takes a sequence {dimH[0],dimH[1], dimH[2],...} of the dimensions of all integrable symbols 
+at given weight (up to some cutoff) and attemps to guess a sequence of numbers {\[Alpha]_0=1,\[Alpha]_1, \[Alpha]_2,...  \[Alpha]_s} such that Sum[\[Alpha]_r (-1)^{r} dimH[L-r] ,{r,0,s}]=0.
+ This provides a difference equation that the dimensions of the spaces of integrable symbols have to satisfy.  ";
 
 
 
@@ -241,8 +243,8 @@ expressionArray= { coefficients_{n1n2...} * \[Rho]1^n1 \[Rho]2^n2....., .....} a
 
 
 
-(* ::Title::Initialization:: *)
-(*(*Global variables*)*)
+(* ::Title::Initialization::Closed:: *)
+(*(*Global variables: definitions and descriptions *)*)
 
 
 (* ::Section::Initialization:: *)
@@ -345,12 +347,23 @@ Return["The global variables have been reset to their standard values. "]
 
 
 
-(* ::Title::Initialization:: *)
+(* ::Title::Initialization::Closed:: *)
 (*(*Private part of the package*)*)
 
 
-(* ::Input::Initialization:: *)
 Begin["`Private`"] (* Begin Private Context *)
+
+
+(* ::Input::Initialization:: *)
+
+
+(*---------------------------------------------------------------------*)
+modifiedRowReduce::usage="modifiedRowReduce[sparse matrix] transforms a sparse array into a dense one and then applies row reduction on it. This is needed since acting with RowReduce on zero matrices can make the kernel crash. This is used for example in the command 'getNullSpaceStepByStep'. ";
+
+modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
+
+
+
 
 End[] (* End Private Context *)
 
@@ -552,10 +565,6 @@ singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-
 (* ::Input::Initialization:: *)
 
 
-
-(* ::Input::Initialization:: *)
-
-
 expandInSymbolBasis[exp_,basis_]:=Module[{coefficientsTEMP,ansatzTEMP,solTEMP,expTEMP=factorSymbols[exp],basisTEMP=factorSymbols[basis],varSBTEMP},
 varSBTEMP=Cases[basisTEMP,SB[___],Infinity]//DeleteDuplicates;
 ansatzTEMP=Sum[coefficientsTEMP[iter] basisTEMP[[iter]],{iter,1,Length[basisTEMP]}];solTEMP=Quiet[Solve[0==(CoefficientArrays[expTEMP-ansatzTEMP,varSBTEMP]//Flatten//DeleteDuplicates),Table[coefficientsTEMP[i],{i,1,Length[basis]}]]];Which[solTEMP=={},"No solution.",
@@ -582,11 +591,6 @@ productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProje
 
 (* ::Chapter::Initialization:: *)
 (*(*Null Space commands*)*)
-
-
-(* ::Input::Initialization:: *)
-
-modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
 
 
 
@@ -630,7 +634,7 @@ True,getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrime
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Checking the independence of the alphabet*)*)
 
 
@@ -675,7 +679,7 @@ Return[If[TEMPNullSpace=={},"The alphabet is indepedent.", {"The alphabet is dep
 ];
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Difference equations/Counting products and irreducible symbols*)*)
 
 
@@ -718,7 +722,7 @@ dimIrreducibleSymbols[cutoffWeight_]:=
 Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Rational reconstruction algorithms*)*)
 
 
@@ -740,7 +744,7 @@ Return[r1/s1]
 rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]},Map[rationalReconstructionAlgorithm[#,prime]&,TEMPArray,{Depth[TEMPArray]-1}]];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Row reduction (over the finite fields)*)*)
 
 
@@ -790,7 +794,7 @@ True,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSM
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
@@ -970,7 +974,7 @@ Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
 
 
 (* ::Section::Initialization:: *)
-(*(*Compute the tensors for the integrable symbols)*)
+(*Compute the tensors for the integrable symbols*)
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -1093,7 +1097,7 @@ Which[mat1==={},Return[mat2],mat2==={},Return[mat1],True,Return[sparseArrayGlue[
 
 
 
-(* ::Title::Initialization:: *)
+(* ::Title::Initialization::Closed:: *)
 (*(*End *)*)
 
 
