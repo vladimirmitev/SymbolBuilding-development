@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*Beginning/ First declarations *)*)
 
 
@@ -13,7 +13,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the contruction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["V.01, July 12, 2018 "]
+Print["V.02, July 12, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University of Mainz, Germany. "]
 
 
@@ -29,7 +29,7 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*General command on lists and matrices manipulations (ALL PRIVATE????)*)*)
 
 
@@ -62,7 +62,7 @@ linearIndependentColumns::usage="linearIndependentColumns[matrix] gives a list c
 determineLeftInverse::usage="determineLeftInverse[sparseMatrix_] is a function that determines the left inverse of a sparse matrix that has more rows than columns.  ";
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Symbol tensors and their manipulations*)*)
 
 
@@ -92,7 +92,6 @@ The function 'expressTensorAsSymbols' is applied to an array of tensors. ";
 
 (* ::Chapter::Initialization:: *)
 (*(*Formal symbols*)*)
-(**)
 
 
 (* ::Input::Initialization:: *)
@@ -228,7 +227,6 @@ getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null spac
 (*Row reduction of the finite fields*)
 
 
-
 (*---------------------------------------------------------------------*)
 (*Rational reconstruction*)
 rationalReconstructionAlgorithm::usage="rationalReconstructionAlgorithm[q, prime number p] a reasonable guess for the fraction r in the field Q of the rationals such that r = q in the field of the prime number p. ";
@@ -243,7 +241,25 @@ rowReduceOverPrimes::usage="Use the finite field reduction over primes. Start wi
 
 (*---------------------------------------------------------------------*)
 (*Row reduction (over the finite fields)*)
-rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' compute the row-eshelon form of a matrix. FINISH THE DESCRIPTION!! ";
+rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' computes the row-eshelon form of a matrix. FINISH THE DESCRIPTION!! ";
+
+
+
+(* ::Chapter:: *)
+(*Determine tranformation matrices between alphabets*)
+
+
+
+buildTransformationMatrix::usage="The command 'buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]' produces the weight L matrix T_L that gives the limit of the integrable symbols in the alphabet A1 in the alphabet A2. It takes  as input: 1) the matrix 'alphabetTransformationMatrix' which tells us how the limit of the letters of A1 are expressed in letters of the limit alphabet A2, 2) the symbol tensor 'weightLsymbolTensor' of the weight L integrable symbols in A1, 3) the matrix 'previousTransformationMatrix' (this is T_{L-1}) and 4) the matrix 'limitAlphabetInversionMatrix' which is the weight L inversion matrix for the integrable symbols in the alphabet A2.  ";
+
+
+inverseMatrixToTensor::usage="The command 'inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]' takes the weight L inversion matrix E_L for the integrable symbols in a certain alphabet A and transforms it into a 3-tensor by splitting the column index in a bi-index (j,k) where k=1,... Length[A]. ";
+
+
+(* Two auxiliary commands *)
+auxFlattenTwoIndices12::usage="The auxiliary command 'auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]' flattens the first two indices of a 3-tensor with indices (i,j,k), where the second index j is in the interval j=1,..., sizeAlphabet. ";
+
+auxFlattenTwoIndices23::usage="The auxiliary command 'auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]' flattens the last two indices of a 3-tensor with indices (i,j,k), where the third index k is in the interval k=1,..., sizeAlphabet. ";
 
 
 
@@ -369,6 +385,7 @@ Begin["`Private`"] (* Begin Private Context *)
 (* ::Input::Initialization:: *)
 
 
+
 shuffles[A1_,A2_]:=Module[{nfoobar,p1,p2,shuffledz,A12},nfoobar=Length/@{A1,A2};
 {p1,p2}=Subsets[Range@Tr@nfoobar,{#}]&/@nfoobar;
 p2=Reverse@p2;
@@ -384,16 +401,16 @@ A12=shuffledz=Join[A1,A2];
 (* ::Input::Initialization:: *)
 
 
+
 modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
 
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Rational reconstruction*)
+(*(*Rational reconstruction*)*)
 
 
 (* ::Input::Initialization:: *)
-
 rationalReconstructionAlgorithm[q_,prime_]:=Module[{r0=q, s0=1, r1=prime,s1=0,rnew,snew,qnew},
 If[q==0,Return[q]];
 While[prime-r1^2<  0,
@@ -408,7 +425,6 @@ rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]
 
 (* ::Subsubsection:: *)
 (*Row Reduction over the finite fields for a dense matrix*)
-
 
 
 applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},SparseArray[Table[foo->ChineseRemainder[Table[matrixFoo[[Sequence@@foo]],{matrixFoo,matrixList}],primesList],{foo,listOfEntries}],Dimensions[First[matrixList]]]
@@ -446,7 +462,6 @@ Return["No solution! Choose different primes or increase the iteration! "];
 (*Null space commands*)
 
 
-
 getNullSpaceFromRowReducedMatrix[rowReducedMatrix_]:=Block[{freeCoeff,dependentCoeff,trivialIntgrb,solutions,matrixNumberOfColumns=Dimensions[rowReducedMatrix][[2]],sortedEntries},
 sortedEntries=GatherBy[Map[First,Most[ArrayRules[rowReducedMatrix]]],First[#]&];
 freeCoeff=Union[Last/@Flatten[Rest/@sortedEntries,1]];dependentCoeff=Map[Last[First[#]]&,sortedEntries];trivialIntgrb=Map[{#->1}&,Complement[Range[matrixNumberOfColumns],dependentCoeff,freeCoeff]];solutions=Map[Map[dependentCoeff[[First[First[#]]]]-> Last[#]&,Most[ArrayRules[rowReducedMatrix.SparseArray[#->-1,{matrixNumberOfColumns}]]]]&,freeCoeff];solutions=MapThread[Join,{solutions,Map[{#->1}&,freeCoeff]}];solutions=Join[trivialIntgrb,solutions];
@@ -482,19 +497,29 @@ Return[n0]];
 ];
 
 
+(* ::Subsubsection:: *)
+(*Two auxiliary commands for the determination of transformation matrices between two alphabets*)
+
+
+
+auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray//ArrayRules]/. ({a1_,a2_,a3_}->a4_):>({(a1-1) sizeAlphabet+a2,a3}->a4),{Dimensions[sparsearray][[1]]*sizeAlphabet,Dimensions[sparsearray][[3]]}];
+
+
+auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray//ArrayRules]/. ({a1_,a2_,a3_}->a4_):>({a1,(a2-1) sizeAlphabet+a3}->a4),{Dimensions[sparsearray][[1]],Dimensions[sparsearray][[2]]*sizeAlphabet}];
+
+
 (* ::Section:: *)
 (*End*)
-
 
 
 End[] (* End Private Context *)
 
 
-(* ::Title::Initialization:: *)
+(* ::Title::Initialization::Closed:: *)
 (*(*The public part of the package*)*)
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*General command on lists and matrices manipulations*)*)
 
 
@@ -635,9 +660,9 @@ Table[Sum[sparseArrayRules[[ifoo,2]]sym[S[sparseArrayRules[[ifoo,1]]//First],Dro
 
 (* ::Subsubsection::Initialization:: *)
 (*(*Shuffle products*)*)
-
-
-
+(**)
+(**)
+(**)
 
 
 shuffleProduct[symbol1_,symbol2_]:=(symbol1 (symbol2/.SB[A_]:> SB2[A])//Expand)/.SB[A_]SB2[B_]:> Sum[SB[foo],{foo,shuffles[A,B]}];
@@ -648,7 +673,6 @@ shuffleProduct[symbol1_,symbol2_]:=(symbol1 (symbol2/.SB[A_]:> SB2[A])//Expand)/
 
 
 (* ::Input::Initialization:: *)
-
 SB[{}]:=1;
 SB[{A1___,A_,A2___}]:=0/;NumericQ[A];
 SB[{A___,A1_^n_,B___}]:=n SB[{A,A1,B}];
@@ -661,7 +685,6 @@ SB[{A___,A1_/A2_,B___}]:=SB[{A,A1,B}]-SB[{A,A2,B}];
 
 
 (* ::Input::Initialization:: *)
-
 listifySum[A_]:=If[Head[A]===Plus,List@@A,{A}];
 
 
@@ -683,6 +706,7 @@ singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-
 (* ::Input::Initialization:: *)
 
 
+
 expandInSymbolBasis[exp_,basis_]:=Module[{coefficientsTEMP,ansatzTEMP,solTEMP,expTEMP=factorSymbols[exp],basisTEMP=factorSymbols[basis],varSBTEMP},
 varSBTEMP=Cases[basisTEMP,SB[___],Infinity]//DeleteDuplicates;
 ansatzTEMP=Sum[coefficientsTEMP[iter] basisTEMP[[iter]],{iter,1,Length[basisTEMP]}];solTEMP=Quiet[Solve[0==(CoefficientArrays[expTEMP-ansatzTEMP,varSBTEMP]//Flatten//DeleteDuplicates),Table[coefficientsTEMP[i],{i,1,Length[basis]}]]];Which[solTEMP=={},"No solution.",
@@ -696,7 +720,6 @@ True,"The supposed basis is not linearly independent."]
 
 
 (* ::Input::Initialization:: *)
-
 subProductProjection[symbol_]:=Module[{list=(symbol/.SB[A_]:> A),lengthList},
 lengthList=Length[list]; 
 If[lengthList==1,Return[symbol]]; 
@@ -707,10 +730,8 @@ If[lengthList==1,Return[symbol]];
 productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProjection[SB[A]];
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Null Space commands*)*)
-
-
 
 
 getNullSpace[matrix_]:=Which[Length[matrix]<globalGetNullSpaceLowerThreshold,SparseArray[NullSpace[matrix]],
@@ -719,12 +740,11 @@ True,getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrime
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Checking the independence of the alphabet*)*)
 
 
 (* ::Input::Initialization:: *)
-
 dLogAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_]:=Module[{TEMPeqn,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
 
 newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];
@@ -775,6 +795,7 @@ Return[If[TEMPNullSpace=={},"The alphabet is indepedent.", {"The alphabet is dep
 (* ::Input::Initialization:: *)
 
 
+
 computeCoefficientsOfDifferenceEquation[dimSequence_]:=Module[{M=dimSequence[[2]],Rsequence,TEMPeqn,varAlpha,tempDim,tempCond,tempa},
 Rsequence=Table[M dimSequence[[i-1]]-dimSequence[[i]],{i,2,Length[dimSequence]}];
 TEMPeqn=Table[-Sum[(-1)^n tempa[n]tempDim[L-n],{n,1,L}]-(tempDim[L-1] M-tempCond[L]),{L,0,Length[dimSequence]-1}]/.{tempDim[-1]-> 0,tempCond[0]-> 0,tempCond[1]-> 0,tempDim[0]-> 1};
@@ -790,6 +811,7 @@ Return[Table[tempa[i],{i,0,Length[varAlpha]}]/.Solve[TEMPeqn==0,varAlpha][[1]]/.
 
 
 (* ::Input::Initialization:: *)
+
 
 
 rewritePartition[partition_]:=Module[{max=Max[partition]},Table[Count[partition,i],{i,1,max}]];
@@ -811,7 +833,7 @@ Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[wei
 (*(*Rational reconstruction algorithms*)*)
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Row reduction (over the finite fields)*)*)
 
 
@@ -825,7 +847,7 @@ True,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSM
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
@@ -834,7 +856,6 @@ True,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSM
 
 
 (* ::Input::Initialization:: *)
-
 matrixFReducedToTensor[sparseMatrix_]:=Module[{TEMPdim=Dimensions[sparseMatrix],TEMPIndexTable,len},
 len=(Sqrt[8TEMPdim[[2]]+1]+1)/2;
 TEMPIndexTable=Flatten[Table[{i,j},{i,1,len-1},{j,i+1,len}],1];
@@ -845,7 +866,7 @@ SparseArray[Flatten[Table[{Join[{foo[[1,1]]},TEMPIndexTable[[foo[[1,2]]]]]-> foo
 
 (* ::Section::Initialization::Closed:: *)
 (*(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)*)
-
+(**)
 
 
 integrableEquationsRational[alphabet_,allvariables_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
@@ -898,6 +919,7 @@ Return[TEMPeqn]
 
 
 (* ::Input::Initialization:: *)
+
 
 
 resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRoots_,listOfRootPowers_]:=Module[{
@@ -990,7 +1012,6 @@ Return[rowReduceMatrix[TEMPmatrix//Normal]//SparseArray//sparseArrayZeroRowCut]
 
 
 (* ::Input::Initialization:: *)
-
 takeSecondEntry[array_]:=If[#==={},0,#[[1,2]]]&/@array;
 
 
@@ -1000,12 +1021,12 @@ Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
 ];
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Computing the integrable symbols*)*)
 
 
 (* ::Section::Initialization:: *)
-(*Compute the tensors for the integrable symbols*)
+(*(*Compute the tensors for the integrable symbols*)*)
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -1135,7 +1156,21 @@ True,Return[sparseArrayGlue[mat1,mat2]]];
 
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
+(*(*Determine tranformation matrices between alphabets*)*)
+
+
+
+
+buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]]},
+Return[auxFlattenTwoIndices23[transposeLevelsSparseArray[weightLsymbolTensor,{3,1,2}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].transposeLevelsSparseArray[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{2,3,1}],limitAlphabetSize]];
+];
+
+inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]:=SparseArray[Most[inverseMatrix//ArrayRules]/. ({a1_,a2_}->a3_):>({a1,Quotient[a2-1,sizeAlphabet]+1,Mod[a2,sizeAlphabet,1]}->a3),{Dimensions[inverseMatrix][[1]],Dimensions[inverseMatrix][[2]]/sizeAlphabet,sizeAlphabet}];
+
+
+
+(* ::Title::Initialization:: *)
 (*(*End *)*)
 
 
