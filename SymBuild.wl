@@ -29,8 +29,8 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
-(*(*General command on lists and matrices manipulations (ALL PRIVATE????)*)*)
+(* ::Chapter::Initialization:: *)
+(*(*General command on lists and matrices manipulations *)*)
 
 
 (*----------------------------------------------------------------------------------------------------------*)
@@ -203,6 +203,11 @@ collectRootCoefficients::usage="The command collectRootCoefficients[expressionAr
 expressionArray= { coefficients_{n1n2...} * \[Rho]1^n1 \[Rho]2^n2....., .....} and turns it into an array 
 {coefficients_{n1n2...},..} such that each row corresponds to the same powers of the roots \[Rho]i. Here, 'namesOfRoots'={\[Rho]1,\[Rho]2,....} is the list of the different roots. ";
 
+(*---------------------------------------------------------------------*)
+(* The simplest end-user command for the computation of the integrability tensor *)
+computeTheIntegrabilityTensor::usage="The command 'computeTheIntegrableTensor[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]' computes the integrability tensor \[DoubleStruckCapitalF] for a given alphabet 'alphabet_' in the variables 'allvariables_'. The array 'listOfRoots_' contains a list of rational functions {\[CapitalDelta]1, ..., \[CapitalDelta]s} such that the roots \[Rho]i obey \[Rho]i^{ni}=\[CapitalDelta]i, where the powers ni are contained in the array 'listOfRootPowers_'. See the command 'buildFMatrixReducedForASetOfEquations' for an explanation of the parameters 'sampleSize_,maxSamplePoints_,toleranceForRetries_'.  ";
+
+
 
 
 (* ::Chapter:: *)
@@ -367,7 +372,7 @@ Return["The global variables have been reset to their standard values. "]
 
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*The private part of the package*)*)
 
 
@@ -376,6 +381,73 @@ Return["The global variables have been reset to their standard values. "]
 
 
 Begin["`Private`"] (* Begin Private Context *)
+
+
+(* ::Subsubsection:: *)
+(*General commands on lists and matrices manipulations*)
+
+
+(*Sparse Matrix Manipulation*)
+sparseArrayGlueRight::nnarg=" The dimensions of the matrices are mismatched! ";
+
+sparseArrayGlueRight[A1_,A2_]/;If[Dimensions[A1][[1]]== Dimensions[A2][[1]],True,Message[sparseArrayGlueRight::nnarg];False]:=SparseArray[Union[A1//ArrayRules,(A2//ArrayRules)/.{a1_,a2_}:> {a1,a2+Dimensions[A1][[2]]}/;!(a1===_)],{Dimensions[A1][[1]],Dimensions[A1][[2]]+Dimensions[A2][[2]]}];
+
+sparseArrayGlue::nnarg=" The dimensions of the matrices are mismatched! ";
+
+sparseArrayGlue[A1_,A2_]/;If[Dimensions[A1][[2]]== Dimensions[A2][[2]],True,Message[sparseArrayGlue::nnarg];False]:=SparseArray[Union[A1//ArrayRules,(A2//ArrayRules)/.{a1_,a2_}:> {a1+Dimensions[A1][[1]],a2}/;!(a1===_)],{Dimensions[A1][[1]]+Dimensions[A2][[1]],Dimensions[A1][[2]]}];
+
+sparseArrayGlue[A_]:=Which[Length[A]==0,A,Length[A]==1,A[[1]], Length[A]==2,sparseArrayGlue[A[[1]],A[[2]]],Length[A]>2, sparseArrayGlue[Join[{sparseArrayGlue[A[[1]],A[[2]]]},Drop[A,2]]]];
+
+sparseArrayZeroRowCut[sarray_]:=Module[{entriesPosition=Drop[(sarray//ArrayRules)[[All,1]],-1],dimArray=Dimensions[sarray]},If[entriesPosition==={},SparseArray[sarray,{1,dimArray[[2]]}],SparseArray[sarray,{Max[entriesPosition[[All,1]]],dimArray[[2]]}]]];
+
+(*---------------------------------------------------------------------*)
+
+dotSymbolTensors[tensorL_,tensorR_]:=tensorL.tensorR;
+dotSymbolTensors[A_]:=Which[Length[A]==0,{},Length[A]==1,A[[1]], Length[A]==2,dotSymbolTensors[A[[1]],A[[2]]],Length[A]>2, dotSymbolTensors[Join[{dotSymbolTensors[A[[1]],A[[2]]]},Drop[A,2]]]];
+
+(*---------------------------------------------------------------------*)
+
+transposeLevelsSparseArray[sparseArray_,level1_,level2_]:=Module[{array=Drop[sparseArray//ArrayRules,-1], dimensions=Dimensions[sparseArray],swappedOrder},
+swappedOrder=Range[Length[dimensions]]/.{level1-> level2,level2-> level1};
+SparseArray[Table[array[[iter,1]][[swappedOrder]]-> array[[iter,2]],{iter,1,Length[array]}],dimensions[[swappedOrder]]]
+];
+
+transposeLevelsSparseArray[sparseArray_,swappedOrder_]:=Module[{array=Drop[sparseArray//ArrayRules,-1], dimensions=Dimensions[sparseArray]},
+SparseArray[Table[array[[iter,1]][[swappedOrder]]-> array[[iter,2]],{iter,1,Length[array]}],dimensions[[swappedOrder]]]
+];
+
+positionDuplicates[list_]:=GatherBy[Range@Length[list],list[[#]]&] ;
+
+
+
+(* Dense Matrix Manipulation*)
+
+denseMatrixConcatenateBelow::nnarg=" The dimensions of the matrices are mismatched! ";
+
+denseMatrixConcatenateBelow[matrixUp_,matrixDown_]/;If[Dimensions[matrixUp][[2]]== Dimensions[matrixDown][[2]],True,Message[denseMatrixConcatenateBelow::nnarg];False]:=ArrayFlatten[{{matrixUp},{matrixDown}}];
+
+denseMatrixConcatenateRight::nnarg=" The dimensions of the matrices are mismatched ";
+
+denseMatrixConcatenateRight[matrixLeft_,matrixRight_]/;If[Dimensions[matrixLeft][[1]]== Dimensions[matrixRight][[1]],True,Message[denseMatrixConcatenateRight::nnarg];False]:=ArrayFlatten[{{matrixLeft,matrixRight}}];
+
+denseMatrixZeroRowCut[matrix_]:=DeleteCases[#,ConstantArray[0,Length@#[[1]]]]&@matrix;
+
+
+(* Finding a set of linear independent columns of a matrix *)
+linearIndependentColumns[mat_]:=Map[Position[#,Except[0,_?NumericQ],1,1]&,RowReduce[mat]]//Flatten;
+
+
+(*---------------------------------------------------------------------*)
+(* !!!!! UPDATE NEEDED: use the general row reduce here if necessary *)
+(* UPDATE NEEDED: THE ROW REDUCTION SHOULD NOT BE NECESSARY SINCE WE WANT A VERY SPECIAL CASE! *)
+
+determineLeftInverse::nnarg=" The number of rows must be bigger or equal to the number of columns! ";
+
+determineLeftInverse[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverse::nnarg];False]:=Module[{rowLength, columnLength, TEMPmatrix},
+{rowLength, columnLength}=Dimensions[sparseMatrix]; 
+TEMPmatrix=RowReduce[sparseArrayGlueRight[sparseMatrix,SparseArray[Band[{1,1}]-> 1,{rowLength,rowLength}]]];
+Return[SparseArray[TEMPmatrix[[1;;columnLength, columnLength+1;;]]]];
+];
 
 
 (* ::Subsubsection:: *)
@@ -515,76 +587,8 @@ auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray
 End[] (* End Private Context *)
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*The public part of the package*)*)
-
-
-(* ::Chapter::Initialization::Closed:: *)
-(*(*General command on lists and matrices manipulations*)*)
-
-
-(*Sparse Matrix Manipulation*)
-sparseArrayGlueRight::nnarg=" The dimensions of the matrices are mismatched! ";
-
-sparseArrayGlueRight[A1_,A2_]/;If[Dimensions[A1][[1]]== Dimensions[A2][[1]],True,Message[sparseArrayGlueRight::nnarg];False]:=SparseArray[Union[A1//ArrayRules,(A2//ArrayRules)/.{a1_,a2_}:> {a1,a2+Dimensions[A1][[2]]}/;!(a1===_)],{Dimensions[A1][[1]],Dimensions[A1][[2]]+Dimensions[A2][[2]]}];
-
-sparseArrayGlue::nnarg=" The dimensions of the matrices are mismatched! ";
-
-sparseArrayGlue[A1_,A2_]/;If[Dimensions[A1][[2]]== Dimensions[A2][[2]],True,Message[sparseArrayGlue::nnarg];False]:=SparseArray[Union[A1//ArrayRules,(A2//ArrayRules)/.{a1_,a2_}:> {a1+Dimensions[A1][[1]],a2}/;!(a1===_)],{Dimensions[A1][[1]]+Dimensions[A2][[1]],Dimensions[A1][[2]]}];
-
-sparseArrayGlue[A_]:=Which[Length[A]==0,A,Length[A]==1,A[[1]], Length[A]==2,sparseArrayGlue[A[[1]],A[[2]]],Length[A]>2, sparseArrayGlue[Join[{sparseArrayGlue[A[[1]],A[[2]]]},Drop[A,2]]]];
-
-sparseArrayZeroRowCut[sarray_]:=Module[{entriesPosition=Drop[(sarray//ArrayRules)[[All,1]],-1],dimArray=Dimensions[sarray]},If[entriesPosition==={},SparseArray[sarray,{1,dimArray[[2]]}],SparseArray[sarray,{Max[entriesPosition[[All,1]]],dimArray[[2]]}]]];
-
-(*---------------------------------------------------------------------*)
-
-dotSymbolTensors[tensorL_,tensorR_]:=tensorL.tensorR;
-dotSymbolTensors[A_]:=Which[Length[A]==0,{},Length[A]==1,A[[1]], Length[A]==2,dotSymbolTensors[A[[1]],A[[2]]],Length[A]>2, dotSymbolTensors[Join[{dotSymbolTensors[A[[1]],A[[2]]]},Drop[A,2]]]];
-
-(*---------------------------------------------------------------------*)
-
-transposeLevelsSparseArray[sparseArray_,level1_,level2_]:=Module[{array=Drop[sparseArray//ArrayRules,-1], dimensions=Dimensions[sparseArray],swappedOrder},
-swappedOrder=Range[Length[dimensions]]/.{level1-> level2,level2-> level1};
-SparseArray[Table[array[[iter,1]][[swappedOrder]]-> array[[iter,2]],{iter,1,Length[array]}],dimensions[[swappedOrder]]]
-];
-
-transposeLevelsSparseArray[sparseArray_,swappedOrder_]:=Module[{array=Drop[sparseArray//ArrayRules,-1], dimensions=Dimensions[sparseArray]},
-SparseArray[Table[array[[iter,1]][[swappedOrder]]-> array[[iter,2]],{iter,1,Length[array]}],dimensions[[swappedOrder]]]
-];
-
-positionDuplicates[list_]:=GatherBy[Range@Length[list],list[[#]]&] ;
-
-
-
-(* Dense Matrix Manipulation*)
-
-denseMatrixConcatenateBelow::nnarg=" The dimensions of the matrices are mismatched! ";
-
-denseMatrixConcatenateBelow[matrixUp_,matrixDown_]/;If[Dimensions[matrixUp][[2]]== Dimensions[matrixDown][[2]],True,Message[denseMatrixConcatenateBelow::nnarg];False]:=ArrayFlatten[{{matrixUp},{matrixDown}}];
-
-denseMatrixConcatenateRight::nnarg=" The dimensions of the matrices are mismatched ";
-
-denseMatrixConcatenateRight[matrixLeft_,matrixRight_]/;If[Dimensions[matrixLeft][[1]]== Dimensions[matrixRight][[1]],True,Message[denseMatrixConcatenateRight::nnarg];False]:=ArrayFlatten[{{matrixLeft,matrixRight}}];
-
-denseMatrixZeroRowCut[matrix_]:=DeleteCases[#,ConstantArray[0,Length@#[[1]]]]&@matrix;
-
-
-(* Finding a set of linear independent columns of a matrix *)
-
-linearIndependentColumns[mat_]:=Map[Position[#,Except[0,_?NumericQ],1,1]&,RowReduce[mat]]//Flatten;
-
-
-(*---------------------------------------------------------------------*)
-(* !!!!! UPDATE NEEDED: use the general row reduce here if necessary *)
-(* UPDATE NEEDED: THE ROW REDUCTION SHOULD NOT BE NECESSARY SINCE WE WANT A VERY SPECIAL CASE! *)
-
-determineLeftInverse::nnarg=" The number of rows must be bigger or equal to the number of columns! ";
-
-determineLeftInverse[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverse::nnarg];False]:=Module[{rowLength, columnLength, TEMPmatrix},
-{rowLength, columnLength}=Dimensions[sparseMatrix]; 
-TEMPmatrix=RowReduce[sparseArrayGlueRight[sparseMatrix,SparseArray[Band[{1,1}]-> 1,{rowLength,rowLength}]]];
-Return[SparseArray[TEMPmatrix[[1;;columnLength, columnLength+1;;]]]];
-];
 
 
 (* ::Chapter::Initialization::Closed:: *)
@@ -740,7 +744,7 @@ True,getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrime
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Checking the independence of the alphabet*)*)
 
 
@@ -847,7 +851,7 @@ True,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSM
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
@@ -1021,6 +1025,24 @@ Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
 ];
 
 
+(* ::Section:: *)
+(*Putting all the commands together into one such that it is easy for the user*)
+
+
+
+computeTheIntegrabilityTensor::nnarg=" The size of the array 'listOfRoots' must match the size of the array 'listOfRootPowers'!  ";
+
+computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[sparseArrayGlue::nnarg];False]:=Module[{TEMPintegrableEquations, TEMPintegrableEquationsResolved,TEMPintegrableEquationsRationalized,TEMPintegrabilityMatrix},
+Print["Generating the integrability equations..."];
+TEMPintegrableEquations=integrableEquationsWithRoots[alphabet,allvariables,listOfRoots,listOfRootPowers];
+TEMPintegrableEquationsResolved=resolveRootViaGroebnerBasisMatrix[TEMPintegrableEquations,listOfRoots,listOfRootPowers];
+TEMPintegrableEquationsRationalized=collectRootCoefficients[TEMPintegrableEquationsResolved,Table[ToExpression["\[Rho]"<>ToString[iter]],{iter,1,Length[listOfRoots]}]];
+Print["...Done. Also done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."];
+TEMPintegrabilityMatrix=buildFMatrixReducedForASetOfEquations[TEMPintegrableEquationsRationalized//Normal//Factor,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
+Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
+];
+
+
 (* ::Chapter::Initialization::Closed:: *)
 (*(*Computing the integrable symbols*)*)
 
@@ -1156,7 +1178,7 @@ True,Return[sparseArrayGlue[mat1,mat2]]];
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Determine tranformation matrices between alphabets*)*)
 
 
