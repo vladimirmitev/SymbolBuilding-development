@@ -13,7 +13,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the contruction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["V.02, July 12, 2018 "]
+Print["V.03, July 19, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Guttenberg University of Mainz, Germany. "]
 
 
@@ -62,7 +62,7 @@ linearIndependentColumns::usage="linearIndependentColumns[matrix] gives a list c
 determineLeftInverse::usage="determineLeftInverse[sparseMatrix_] is a function that determines the left inverse of a sparse matrix that has more rows than columns.  ";
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Symbol tensors and their manipulations*)*)
 
 
@@ -80,13 +80,15 @@ symbolsTensorToVector::usage="This command takes a tensor (like d[All,All,somenu
 
 symbolsTensorToSolutionSpace::usage="The command 'symbolsTensorToSolutionSpace[symbolsTensor_]'  is the inverse function to 'solutionSpaceToSymbolsTensor' and it takes the symbol tensors and gives back the matrix whose rows are in the kernel of the integrability conditions. ";
 
-expressTensorAsSymbols::usage="ADD A BETTER DESCRIPTION!
+expressTensorAsSymbols::usage=" The command 'expressTensorAsSymbols[sparseArrayRules_,options_.]' expresses lists of integrable tensors explicitly as formal symbols. 
+The variable 'sparseArrayRules' is a tensor obtained by using the command 'dotSymbolTensors' on an array of integrable symbols {d_{M},....d_L} starting at weight M and continuing to weight L. 
+Then the command takes this tensor with L-M+3 indices and expresses it a list of formal symbols. 
 
-Express the list of tensors as a list of symbols in 3 different ways: If 'options= -1' then the output is of the type 
-'SB[First]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]...'.
-If 'options= 1', then the output is of the type 'W[\!\(\*SubscriptBox[\(i\), \(1\)]\)]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]....'. 
-If 'options= 0', them the first part is ignored and the output is of the type 'W[\!\(\*SubscriptBox[\(i\), \(2\)]\)]\[CircleTimes]W[\!\(\*SubscriptBox[\(i\), \(3\)]\)]\[CircleTimes]...'. 
-The function 'expressTensorAsSymbols' is applied to an array of tensors. ";
+The expression can be made in 3 different ways: If 'options' is the string 'Recursive'' then the output is of the type 
+'Sum of  sym[S[j_{M-1}],{i_{M},i_{M+1},...,i_L}]' where S[j_{M-1}] are the integrable symbols of weight M and the remainig i_s indices indicate the attached letters.
+If 'options= 'Complete'', then the S[j_{M-1}] is replaced by an index in the remaining array, like this : 'Sum of sym[{i_{M-1},i_{M},...,i_L}]'. This is only meaningful if M=2 or M=1. 
+If 'options= 'DropFirst'', then the output is similar to the 'Complete' case bu the first entry of the array is ignored and the output is of the type 'Sum of sym[{i_{M},i_{M+1},...}]'. 
+This is only ok for M=1";
 
 
 
@@ -198,7 +200,6 @@ takeSecondEntry::usage="'takeSecondEntry[array_]' is an auxiliary command used f
 It is applied to a list. If that list is of the type '{entry \[Rule] X}' it gives X and if the array is {} it gives zero. ";
 
 (*---------------------------------------------------------------------*)
-(* The speed needs to be IMPROVED !!!! *)
 collectRootCoefficients::usage="The command collectRootCoefficients[expressionArray_,namesOfRoots_] start with an array 
 expressionArray= { coefficients_{n1n2...} * \[Rho]1^n1 \[Rho]2^n2....., .....} and turns it into an array 
 {coefficients_{n1n2...},..} such that each row corresponds to the same powers of the roots \[Rho]i. Here, 'namesOfRoots'={\[Rho]1,\[Rho]2,....} is the list of the different roots. ";
@@ -224,7 +225,10 @@ getNullSpaceFromRowReducedMatrix::usage="getNullSpaceFromRowReducedMatrix[row re
 getNullSpaceStepByStep::usage="getNullSpaceStepByStep[matrix, step] computes the null space of a matrix by dividing it into subpieces with 'step' number of rows. At each iteration the nullspace computed previously is plugged into the next subpiece which reduces the number of columns in the computation. ";
 
 
-getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null space of 'matrix'. If the number of rows of 'matrix' is smaller than the global variable 'globalGetNullSpaceLowerThreshold', it uses the standard Mathematica command NullSpace. If bigger than that number but smaller than 'globalGetNullSpaceSpaSMThreshold', it uses the command 'getNullSpace' which computes the null space iteratively after dividing the matrix into several small ones that have at most 'globalGetNullSpaceStep' rows. If the number of rows of 'matrix' is larger than the global variable 'globalGetNullSpaceSpaSMThreshold', then this command calls the external program SpaSM. The rows of the returned matrix are a basis for the null space. ";
+getNullSpace::usage=" The command 'getNullSpace[matrix_]' computes the null space of 'matrix'. 
+If the number of rows of 'matrix' is smaller than the global variable 'globalLowerThreshold', it uses the standard Mathematica command NullSpace. 
+If bigger than that number but smaller than 'globalSpaSMThreshold', it uses the command 'getNullSpace' which computes the null space iteratively after dividing the matrix into several small ones that have at most 'globalGetNullSpaceStep' rows. 
+If the number of rows of 'matrix' is larger than the global variable 'globalSpaSMThreshold', then this command calls the external program SpaSM. The rows of the returned matrix are a basis for the null space. ";
 
 
 
@@ -296,6 +300,33 @@ matrix of conditions determined using the command 'weightLForbiddenSequencesEqua
 is imposed.  ";
 
 
+(*---------------------------------------------------------------------*)
+(* construction of the weight 1 integrable tensors*)
+weight1Solution::usage="The command 'weight1Solution[alphabet_,forbiddenEntries_.]' creates the weight 1 solution in tensor form when given the alphabet and (optionally) a set of forbidden entries. By default the latter is an empty list.  ";
+
+weight1SolutionEvenAndOdd::usage="The command 'weight1SolutionEvenAndOdd[alphabet_,listOfSymbolSigns_,forbiddenEntries_]' creates the weight 1 solution in tensor form when given the alphabet, 
+a list that tells which letters are even/odd and (optionally) a set of forbidden entries (By default this is an empty list). 
+The result is an array {weight1tensors, listOfSigns} for weight 1, where 'listOfSigns' is a 1D array of 0 or 1 with 0 meaning the corresponding symbol is even and 1 that it is odd. ";
+
+(*---------------------------------------------------------------------*)
+(* The n-entry conditions *)
+
+weightLForbiddenSequencesEquationMatrix::usage=" The command 'weightLForbiddenSequencesEquationMatrix[allPreviousWeightSymbolsTensorList_,listOfForbiddenSequences_,sizeAlphabet_]' computes the 
+matrix of conditions for the weight L integrable symbols such that certain sequences of letters (given by the variable 'listOfForbiddenSequences') do not appear. The array
+'allPreviousWeightSymbolsTensorList' is a list of all the tensors of integrable symbols of lower weight, i.e. {d_1,d_2,d_3,....d_{L-1}}, where d_i are the weight i integrable symbol tensors. "
+
+(*---------------------------------------------------------------------*)
+(* Commands for the computations of the even+odd symbols*)
+makeSparseMatrixOutOfIndexLists::usage="makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_] makes a sparse matrix of size (Length[index1]*Length[index2])x (size1*size1) with entries 1 and 0. \[IndentingNewLine]The position of the 1s is given by the entries of index1 and index2 in a tensorial way. ";
+
+
+makeTheEvenOddConditionsMatrix::usage="makeTheEvenOddConditionsMatrix[previousIntegrableSymbolsSigns_,listOfSymbolSigns_,evenOrOdd_] generates a matrix of combitions 
+that have to be satisfied by the weight L even (for 'evenOrOdd'=0) or odd (for 'evenOrOdd'=1) integrable symbols, where 'previousIntegrableSymbolsSigns' 
+is the tensor for the  weight L-1 integrable symbols and 'listOfSymbolSigns' is a list of zeroes or ones depending on the parity of the elements in 'previousIntegrableSymbolsSigns'. ";
+
+
+
+
 (* ::Chapter:: *)
 (*Presentation commands*)
 
@@ -305,7 +336,7 @@ the list of 0 and 1 indicating which symbols are even/odd, and presents the data
 
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*Global variables: definitions and descriptions *)*)
 
 
@@ -319,10 +350,19 @@ the list of 0 and 1 indicating which symbols are even/odd, and presents the data
 
 
 (* ::Input::Initialization:: *)
-globalSpaSMExchangePath::usage=" This is a global parameter that specifies the folder in which the temporary files used by SpaSM are to be stored. (YANG?)";globalSpaSMExchangePath="/home/vladimir/SpaSM/exchange"; 
 
+(*
 globalSpaSMPath::usage=" This is a global parameter that specifies the bench path for SpaSM. (YANG?)";
 globalSpaSMPath = "/home/vladimir/SpaSM/spasm/bench";
+*)
+
+globalSpaSMSwitch::usage=" This is a global parameter that specifies whether 'SpaSM' is used or not. By default it is true. Do not forget to set 'globalSpaSMExchangePath=SpaSMExchangePath'
+in the notebook! ";
+globalSpaSMSwitch=True;
+
+
+globalSpaSMExchangePath::usage=" This is a global parameter that specifies the folder in which the temporary files used by SpaSM are to be stored. (YANG?)";globalSpaSMExchangePath="/home/vladimir/SpaSM/exchange";
+
 
 globalSpaSMListOfPrimes::usage=" This is a global parameter that provides a list of primes that can be used in SpaSM. The primes used in that program should not be larger than \!\(\*SuperscriptBox[\(2\), \(16\)]\).";
 globalSpaSMListOfPrimes=Select[Range[2^14]+10000,PrimeQ];
@@ -337,11 +377,11 @@ globalSpaSMNumberOfKernels=2;
 
 
 (* ::Input::Initialization:: *)
-globalGetNullSpaceLowerThreshold::usage=" This is a global parameter in the command 'getNullSpace'. If the matrix whose null space must be computed has less rows that this number, then the standard 'NullSpace' command is used. ";
-globalGetNullSpaceLowerThreshold=300; 
+globalLowerThreshold::usage=" This is a global parameter in the command 'getNullSpace'. If the matrix whose null space must be computed has less rows that this number, then the standard 'NullSpace' command is used. ";
+globalLowerThreshold=300; 
 
-globalGetNullSpaceSpaSMThreshold::usage=" This is a global parameter in the command 'getNullSpace'. If the matrix whose NullSpace must be computed has less rows that this number but higher or equal than 'globalGetNullSpaceLowerThreshold', then the 'getNullSpaceStepByStep' command is used. If it has more rows that this parameter, then the external program SpaSM is called. ";
-globalGetNullSpaceSpaSMThreshold=1000;
+globalSpaSMThreshold::usage=" This is a global parameter in the command 'getNullSpace' (and 'rowReducedMatrix'). If the matrix whose NullSpace must be computed has less rows that this number but higher or equal than 'globalLowerThreshold', then the 'getNullSpaceStepByStep' command is used. If it has more rows that this parameter, then the external program SpaSM is called. ";
+globalSpaSMThreshold=1000;
 
 globalGetNullSpaceStep::usage=" This is a global parameter in the command 'getNullSpace'. When 'GetNullSpace' uses the 'getNullSpaceStepByStep' algorithm, the matrix whose null space one wants to compute is divided into submatrices of row size given by 'globalGetNullSpaceStep'. ";
 globalGetNullSpaceStep=200;
@@ -371,17 +411,17 @@ globalRowReduceOverPrimesMethod="Systematic";
 
 
 
-globalRowReduceMatrixLowerThreshold::usage=" This is a global parameter in the command 'rowReduceMatrix'. If the matrix which is to be brought in row echelon form has less rows that this number, then the standard 'RowReduce' command is used. ";
+(*globalRowReduceMatrixLowerThreshold::usage=" This is a global parameter in the command 'rowReduceMatrix'. If the matrix which is to be brought in row echelon form has less rows that this number, then the standard 'RowReduce' command is used. ";
 globalRowReduceMatrixLowerThreshold=200;
 
 globalRowReduceMatrixSpaSMThreshold::usage=" This is a global parameter in the command 'rowReduceMatrix'. If the matrix which is to be brought in row echelon form has more rows that this number, then the external command 'FFRREF' from the package SpaSM is used. ";
-globalRowReduceMatrixSpaSMThreshold=1000;
+globalRowReduceMatrixSpaSMThreshold=1000;*)
 
 globalRowReduceMatrixSpaSMPrimes::usage=" This is a global parameter in the command 'rowReduceMatrix'. It specifies the primes that are used when calling the external program SpaSM.";
 globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
-(* ::Section::Initialization::Closed:: *)
+(* ::Section::Initialization:: *)
 (*(*Resetting the global parameters/choosing various prepackages possibilities*)*)
 
 
@@ -389,8 +429,8 @@ globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 (* Should resetting also include the SpaSM parameters? *)
 
 resetTheGlobalParameters[]:=Module[{},
-globalGetNullSpaceLowerThreshold=300; 
-globalGetNullSpaceSpaSMThreshold=1000;
+globalLowerThreshold=200; 
+globalSpaSMThreshold=1000;
 globalGetNullSpaceStep=200;
 globalSpaSMListOfPrimes=Select[Range[2^14]+10000,PrimeQ];
 globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
@@ -398,8 +438,6 @@ globalSetOfBigPrimes=Select[2^63-Range[983],PrimeQ];
 globalRowReduceOverPrimesInitialNumberOfIterations=2;
 globalRowReduceOverPrimesMaxNumberOfIterations=10;
 globalRowReduceOverPrimesMethod="Random"; 
-globalRowReduceMatrixLowerThreshold=200;
-globalRowReduceMatrixSpaSMThreshold=1000;
 globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 Return["The global variables have been reset to their standard values. "] 
 ];
@@ -482,7 +520,7 @@ determineLeftInverse::nnarg=" The number of rows must be bigger or equal to the 
 
 determineLeftInverse[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverse::nnarg];False]:=Module[{rowLength, columnLength, TEMPmatrix},
 {rowLength, columnLength}=Dimensions[sparseMatrix]; 
-TEMPmatrix=RowReduce[sparseArrayGlueRight[sparseMatrix,SparseArray[Band[{1,1}]-> 1,{rowLength,rowLength}]]];
+TEMPmatrix=rowReduceMatrix[sparseArrayGlueRight[sparseMatrix,SparseArray[Band[{1,1}]-> 1,{rowLength,rowLength}]]];
 Return[SparseArray[TEMPmatrix[[1;;columnLength, columnLength+1;;]]]];
 ];
 
@@ -620,7 +658,39 @@ auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray
 (*Presentation commands*)
 
 
-presentIntegrableSymbolsData[{tensorList_,signsArray_}]:=Print["----------------------------------------- \n", Dimensions[tensorList][[3]]," integrable symbols (",Count[signsArray,0]," even, ",Count[signsArray,1]," odd) in an alphabet of size ",Dimensions[tensorList][[2]]," . The number of symbols of previous weight is ",Dimensions[tensorList][[1]],". \n -----------------------------------------" ];
+presentIntegrableSymbolsData[{tensorList_,signsArray_}]:=Print["----------------------------------------- \n", Dimensions[tensorList][[3]]," integrable symbols (",Count[signsArray,0]," even, ",Count[signsArray,1]," odd) in an alphabet with ",Dimensions[tensorList][[2]]," letters. The number of symbols of previous weight is ",Dimensions[tensorList][[1]],". \n -----------------------------------------" ];
+
+
+(* ::Subsubsection::Initialization:: *)
+(*(*Commands for the computation of Even + odd symbols *)*)
+
+
+
+makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_]:=Module[{biIndexTable=Flatten[Table[{fooH,fooL},{fooH,index1},{fooL,index2}],1]},
+SparseArray[Table[{iter,(biIndexTable[[iter,1]]-1)size2+biIndexTable[[iter,2]]}-> 1,{iter,1,Length[biIndexTable]}]//Flatten,{Length[biIndexTable], size1 size2 }]];
+
+makeTheEvenOddConditionsMatrix[previousIntegrableSymbolsSigns_,listOfSymbolSigns_,evenOrOdd_]:=Module[{even1,odd1,even2,odd2,mat1,mat2},
+even1=Position[previousIntegrableSymbolsSigns,0]//Flatten;
+odd1=Position[previousIntegrableSymbolsSigns,1]//Flatten;
+even2=Position[listOfSymbolSigns,0]//Flatten;
+odd2=Position[listOfSymbolSigns,1]//Flatten;
+If[evenOrOdd==0,
+mat1=makeSparseMatrixOutOfIndexLists[even1,odd2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
+mat2=makeSparseMatrixOutOfIndexLists[odd1,even2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
+Which[mat1==={}&&mat2==={},Return[SparseArray[{Table[0,Length[previousIntegrableSymbolsSigns]*Length[listOfSymbolSigns]]}]];,
+mat1==={},Return[mat2];,
+mat2==={},Return[mat1];,
+True,Return[sparseArrayGlue[mat1,mat2]]];
+,
+mat1=makeSparseMatrixOutOfIndexLists[even1,even2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
+mat2=makeSparseMatrixOutOfIndexLists[odd1,odd2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
+Which[mat1==={}&&mat2==={},Return[SparseArray[{Table[0,Length[previousIntegrableSymbolsSigns]*Length[listOfSymbolSigns]]}]];,
+mat1==={},Return[mat2];,
+mat2==={},Return[mat1];,
+True,Return[sparseArrayGlue[mat1,mat2]]];
+];
+];
+
 
 
 (* ::Section:: *)
@@ -634,7 +704,7 @@ End[] (* End Private Context *)
 (*(*The public part of the package*)*)
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Symbol tensors and their manipulation*)*)
 
 
@@ -650,7 +720,7 @@ SparseArray[Union[ArrayRules[A1],(ArrayRules[A2]/. {a1_,a2_,a3_}:>{a1,a2,a3+dim}
 ];
 
 
-(* ::Section::Initialization::Closed:: *)
+(* ::Section::Initialization:: *)
 (*(*Writing the null spaces into tensors and doing the reverse*)*)
 
 
@@ -662,7 +732,7 @@ SparseArray[Most[sparseSolutionSpace//ArrayRules]/.Rule[{a1_,a2_},a3_]:>Rule[{Qu
 ];
 
 symbolsTensorToVector[symbolsTensor_]:=Module[{sizeAlphabet=Dimensions[symbolsTensor][[2]]},
-SparseArray[Most[ArrayRules[symbolsTensor]]/. ({a1_,a2_}->a4_):>{(a1-1) sizeAlphabet+a2}->a4,{Dimensions[symbolsTensor][[1]] sizeAlphabet}]
+SparseArray[Most[ArrayRules[symbolsTensor]]/. ({a1_,a2_}->a4_):>{(a1-1) sizeAlphabet+a2}->a4,{Dimensions[symbolsTensor][[1]]sizeAlphabet}]
 ];
 
 
@@ -683,26 +753,25 @@ SparseArray[Most[ArrayRules[symbolsTensor]]/. ({a1_,a2_,a3_}->a4_):>{a3,(a1-1) s
 (* ::Input::Initialization:: *)
 (*---------------------------------------------------------------------*)
 
-Default[expressTensorAsSymbols]=1;
+Default[expressTensorAsSymbols]="Complete";
 
-expressTensorAsSymbols[sparseArrayRules_,options_.]:=Module[{tensorLength,positionTable},
-(* don't implement this cause it leads to duplication *)
-(*sparseTensor=If[Head[sparseArrayRules]===SparseArray,sparseArrayRules//ArrayRules,sparseArrayRules];*)
-If[!(Head[sparseArrayRules]===List),Return["expressTensorAsSymbols requires that one uses 'ArrayRules' on the sparseArray "]];
-tensorLength=sparseArrayRules[[1,1]]//Length;
-positionTable=positionDuplicates[Drop[sparseArrayRules[[All,1]][[All,tensorLength]],-1]];
-Which[options==1,
-Table[Sum[sparseArrayRules[[ifoo,2]]sym[Drop[sparseArrayRules[[ifoo,1]],-1]],{ifoo,posList}],{posList,positionTable}],
-options==0,
-Table[Sum[sparseArrayRules[[ifoo,2]]sym[Drop[Drop[sparseArrayRules[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}],
-options==-1,
-Table[Sum[sparseArrayRules[[ifoo,2]]sym[S[sparseArrayRules[[ifoo,1]]//First],Drop[Drop[sparseArrayRules[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}]
+expressTensorAsSymbols[sparseArrayRules_,options_.]:=Module[{tensorLength,positionTable,TEMPsparseTensor},
+TEMPsparseTensor=If[Head[sparseArrayRules]===SparseArray,sparseArrayRules//ArrayRules,sparseArrayRules];
+If[!(Head[TEMPsparseTensor]===List),Return["expressTensorAsSymbols requires that one uses 'ArrayRules' on the sparseArray "]];
+tensorLength=TEMPsparseTensor[[1,1]]//Length;
+positionTable=positionDuplicates[Drop[TEMPsparseTensor[[All,1]][[All,tensorLength]],-1]];
+Which[options=="Complete",
+Table[Sum[TEMPsparseTensor[[ifoo,2]]sym[Drop[TEMPsparseTensor[[ifoo,1]],-1]],{ifoo,posList}],{posList,positionTable}],
+options=="DropFirst",
+Table[Sum[TEMPsparseTensor[[ifoo,2]]sym[Drop[Drop[TEMPsparseTensor[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}],
+options=="Recursive",
+Table[Sum[TEMPsparseTensor[[ifoo,2]]sym[S[TEMPsparseTensor[[ifoo,1]]//First],Drop[Drop[TEMPsparseTensor[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}]
 ]
 ];
 
 
 (* ::Chapter::Initialization::Closed:: *)
-(*(*Formal Symbols*)*)
+(*(*Formal Symbols and their manipulations *)*)
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -777,13 +846,14 @@ If[lengthList==1,Return[symbol]];
 productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProjection[SB[A]];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Null Space commands*)*)
 
 
-getNullSpace[matrix_]:=Which[Length[matrix]<globalGetNullSpaceLowerThreshold,SparseArray[NullSpace[matrix]],
-Length[matrix]<globalGetNullSpaceSpaSMThreshold,getNullSpaceStepByStep[matrix,globalGetNullSpaceStep],
-True,getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrimes,MatrixDirectory->globalSpaSMExchangePath,Nkernel->globalSpaSMNumberOfKernels]]];
+getNullSpace[matrix_]:=Which[Length[matrix]<globalLowerThreshold,SparseArray[NullSpace[matrix]],
+(Length[matrix]>=globalSpaSMThreshold)&&globalSpaSMSwitch,getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrimes,MatrixDirectory->globalSpaSMExchangePath,Nkernel->globalSpaSMNumberOfKernels]],
+True, getNullSpaceStepByStep[matrix,globalGetNullSpaceStep]
+];
 
 
 
@@ -880,7 +950,7 @@ Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[wei
 (*(*Rational reconstruction algorithms*)*)
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Row reduction (over the finite fields)*)*)
 
 
@@ -888,9 +958,10 @@ Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[wei
 (*(*The general row reduction command*)*)
 
 
-rowReduceMatrix[matrix_]:=Which[Length[matrix]<globalRowReduceMatrixLowerThreshold,SparseArray[RowReduce[Normal[matrix]]],
-Length[matrix]<globalRowReduceMatrixSpaSMThreshold,rowReduceOverPrimes[matrix],
-True,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSMExchangePath,Nkernel->globalSpaSMNumberOfKernels]];
+rowReduceMatrix[matrix_]:=Which[Length[matrix]<globalLowerThreshold,SparseArray[RowReduce[Normal[matrix]]],
+(Length[matrix]>=globalSpaSMThreshold)&&globalSpaSMSwitch,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSMExchangePath,Nkernel->globalSpaSMNumberOfKernels],
+True,rowReduceOverPrimes[matrix]
+];
 
 
 
@@ -1054,8 +1125,8 @@ Return[rowReduceMatrix[TEMPmatrix//Normal]//SparseArray//sparseArrayZeroRowCut]
 ];
 
 
-(* ::Section::Initialization::Closed:: *)
-(*(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots (IMPROVE speed!!)*)*)
+(* ::Section::Initialization:: *)
+(*(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -1090,40 +1161,26 @@ Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 
 
 (* ::Section::Initialization:: *)
-(*(*Compute the tensors for the integrable symbols*)*)
+(*(*Computing the tensors for the integrable symbols*)*)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*n-Entry conditions*)*)
+(*(*n-Entry conditions and the weight 1 construction *)*)
 
 
 (* ::Input::Initialization:: *)
-(*---------------------------------------------------------------------*)
-(* ???? MAYBE WE SHOULD MERGE THEM??? *)
 
-weight1Solution::usage="IMPROVE DESCRIPTION!!!! Create the weight 1 solution in tensor form. The variable 'forbiddenEntries' tells us which entries to exclude due to first entry conditions. By default this is an empty list. ";
+
 
 Default[weight1Solution]={};
+
 weight1Solution[alphabet_,forbiddenEntries_.]:=Table[KroneckerDelta[i1,j1],{j0,1,1},{i1,1,Length[alphabet]},{j1,Complement[Range[Length[alphabet]],forbiddenEntries]}]//SparseArray;
-
-
-weight1SolutionEvenAndOdd::usage="IMPROVE DESCRIPTION!!!!. The command 'weight1SolutionEvenAndOdd[alphabet_,listOfSymbolSigns_,forbiddenEntries_]' creates the weight 1 solution in tensor form when given the alphabet, a list that tells which letters are even/odd and (optionally) a set of forbidden entries (By default this is an empty list since we allow all entries). The result is an array {weight1tensors, listOfSigns} for weight 1, where 'listOfSigns' is a 1D array of 0 or 1 with 0 meaning the corresponding symbol is even and 1 that it is odd. ";
 
 Default[weight1SolutionEvenAndOdd]={};
 
-weight1SolutionEvenAndOdd[alphabet_,listOfSymbolSigns_,forbiddenEntries_]:={Table[KroneckerDelta[i1,j1],{j0,1,1},{i1,1,Length[alphabet]},{j1,Complement[Range[Length[alphabet]],forbiddenEntries]}]//SparseArray,Table[listOfSymbolSigns[[j1]],{j1,Complement[Range[Length[alphabet]],forbiddenEntries]}]};
+weight1SolutionEvenAndOdd::nnarg=" The dimensions of the matrices are mismatched! ";
 
-
-(*---------------------------------------------------------------------*)
-
-(* IMPLEMENTATION: n-entry conditions *) 
-(* It takes all the previous tensors (not the arrays)!! *)
-(* The list of tensors "allPreviousWeightSymbolsTensorList" has to start at weight 1!!!, We then drop the j0 index in tempFullTensor *)
-
-
-weightLForbiddenSequencesEquationMatrix::usage=" The command 'weightLForbiddenSequencesEquationMatrix[allPreviousWeightSymbolsTensorList_,listOfForbiddenSequences_,sizeAlphabet_]' computes the 
-matrix of conditions for the weight L integrable symbols such that certain sequences of letters (given by the variable 'listOfForbiddenSequences') do not appear. The array
-'allPreviousWeightSymbolsTensorList' is a list of all the tensors of integrable symbols of lower weight, i.e. {d_1,d_2,d_3,....d_{L-1}}, where d_i are the weight i integrable symbol tensors. "
+weight1SolutionEvenAndOdd[alphabet_,listOfSymbolSigns_,forbiddenEntries_]/;If[Length[alphabet]== Length[listOfSymbolSigns],True,Message[weight1SolutionEvenAndOdd::nnarg];False]:={Table[KroneckerDelta[i1,j1],{j0,1,1},{i1,1,Length[alphabet]},{j1,Complement[Range[Length[alphabet]],forbiddenEntries]}]//SparseArray,Table[listOfSymbolSigns[[j1]],{j1,Complement[Range[Length[alphabet]],forbiddenEntries]}]};
 
 
 weightLForbiddenSequencesEquationMatrix[allPreviousWeightSymbolsTensorList_,listOfForbiddenSequences_,sizeAlphabet_]:=Module[{tempFullTensor=(dotSymbolTensors[allPreviousWeightSymbolsTensorList])[[1]],dimLastSolutionSpace,preTensor},
@@ -1137,11 +1194,7 @@ SparseArray[Drop[preTensor,-1]/.Rule[a__,b_]:>Rule[Append[a,Last[listOfForbidden
 (*(*Computing the next level symbols*)*)
 
 
-
-
-
 nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Flatten[transposeLevelsSparseArray[transposeLevelsSparseArray[previousWeightSymbolsTensor,2,3].transposeLevelsSparseArray[FmatrixTensor,1,2],{1,3,2,4}],{{1,2},{3,4}}];
-
 
 
 
@@ -1180,51 +1233,13 @@ Print["...done. Separating into even + odd...."];
 (*-------------------------------------------*)
 (* Compute the even and odd symbols *)
 (* If all the symbols are even, bypass the computation *)
-If[DeleteDuplicates[Flatten[previousWeightSymbolsSigns]]==={0}&&DeleteDuplicates[Flatten[listOfSymbolSigns]]==={0},Return[{solutionSpaceToSymbolsTensor[getNullSpace[nextWeightNullSpace],sizeAlphabet],Table[0,Length[previousWeightSymbolsSigns] Length[listOfSymbolSigns]]}]];
+If[DeleteDuplicates[Flatten[previousWeightSymbolsSigns]]==={0}&&DeleteDuplicates[Flatten[listOfSymbolSigns]]==={0},nextWeightNullSpace=getNullSpace[nextWeightNullSpace];
+Return[{solutionSpaceToSymbolsTensor[nextWeightNullSpace,sizeAlphabet],Table[0,Length[nextWeightNullSpace]]}]];
 (*Otherwise, compute the even and odd conditions and symbols*)
 nextWeightEven=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,0].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];nextWeightOdd=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,1].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];
 Print["...done. "];Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,Dimensions[nextWeightEven][[3]]],Table[1,Dimensions[nextWeightOdd][[3]]]]}];
 ];
 
-
-
-
-(* ::Subsubsection::Initialization:: *)
-(*(*Commands for the computation of Even + odd symbols *)*)
-
-
-(* ::Input::Initialization:: *)
-(*---------------------------------------------------------------------*)
-makeSparseMatrixOutOfIndexLists::usage="makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_] makes a sparse matrix of size (Length[index1]*Length[index2])x (size1*size1) with entries 1 and 0. \[IndentingNewLine]The position of the 1s is given by the entries of index1 and index2 in a tensorial way. ";
-
-makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_]:=Module[{biIndexTable=Flatten[Table[{fooH,fooL},{fooH,index1},{fooL,index2}],1]},
-SparseArray[Table[{iter,(biIndexTable[[iter,1]]-1)size2+biIndexTable[[iter,2]]}-> 1,{iter,1,Length[biIndexTable]}]//Flatten,{Length[biIndexTable], size1 size2 }]];
-
-
-(*---------------------------------------------------------------------*)
-makeTheEvenOddConditionsMatrix::usage="makeTheEvenOddConditionsMatrix[previousIntegrableSymbolsSigns_,listOfSymbolSigns_,evenOrOdd_] generates a matrix of combitions that have to be satisfied by the weight L even (for 'evenOrOdd'=0) or odd (for 'evenOrOdd'=1) integrable symbols, where 'previousIntegrableSymbolsSigns' is the tensor for the  weight L-1 integrable symbols and 'listOfSymbolSigns' is a list of zeroes or ones depending on the parity of the elements in 'previousIntegrableSymbolsSigns'. ";
-
-makeTheEvenOddConditionsMatrix[previousIntegrableSymbolsSigns_,listOfSymbolSigns_,evenOrOdd_]:=Module[{even1,odd1,even2,odd2,mat1,mat2},
-even1=Position[previousIntegrableSymbolsSigns,0]//Flatten;
-odd1=Position[previousIntegrableSymbolsSigns,1]//Flatten;
-even2=Position[listOfSymbolSigns,0]//Flatten;
-odd2=Position[listOfSymbolSigns,1]//Flatten;
-If[evenOrOdd==0,
-mat1=makeSparseMatrixOutOfIndexLists[even1,odd2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
-mat2=makeSparseMatrixOutOfIndexLists[odd1,even2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
-Which[mat1==={}&&mat2==={},Return[SparseArray[{Table[0,Length[previousIntegrableSymbolsSigns]*Length[listOfSymbolSigns]]}]];,
-mat1==={},Return[mat2];,
-mat2==={},Return[mat1];,
-True,Return[sparseArrayGlue[mat1,mat2]]];
-,
-mat1=makeSparseMatrixOutOfIndexLists[even1,even2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
-mat2=makeSparseMatrixOutOfIndexLists[odd1,odd2,Length[previousIntegrableSymbolsSigns],Length[listOfSymbolSigns]];
-Which[mat1==={}&&mat2==={},Return[SparseArray[{Table[0,Length[previousIntegrableSymbolsSigns]*Length[listOfSymbolSigns]]}]];,
-mat1==={},Return[mat2];,
-mat2==={},Return[mat1];,
-True,Return[sparseArrayGlue[mat1,mat2]]];
-];
-];
 
 
 
