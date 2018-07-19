@@ -251,8 +251,7 @@ rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' computes the row
 
 
 (* ::Chapter:: *)
-(*Determine tranformation matrices between alphabets*)
-
+(*Determine the tranformation matrices between sets of integrable symbols*)
 
 
 buildTransformationMatrix::usage="The command 'buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]' produces the weight L matrix T_L that gives the limit of the integrable symbols in the alphabet A1 in the alphabet A2. It takes  as input: 1) the matrix 'alphabetTransformationMatrix' which tells us how the limit of the letters of A1 are expressed in letters of the limit alphabet A2, 2) the symbol tensor 'weightLsymbolTensor' of the weight L integrable symbols in A1, 3) the matrix 'previousTransformationMatrix' (this is T_{L-1}) and 4) the matrix 'limitAlphabetInversionMatrix' which is the weight L inversion matrix for the integrable symbols in the alphabet A2.  ";
@@ -265,6 +264,44 @@ inverseMatrixToTensor::usage="The command 'inverseMatrixToTensor[inverseMatrix_,
 auxFlattenTwoIndices12::usage="The auxiliary command 'auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]' flattens the first two indices of a 3-tensor with indices (i,j,k), where the second index j is in the interval j=1,..., sizeAlphabet. ";
 
 auxFlattenTwoIndices23::usage="The auxiliary command 'auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]' flattens the last two indices of a 3-tensor with indices (i,j,k), where the third index k is in the interval k=1,..., sizeAlphabet. ";
+
+
+
+(* ::Chapter:: *)
+(*Computing the next level symbols*)
+
+
+
+(*---------------------------------------------------------------------*)
+
+nextWeightSymbolsEquationMatrix::usage="The function 'nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]' creates a matrix 
+for the equations at the next level (level L) given the L-1 solution tensor 'previousWeightSymbolsTensor'  and the integrability tensor 'FmatrixTensor'. 
+It is used in the end-user command 'determineNextWeightSymbols'. ";
+
+(*---------------------------------------------------------------------*)
+
+determineNextWeightSymbolsSimple::usage="The command 'determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]' computes the weight L solution (in tensor form) 
+if given the weight L-1 solution and the integrability tensor \[DoubleStruckCapitalF]. This is a simple command - it does not care for even vs odd symbols nor for any additional forbidden entries beyond
+ those put by hand at weight 1 by using the command 'weight1Solution'. ";
+ 
+(*---------------------------------------------------------------------*)
+(* The combination command for the even+odd symbol computation *)
+
+ 
+determineNextWeightSymbols::usage="The command 'determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_.]' is 
+the end-user command for the computation of the next weight (weight = L) integrable symbols (with optional forbidden entries) and their decomposition into even + odd symbols. The variable 'previousWeightSymbolsTensor'
+is the weight L-1 integrable symbol tensor, the array 'previousWeightSymbolsSigns' is the list of 0 and 1 determining the signs of the symbols, 'FmatrixTensor' is the integrability tensor for the 
+alphabet under consideration and 'listOfSymbolSigns' is the array of 0 and 1 determining the signs of the letters of the alphabet.  Finally, the optional sparse array 'forbiddenSequenceConditions' is a 
+matrix of conditions determined using the command 'weightLForbiddenSequencesEquationMatrix' that forbid certain sequences of letters. By default, it is empty, meaning that no weight L entry condition
+is imposed.  ";
+
+
+(* ::Chapter:: *)
+(*Presentation commands*)
+
+
+presentIntegrableSymbolsData::usage="The command 'presentIntegrableSymbolsData[{tensorList_,signsArray_}]' takes an array of two elements, one being the tensor of integrable symbols and the other
+the list of 0 and 1 indicating which symbols are even/odd, and presents the data in a nice way. ";
 
 
 
@@ -573,11 +610,17 @@ Return[n0]];
 (*Two auxiliary commands for the determination of transformation matrices between two alphabets*)
 
 
-
 auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray//ArrayRules]/. ({a1_,a2_,a3_}->a4_):>({(a1-1) sizeAlphabet+a2,a3}->a4),{Dimensions[sparsearray][[1]]*sizeAlphabet,Dimensions[sparsearray][[3]]}];
 
 
 auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray//ArrayRules]/. ({a1_,a2_,a3_}->a4_):>({a1,(a2-1) sizeAlphabet+a3}->a4),{Dimensions[sparsearray][[1]],Dimensions[sparsearray][[2]]*sizeAlphabet}];
+
+
+(* ::Subsubsection:: *)
+(*Presentation commands*)
+
+
+presentIntegrableSymbolsData[{tensorList_,signsArray_}]:=Print["----------------------------------------- \n", Dimensions[tensorList][[3]]," integrable symbols (",Count[signsArray,0]," even, ",Count[signsArray,1]," odd) in an alphabet of size ",Dimensions[tensorList][[2]]," . The number of symbols of previous weight is ",Dimensions[tensorList][[1]],". \n -----------------------------------------" ];
 
 
 (* ::Section:: *)
@@ -664,9 +707,9 @@ Table[Sum[sparseArrayRules[[ifoo,2]]sym[S[sparseArrayRules[[ifoo,1]]//First],Dro
 
 (* ::Subsubsection::Initialization:: *)
 (*(*Shuffle products*)*)
-(**)
-(**)
-(**)
+(*(**)*)
+(*(**)*)
+(*(**)*)
 
 
 shuffleProduct[symbol1_,symbol2_]:=(symbol1 (symbol2/.SB[A_]:> SB2[A])//Expand)/.SB[A_]SB2[B_]:> Sum[SB[foo],{foo,shuffles[A,B]}];
@@ -870,7 +913,7 @@ SparseArray[Flatten[Table[{Join[{foo[[1,1]]},TEMPIndexTable[[foo[[1,2]]]]]-> foo
 
 (* ::Section::Initialization::Closed:: *)
 (*(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)*)
-(**)
+(*(**)*)
 
 
 integrableEquationsRational[alphabet_,allvariables_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
@@ -998,7 +1041,7 @@ succesfullTry=0;
 Do[
 TEMPrandomSample=RandomSample[listPrimes,Length[newVariables]];
 TEMPtryTheFunction=TEMPfunction[Sequence@@TEMPrandomSample]//Quiet;
-If[Cases[TEMPtryTheFunction,ComplexInfinity,Infinity]==={},succesfullTry=1;Break[]]
+If[Cases[ArrayRules[TEMPtryTheFunction][[All,2]],ComplexInfinity,Infinity]==={},succesfullTry=1;Break[]]
 ,
 {iterbaz,1,toleranceForRetries}];
 (*-------------------------------------------------*)
@@ -1029,7 +1072,6 @@ Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
 (*Putting all the commands together into one such that it is easy for the user*)
 
 
-
 computeTheIntegrabilityTensor::nnarg=" The size of the array 'listOfRoots' must match the size of the array 'listOfRootPowers'!  ";
 
 computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[sparseArrayGlue::nnarg];False]:=Module[{TEMPintegrableEquations, TEMPintegrableEquationsResolved,TEMPintegrableEquationsRationalized,TEMPintegrabilityMatrix},
@@ -1043,7 +1085,7 @@ Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 ];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Computing the integrable symbols*)*)
 
 
@@ -1077,7 +1119,13 @@ weight1SolutionEvenAndOdd[alphabet_,listOfSymbolSigns_,forbiddenEntries_]:={Tabl
 (* IMPLEMENTATION: n-entry conditions *) 
 (* It takes all the previous tensors (not the arrays)!! *)
 (* The list of tensors "allPreviousWeightSymbolsTensorList" has to start at weight 1!!!, We then drop the j0 index in tempFullTensor *)
-(* DOES NOT WORK AT WEIGHT 2 *)
+
+
+weightLForbiddenSequencesEquationMatrix::usage=" The command 'weightLForbiddenSequencesEquationMatrix[allPreviousWeightSymbolsTensorList_,listOfForbiddenSequences_,sizeAlphabet_]' computes the 
+matrix of conditions for the weight L integrable symbols such that certain sequences of letters (given by the variable 'listOfForbiddenSequences') do not appear. The array
+'allPreviousWeightSymbolsTensorList' is a list of all the tensors of integrable symbols of lower weight, i.e. {d_1,d_2,d_3,....d_{L-1}}, where d_i are the weight i integrable symbol tensors. "
+
+
 weightLForbiddenSequencesEquationMatrix[allPreviousWeightSymbolsTensorList_,listOfForbiddenSequences_,sizeAlphabet_]:=Module[{tempFullTensor=(dotSymbolTensors[allPreviousWeightSymbolsTensorList])[[1]],dimLastSolutionSpace,preTensor},
 dimLastSolutionSpace=Dimensions[Last[allPreviousWeightSymbolsTensorList]]//Last;
 (* Make a table, each element of which is Subscript[d, Subscript[j, 1]]^(Subscript[j, 0]Subscript[s^A, 1])....Subscript[d, Subscript[j, L-1]]^(Subscript[j, L-2]Subscript[s^A, L-1]) in a rule form. Then using the rule replacement, multiply it by the tensor Subscript[\[Delta], Subscript[j, L]]^Subscript[S, L]^A. In all of this, s^A={Subscript[(s^A), 1],....Subscript[(s^A), L]} is a forbidden sequence *)
@@ -1089,52 +1137,54 @@ SparseArray[Drop[preTensor,-1]/.Rule[a__,b_]:>Rule[Append[a,Last[listOfForbidden
 (*(*Computing the next level symbols*)*)
 
 
-(*---------------------------------------------------------------------*)
-
-findNextWeightSymbolsEquationMatrix::usage="The function 'findNextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]' creates a matrix for the equations at the next level (level L) given the L-1 solution tensor 'previousWeightSymbolsTensor'  and the integrability tensor 'FmatrixTensor'. ";
-
-
-findNextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Flatten[transposeLevelsSparseArray[transposeLevelsSparseArray[previousWeightSymbolsTensor,2,3].transposeLevelsSparseArray[FmatrixTensor,1,2],{1,3,2,4}],{{1,2},{3,4}}];
 
 
 
-(*---------------------------------------------------------------------*)
+nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Flatten[transposeLevelsSparseArray[transposeLevelsSparseArray[previousWeightSymbolsTensor,2,3].transposeLevelsSparseArray[FmatrixTensor,1,2],{1,3,2,4}],{{1,2},{3,4}}];
 
-findNextWeightSymbols::usage="The command 'findNextWeightSymbols[previousWeightSymbolsTensor_,FmatrixTensor_]' computes the weight L solution (in tensor form) if given the weight L-1 solution and the integrability tensor \[DoubleStruckCapitalF]. This is a simple command - it does not care for even vs odd symbols nor for any additional forbidden entries beyond those put by hand at weight 1 by using the command 'weight1Solution'. ";
 
-findNextWeightSymbols[previousWeightSymbolsTensor_,FmatrixTensor_]:=
+
+
+
+determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]:=
 Module[{tempEquations,tempSol },
-tempEquations=findNextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
+tempEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
 PrintTemporary["Done generating the equations. It's a ", Dimensions[tempEquations], " matrix."];
 tempSol=getNullSpace[tempEquations];
 solutionSpaceToSymbolsTensor[tempSol,Dimensions[FmatrixTensor][[2]]]];
 
-(*--------------------------------------------------------*)
-
-(* This function finds the next weight symbol if given all previous weight tensors and the list of forbidden sequences *)
-(* This should be made OBSOLETE! *)
-Default[findNextWeightSymbolsWithForbiddenSequences]=={};
-findNextWeightSymbolsWithForbiddenSequences[allPreviousWeightSymbolsTensorList_,Ftensor_,listOfForbiddenSequences_]:=
-Module[{tempEquations,tempSol,previousWeightSymbolsTensor=Last[allPreviousWeightSymbolsTensorList],sizeAlphabet=Dimensions[Ftensor][[2]]},
-tempEquations=findNextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,Ftensor];
-If[!(listOfForbiddenSequences==={}),tempEquations=sparseArrayGlue[tempEquations,weightLForbiddenSequencesEquationMatrix[allPreviousWeightSymbolsTensorList,listOfForbiddenSequences,sizeAlphabet]]];
-PrintTemporary["Done generating the equations. It's a ", Dimensions[tempEquations], " matrix."];
-tempSol=getNullSpace[tempEquations];
-solutionSpaceToSymbolsTensor[tempSol,sizeAlphabet]];
 
 
-(*---------------------------------------------------------------------*)
-(* The combination command for the even+odd symbol computation *)
-determineNextWeightSymbols::usage="ADD A DESCRIPTION! ";
 
-determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_]:=Module[{integrabilityEquations=findNextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor],nextWeightNullSpace,sizeAlphabet=Length[listOfSymbolSigns],nextWeightEven,nextWeightOdd},
+Default[determineNextWeightSymbols]={};
+
+determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_.]:=
+Module[{integrabilityEquations,nextWeightNullSpace,sizeAlphabet=Length[listOfSymbolSigns],nextWeightEven,nextWeightOdd},
+
+(*-------------------------------------------*)
+(* Get the integrability equations *)
+
+integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
+Print["Done computing the integrability equations. Solving...."];
+
+(*-------------------------------------------*)
+(* Introduce the weight L entry conditions *)
+(* They have to be computed separately using the command 'weightLForbiddenSequencesEquationMatrix' *)
+If[!(forbiddenSequenceConditions==={}),integrabilityEquations=sparseArrayGlue[integrabilityEquations,forbiddenSequenceConditions]];
+
+(*-------------------------------------------*)
+(* Get the integrable symbols*)
 nextWeightNullSpace=getNullSpace[integrabilityEquations];
-If[(previousWeightSymbolsSigns//Flatten//DeleteDuplicates)==={0}&&(listOfSymbolSigns//Flatten//DeleteDuplicates)==={0},Return[{solutionSpaceToSymbolsTensor[getNullSpace[nextWeightNullSpace],sizeAlphabet],Table[0,Length[previousWeightSymbolsSigns]*Length[listOfSymbolSigns]]}]];
-nextWeightEven=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,0].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];
-nextWeightOdd=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,1].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];
-Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,Dimensions[nextWeightEven][[3]]],Table[1,Dimensions[nextWeightOdd][[3]]]]}];
-];
+Print["...done. Separating into even + odd...."];
 
+(*-------------------------------------------*)
+(* Compute the even and odd symbols *)
+(* If all the symbols are even, bypass the computation *)
+If[DeleteDuplicates[Flatten[previousWeightSymbolsSigns]]==={0}&&DeleteDuplicates[Flatten[listOfSymbolSigns]]==={0},Return[{solutionSpaceToSymbolsTensor[getNullSpace[nextWeightNullSpace],sizeAlphabet],Table[0,Length[previousWeightSymbolsSigns] Length[listOfSymbolSigns]]}]];
+(*Otherwise, compute the even and odd conditions and symbols*)
+nextWeightEven=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,0].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];nextWeightOdd=solutionSpaceToSymbolsTensor[getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,1].Transpose[nextWeightNullSpace]].nextWeightNullSpace,sizeAlphabet];
+Print["...done. "];Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,Dimensions[nextWeightEven][[3]]],Table[1,Dimensions[nextWeightOdd][[3]]]]}];
+];
 
 
 
@@ -1178,10 +1228,8 @@ True,Return[sparseArrayGlue[mat1,mat2]]];
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Determine tranformation matrices between alphabets*)*)
-
-
 
 
 buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]]},
