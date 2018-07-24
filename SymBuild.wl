@@ -25,7 +25,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the contruction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["Version 0.35, July 23, 2018 "]
+Print["Version 0.37, July 24, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
@@ -153,6 +153,13 @@ productProjection::usage="productProjection[symbol] applies 'subProductProjectio
 This projects away all the elements that can be written as products of symbols of lower weight. ";
 
 convertFormalSymbol::usage="The function 'convertFormalSymbol[expression_,alphabet_]' converts a sum of formal symbols sb[list_] in a given alphabet into a sum of explicit symbols SB[list_] with the entries of the list replaced by the explicit letters of the alphabet. ";
+
+
+(*---------------------------------------------------------------------*)
+IntegrableQ::usage="The function 'IntegrableQ[expression_,FtensorOrVariables_]' checks if an expression of formal symbols sb[] or SB[] is integrable. It returns True if that is the case.
+ When acting on expressions of SB formal symbols, the second entry of IntegrableQ must be a list of variables. 
+When acting on expressions of sb formal symbols, the second entry must be an integrability tensor. "; 
+
 
 
 
@@ -361,7 +368,6 @@ is the tensor for the  weight L-1 integrable symbols and 'listOfSymbolSigns' is 
 (*Taking derivatives of the symbols*)
 
 
-
 symbolDerivative::usage="The operator 'symbolDerivative' can be used in two ways. First, it can be called with 2 entries as 'symbolDerivative[expression, variable]'
 in which case it acts on an expression involving explicit symbols SB[A_] and takes their derivative w.r.t. 'variable'. In the second case, it is called
 with 3 entries as 'symbolDerivative[expression, alphabet, variable]' in which case it acts on a sum of formal symbols sb[list_] or sb[\[ScriptCapitalS][_],list_] and
@@ -383,6 +389,14 @@ in which case it does not care about the even/odd symbols. ";
 (*(*Global variables: definitions and descriptions *)*)
 
 
+(* ::Section:: *)
+(*Parallelize*)
+
+
+globalSymBuildParallelize::usage=" The variable 'globalSymBuildParallelize' determines whether parallelization takes place in SymBuild or not. By default, it is false. ";
+globalSymBuildParallelize=False;
+
+
 (* ::Section::Initialization:: *)
 (*(*SpaSM global variables*)*)
 
@@ -395,7 +409,7 @@ in which case it does not care about the even/odd symbols. ";
 (* ::Input::Initialization:: *)
 globalSpaSMSwitch::usage=" This is a global parameter that specifies whether 'SpaSM' is used or not. By default it is true. Do not forget to set 'globalSpaSMExchangePath=SpaSMExchangePath'
 in the notebook! ";
-globalSpaSMSwitch=True;
+globalSpaSMSwitch=False;
 
 
 globalSpaSMExchangePath::usage=" This is a global parameter that specifies the folder in which the temporary files used by SpaSM are to be stored. (YANG?)";globalSpaSMExchangePath="/home/vladimir/SpaSM/exchange";
@@ -457,8 +471,6 @@ globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
 (* ::Input::Initialization:: *)
-(* Should resetting also include the SpaSM parameters? *)
-
 resetTheGlobalParameters[]:=Module[{},
 globalLowerThreshold=200; 
 globalSpaSMThreshold=1000;
@@ -470,6 +482,8 @@ globalRowReduceOverPrimesInitialNumberOfIterations=2;
 globalRowReduceOverPrimesMaxNumberOfIterations=10;
 globalRowReduceOverPrimesMethod="Random"; 
 globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
+globalSpaSMSwitch=False;
+globalSymBuildParallelize=False;
 Return["The global variables have been reset to their standard values. "] 
 ];
 
@@ -544,7 +558,6 @@ linearIndependentColumns[mat_]:=Map[Position[#,Except[0,_?NumericQ],1,1]&,RowRed
 
 
 (*---------------------------------------------------------------------*)
-(* !!!!! UPDATE NEEDED: use the general row reduce here if necessary *)
 (* UPDATE NEEDED: THE ROW REDUCTION SHOULD NOT BE NECESSARY SINCE WE WANT A VERY SPECIAL CASE! *)
 
 determineLeftInverse::nnarg=" The number of rows must be bigger or equal to the number of columns! ";
@@ -602,7 +615,8 @@ rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]
 (*Row Reduction over the finite fields for a dense matrix*)
 
 
-applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},SparseArray[Table[foo->ChineseRemainder[Table[matrixFoo[[Sequence@@foo]],{matrixFoo,matrixList}],primesList],{foo,listOfEntries}],Dimensions[First[matrixList]]]
+applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},
+SparseArray[Table[foo->ChineseRemainder[Table[matrixFoo[[Sequence@@foo]],{matrixFoo,matrixList}],primesList],{foo,listOfEntries}],Dimensions[First[matrixList]]]
 ];
 
 
@@ -613,8 +627,17 @@ TEMPlistOfBigPrimes=globalSetOfBigPrimes,TEMPmatrixList,TEMPprimeList,tallyList,
 Which[globalRowReduceOverPrimesMethod=="Systematic", samplePrimes=Take[TEMPlistOfBigPrimes,globalRowReduceOverPrimesMaxNumberOfIterations];,
 globalRowReduceOverPrimesMethod=="Random",  samplePrimes=RandomSample[TEMPlistOfBigPrimes,globalRowReduceOverPrimesMaxNumberOfIterations];,
 True,Return["Error, the variable 'globalRowReduceOverPrimesMethod' should be either 'Systematic' or 'Random'!" ]];
+If[globalSymBuildParallelize,
+(*Parallel*)
+DistributeDefinitions[samplePrimes,globalRowReduceOverPrimesInitialNumberOfIterations];
+reducedMatrix=ParallelTable[RowReduce[matrix,Modulus->samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
+DistributeDefinitions[reducedMatrix];
+reducedMatrixReconstructed=ParallelTable[rationalReconstructionArray[reducedMatrix[[iterfoo]],samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
+,
+(*Series*)
 reducedMatrix=Table[RowReduce[matrix,Modulus->samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
 reducedMatrixReconstructed=Table[rationalReconstructionArray[reducedMatrix[[iterfoo]],samplePrimes[[iterfoo]]],{iterfoo,1,globalRowReduceOverPrimesInitialNumberOfIterations}];
+];
 tallyList=Tally[reducedMatrixReconstructed];
 If[tallyList[[1,2]]/globalRowReduceOverPrimesInitialNumberOfIterations>1/2,Return[tallyList[[1,1]]]];
 (*Print[MatrixForm[#]&/@reducedMatrixReconstructed];*)
@@ -631,6 +654,13 @@ If[tallyList[[1,2]]/iterbar>1/2,Return[tallyList[[1,1]]]];
 ];
 Return["No solution! Choose different primes or increase the iteration! "];
 ];
+
+
+(*
+If[globalSymBuildParallelize,
+(*Parallel*)
+DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRoots,listOfRootPowers];
+*)
 
 
 (* ::Subsubsection:: *)
@@ -887,6 +917,35 @@ convertFormalSymbol[expr_,alphabet_]:=expr/.sb[A_]:> If[Head[A]===List,SB[Table[
 
 
 
+(* ::Subsubsection:: *)
+(*Checking the integrability of a formal symbol*)
+
+
+
+IntegrableQ::argerr="This can take a while! It is recommended to use the formal sb symbols when checking the integrability condition.";
+
+
+
+IntegrableQ[expression_,FtensorOrVariables_]:=Module[{sbCases=Cases[{expression},sb[___],Infinity],SBCases=Cases[{expression},SB[___],Infinity]},
+Which[sbCases==={}&& SBCases==={},
+Return["IntegrableQ[expression_,FtensorOrAlphabet_] has to act on expressions containing sb[list_] or sb[\[ScriptCapitalS][i],list_], where 'list' has at least 2 elements. "],
+SBCases==={},
+sbCases=DeleteDuplicates[Length/@(sbCases/.sb[\[ScriptCapitalS][x_],A_]:> A/.sb[A_]:> A)];
+If[!((FtensorOrVariables//Dimensions//Length)===3),Return["When using sb formal symbols, the second entry of IntegrableQ[expression_,FtensorOrAlphabet_] must be an integrability tensor!"]];
+If[
+Length[sbCases]>1,
+Return["IntegrableQ[expression_,FtensorOrAlphabet_] has to act on expressions containing sb[list_] or sb[\[ScriptCapitalS][i],list_], where 'list' has at least 2 elements. Furthermore, the formal symbols have to be expressed uniformly"],
+Return[{0}===((expression/.sb[\[ScriptCapitalS][x_],A_]:> Table[sb[\[ScriptCapitalS][x],Join[A[[1;;(iter-1)]],A[[(iter+2);;]]]]FtensorOrVariables[[All,A[[iter]],A[[iter+1]]]],{iter,1,Length[A]-1}]/.sb[A_]:> Table[sb[Join[A[[1;;(iter-1)]],A[[(iter+2);;]]]]FtensorOrVariables[[All,A[[iter]],A[[iter+1]]]],{iter,1,Length[A]-1}])//Flatten//DeleteDuplicates)];
+];,
+sbCases==={},
+If[!((FtensorOrVariables//Dimensions//Length)===1),Return["When using the SB formal symbols, the second entry of IntegrableQ[expression_,FtensorOrAlphabet_] must be a list of variables!"]];Message[IntegrableQ::argerr];
+Return[{0}===((expression/.SB[A_]:> Table[SB[Join[A[[1;;(iter-1)]],A[[(iter+2);;]]]]Table[Factor[D[Log[A[[iter]]],FtensorOrVariables[[vara]]] D[Log[A[[iter+1]]],FtensorOrVariables[[varb]]]-D[Log[A[[iter]]],FtensorOrVariables[[varb]]] D[Log[A[[iter+1]]],FtensorOrVariables[[vara]]]],{vara,1,Length[FtensorOrVariables]},{varb,vara+1,Length[FtensorOrVariables]}],{iter,1,Length[A]-1}])//Factor//Flatten//DeleteDuplicates)];,
+True,
+Return["IntegrableQ[expression_,FtensorOrAlphabet_] cannot mix both sb and SB formal symbols. "]
+];
+];
+
+
 (* ::Chapter::Initialization::Closed:: *)
 (*(*Null Space commands*)*)
 
@@ -902,7 +961,7 @@ True, Return[getNullSpaceStepByStep[matrix,globalGetNullSpaceStep]]];
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Checking the independence of the alphabet*)*)
 
 
@@ -995,7 +1054,7 @@ Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[wei
 (*(*Rational reconstruction algorithms*)*)
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Row reduction (over the finite fields)*)*)
 
 
@@ -1010,7 +1069,7 @@ True,rowReduceOverPrimes[matrix]
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
@@ -1029,7 +1088,6 @@ SparseArray[Flatten[Table[{Join[{foo[[1,1]]},TEMPIndexTable[[foo[[1,2]]]]]-> foo
 
 (* ::Section::Initialization:: *)
 (*(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)*)
-(*(**)*)
 
 
 integrableEquationsRational[alphabet_,allvariables_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
@@ -1081,10 +1139,6 @@ Return[TEMPeqn]
 (*(*Resolve the roots using Gr\[ODoubleDot]bner bases*)*)
 
 
-(* ::Input::Initialization:: *)
-
-
-
 resolveRootViaGroebnerBasis::nnarg="The size of 'listOfRoots' must match the size of 'listOfRootPowers'! ";
 
 resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRoots_,listOfRootPowers_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[resolveRootViaGroebnerBasis::nnarg];False]:=
@@ -1118,18 +1172,37 @@ If[TEMPsol==={},"No solution",(First[TEMPsol][[1,2]]/.RT[ifoo_]:> listOfRoots[[i
 resolveRootViaGroebnerBasis::nnarg="The size of 'listOfRoots' must match the size of 'listOfRootPowers'! ";
 
 
+
 resolveRootViaGroebnerBasisMatrix[arrayToSimplify_,listOfRoots_,listOfRootPowers_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[resolveRootViaGroebnerBasis::nnarg];False]:=If[listOfRoots==={},
 Return[arrayToSimplify],
-Monitor[
+If[globalSymBuildParallelize,
+(*Parallel*)
+DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRoots,listOfRootPowers];
+PrintTemporary[" Evaluating the Gr\[ODoubleDot]bner basis resolution in parallel. No monitoring is available, be patient...."];
+Return[ParallelMap[resolveRootViaGroebnerBasis[#,listOfRoots,listOfRootPowers]&,arrayToSimplify,{2},Method-> "CoarsestGrained"]],
+(*Series*)
+Return[Monitor[
 Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRoots,listOfRootPowers],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}],
-{"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]
+{"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]]
+];
 ];
 
 
 
+(*mapMonitor::usage=" A monitoring function for 'Map'.";
 
-(* ::Input::Initialization:: *)
+mapMonitor[operation_,expr_,lvlSpec_:{1}]:=Block[{Auxf,counter=0},Auxf[x_]:=(counter++;operation[x]);
+Monitor[Map[Auxf,expr,lvlSpec],counter]];
 
+
+parallelMapMonitor::usage=" A rough monitoring function for 'ParallelMap'.";
+
+parallelMapMonitor[operation_,expr_,Threshold_Integer:100,lvlSpec_:{1}]:=Block[{thresh=Threshold,Auxf,counter=0,localcounter},
+SetSharedVariable[counter];
+ParallelEvaluate[localcounter=1;];
+Auxf[x_]:=(If[localcounter\[GreaterEqual]thresh,counter=counter+localcounter;localcounter=1,localcounter++];operation[x]);
+Monitor[ParallelMap[Auxf,expr,lvlSpec],{"Rougly at step ", counter}]
+];*)
 
 
 (* ::Section::Initialization:: *)
@@ -1206,14 +1279,14 @@ Print["...Done. Generating the integrability tensor..."];
 TEMPintegrableEquations=integrableEquationsWithRoots[alphabet,allvariables,listOfRoots,listOfRootPowers];
 TEMPintegrableEquationsResolved=resolveRootViaGroebnerBasisMatrix[TEMPintegrableEquations,listOfRoots,listOfRootPowers];
 TEMPintegrableEquationsRationalized=collectRootCoefficients[TEMPintegrableEquationsResolved,Table[ToExpression["\[Rho]"<>ToString[iter]],{iter,1,Length[listOfRoots]}]];
-Print["...Done. Also done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."];
+Print["Done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."];
 ];
 TEMPintegrabilityMatrix=buildFMatrixReducedForASetOfEquations[TEMPintegrableEquationsRationalized//Normal//Factor,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
 Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 ];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Computing the integrable symbols*)*)
 
 
@@ -1290,7 +1363,6 @@ Print["...done. Separating into even + odd...."];
 (* Compute the even and odd symbols *)
 (* If all the symbols are even, bypass the computation *)
 If[DeleteDuplicates[Flatten[previousWeightSymbolsSigns]]==={0}&&DeleteDuplicates[Flatten[listOfSymbolSigns]]==={0},
-nextWeightNullSpace=getNullSpace[nextWeightNullSpace];
 Return[{solutionSpaceToSymbolsTensor[nextWeightNullSpace,sizeAlphabet],Table[0,Length[nextWeightNullSpace]]}]];
 (*Otherwise, compute the even and odd conditions and symbols. Make sure that there are no empty arrays....*)
 nextWeightEven=getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,0].Transpose[nextWeightNullSpace]];
@@ -1314,21 +1386,20 @@ Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Determine tranformation matrices between alphabets*)*)
 
 
-buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]]},
-Return[auxFlattenTwoIndices23[transposeLevelsSparseArray[weightLsymbolTensor,{3,1,2}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].transposeLevelsSparseArray[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{2,3,1}],limitAlphabetSize]];
+buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
+tempArray=auxFlattenTwoIndices23[transposeLevelsSparseArray[weightLsymbolTensor,{3,1,2}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].transposeLevelsSparseArray[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{2,3,1}],limitAlphabetSize];
+Return[SparseArray[tempArray,Dimensions[tempArray]]];
 ];
-
 inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]:=SparseArray[Most[inverseMatrix//ArrayRules]/. ({a1_,a2_}->a3_):>({a1,Quotient[a2-1,sizeAlphabet]+1,Mod[a2,sizeAlphabet,1]}->a3),{Dimensions[inverseMatrix][[1]],Dimensions[inverseMatrix][[2]]/sizeAlphabet,sizeAlphabet}];
 
 
 
 (* ::Chapter:: *)
 (*Taking derivatives of symbols*)
-
 
 
 (*---------------------------------------------------------------------------*)
