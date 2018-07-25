@@ -25,7 +25,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the contruction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["Version 0.37, July 24, 2018 "]
+Print["Version 0.38, July 24, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
@@ -44,6 +44,11 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University 
 (* ::Chapter:: *)
 (*Protected symbols*)
 
+
+(* 
+The name 'derivative' is used in the command 'symbolDerivative'.
+The name \[ScriptCapitalS] is used in 'expressTensorAsSymbols' to express formal symbols of lower weight. 
+*)
 
 Protect[derivative,\[ScriptCapitalS]];
 
@@ -79,6 +84,10 @@ linearIndependentColumns::usage="linearIndependentColumns[matrix] gives a list c
 
 
 determineLeftInverse::usage="determineLeftInverse[sparseMatrix_] is a function that determines the left inverse of a sparse matrix that has more rows than columns.  ";
+
+determineLeftInverseForTransposedRowReducedMatrix::usage="determineLeftInverseForTransposedRowReducedMatrix[sparseMatrix_] is 
+a specialized function that determines the left inverse of a sparse matrix that has more rows than columns. It requires that the transposed of the input matrix be in row echelon form. ";
+
 
 
 (* ::Chapter::Initialization:: *)
@@ -339,7 +348,8 @@ is imposed.  ";
 
 (*---------------------------------------------------------------------*)
 (* construction of the weight 1 integrable tensors*)
-weight1Solution::usage="The command 'weight1Solution[alphabet_,forbiddenEntries_.]' creates the weight 1 solution in tensor form when given the alphabet and (optionally) a set of forbidden entries. By default the latter is an empty list.  ";
+weight1Solution::usage="The command 'weight1Solution[alphabet_,forbiddenEntries_.]' creates 
+the weight 1 solution in tensor form when given the alphabet and (optionally) a set of forbidden entries. By default the latter is an empty list.  ";
 
 weight1SolutionEvenAndOdd::usage="The command 'weight1SolutionEvenAndOdd[alphabet_,listOfSymbolSigns_,forbiddenEntries_]' creates the weight 1 solution in tensor form when given the alphabet, 
 a list that tells which letters are even/odd and (optionally) a set of forbidden entries (By default this is an empty list). 
@@ -350,7 +360,7 @@ The result is an array {weight1tensors, listOfSigns} for weight 1, where 'listOf
 
 weightLForbiddenSequencesEquationMatrix::usage=" The command 'weightLForbiddenSequencesEquationMatrix[allPreviousWeightSymbolsTensorList_,listOfForbiddenSequences_,sizeAlphabet_]' computes the 
 matrix of conditions for the weight L integrable symbols such that certain sequences of letters (given by the variable 'listOfForbiddenSequences') do not appear. The array
-'allPreviousWeightSymbolsTensorList' is a list of all the tensors of integrable symbols of lower weight, i.e. {d_1,d_2,d_3,....d_{L-1}}, where d_i are the weight i integrable symbol tensors. "
+'allPreviousWeightSymbolsTensorList' is a list of all the tensors of integrable symbols of lower weight, i.e. {d_1,d_2,d_3,....d_{L-1}}, where d_i are the weight i integrable symbol tensors. ";
 
 (*---------------------------------------------------------------------*)
 (* Commands for the computations of the even+odd symbols*)
@@ -432,7 +442,7 @@ globalLowerThreshold::usage=" This is a global parameter in the command 'getNull
 globalLowerThreshold=300; 
 
 globalSpaSMThreshold::usage=" This is a global parameter in the command 'getNullSpace' (and 'rowReducedMatrix'). If the matrix whose NullSpace must be computed has less rows that this number but higher or equal than 'globalLowerThreshold', then the 'getNullSpaceStepByStep' command is used. If it has more rows that this parameter, then the external program SpaSM is called. ";
-globalSpaSMThreshold=1000;
+globalSpaSMThreshold=10000;
 
 globalGetNullSpaceStep::usage=" This is a global parameter in the command 'getNullSpace'. When 'GetNullSpace' uses the 'getNullSpaceStepByStep' algorithm, the matrix whose null space one wants to compute is divided into submatrices of row size given by 'globalGetNullSpaceStep'. ";
 globalGetNullSpaceStep=200;
@@ -473,7 +483,7 @@ globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 (* ::Input::Initialization:: *)
 resetTheGlobalParameters[]:=Module[{},
 globalLowerThreshold=200; 
-globalSpaSMThreshold=1000;
+globalSpaSMThreshold=10000;
 globalGetNullSpaceStep=200;
 globalSpaSMListOfPrimes=Select[Range[2^14]+10000,PrimeQ];
 globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
@@ -558,23 +568,36 @@ linearIndependentColumns[mat_]:=Map[Position[#,Except[0,_?NumericQ],1,1]&,RowRed
 
 
 (*---------------------------------------------------------------------*)
-(* UPDATE NEEDED: THE ROW REDUCTION SHOULD NOT BE NECESSARY SINCE WE WANT A VERY SPECIAL CASE! *)
-
-determineLeftInverse::nnarg=" The number of rows must be bigger or equal to the number of columns! ";
-
+(*
+(* OLD VERSION *)
 determineLeftInverse[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverse::nnarg];False]:=Module[{rowLength, columnLength, TEMPmatrix},
 {rowLength, columnLength}=Dimensions[sparseMatrix]; 
 TEMPmatrix=rowReduceMatrix[sparseArrayGlueRight[sparseMatrix,SparseArray[Band[{1,1}]-> 1,{rowLength,rowLength}]]];
 Return[SparseArray[TEMPmatrix[[1;;columnLength, columnLength+1;;]]]];
 ];
+*)
+determineLeftInverse::nnarg=" The number of rows must be bigger or equal to the number of columns! ";
+
+determineLeftInverse[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverse::nnarg];False]:=
+Module[{rowLength, columnLength, TEMPmatrix},
+{rowLength, columnLength}=Dimensions[sparseMatrix]; 
+TEMPmatrix=Transpose[rowReduceMatrix[sparseArrayGlueRight[Transpose[sparseMatrix],SparseArray[Band[{1,1}]-> 1,{columnLength,columnLength}]]]];
+Return[TEMPmatrix[[rowLength+1;;]].determineLeftInverseForTransposedRowReducedMatrix[TEMPmatrix[[1;;rowLength]]]];
+];
+
+
+determineLeftInverseForTransposedRowReducedMatrix::nard=" The number of rows must be bigger or equal to the number of columns! ";
+
+determineLeftInverseForTransposedRowReducedMatrix[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverseForTransposedRowReducedMatrix::nnarg];False]:=
+Module[{sortedEntries,dependentCoeff},
+sortedEntries=GatherBy[Map[First,Most[ArrayRules[Transpose[sparseMatrix]]]],First[#]&];
+dependentCoeff=Map[Last[First[#]]&,sortedEntries];
+Return[SparseArray[Table[{iter,dependentCoeff[[iter]]}-> 1,{iter,1,Length[dependentCoeff]}],{Length[dependentCoeff],Length[sparseMatrix]}]];
+];
 
 
 (* ::Subsubsection:: *)
 (*Formal symbols manipulations*)
-
-
-(* ::Input::Initialization:: *)
-
 
 
 shuffles[A1_,A2_]:=Module[{nfoobar,p1,p2,shuffledz,A12},nfoobar=Length/@{A1,A2};
@@ -584,14 +607,11 @@ A12=shuffledz=Join[A1,A2];
 (shuffledz[[#]]=A12;shuffledz)&/@Join[p1,p2,2]];
 
 
-
-
 (* ::Subsubsection:: *)
 (*Miscellaneous*)
 
 
 modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
-
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -618,8 +638,6 @@ rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]
 applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},
 SparseArray[Table[foo->ChineseRemainder[Table[matrixFoo[[Sequence@@foo]],{matrixFoo,matrixList}],primesList],{foo,listOfEntries}],Dimensions[First[matrixList]]]
 ];
-
-
 
 
 rowReduceOverPrimes[matrix_]:=Module[{samplePrimes,primeList,reducedMatrix,reducedMatrixReconstructed,
@@ -654,13 +672,6 @@ If[tallyList[[1,2]]/iterbar>1/2,Return[tallyList[[1,1]]]];
 ];
 Return["No solution! Choose different primes or increase the iteration! "];
 ];
-
-
-(*
-If[globalSymBuildParallelize,
-(*Parallel*)
-DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRoots,listOfRootPowers];
-*)
 
 
 (* ::Subsubsection:: *)
@@ -761,7 +772,7 @@ True,Return[sparseArrayGlue[mat1,mat2]]];
 (*End*)
 
 
-End[] (* End Private Context *)
+End[]; (* End Private Context *)
 
 
 (* ::Title::Initialization:: *)
@@ -879,10 +890,6 @@ singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-
 (*(*Expanding formal symbols in a given basis*)*)
 
 
-(* ::Input::Initialization:: *)
-
-
-
 expandInSymbolBasis[exp_,basis_]:=Module[{coefficientsTEMP,ansatzTEMP,solTEMP,expTEMP=factorSymbols[exp],basisTEMP=factorSymbols[basis],varSBTEMP},
 varSBTEMP=Cases[basisTEMP,SB[___],Infinity]//DeleteDuplicates;
 ansatzTEMP=Sum[coefficientsTEMP[iter] basisTEMP[[iter]],{iter,1,Length[basisTEMP]}];solTEMP=Quiet[Solve[0==(CoefficientArrays[expTEMP-ansatzTEMP,varSBTEMP]//Flatten//DeleteDuplicates),Table[coefficientsTEMP[i],{i,1,Length[basis]}]]];Which[solTEMP=={},"No solution.",
@@ -921,7 +928,6 @@ convertFormalSymbol[expr_,alphabet_]:=expr/.sb[A_]:> If[Head[A]===List,SB[Table[
 (*Checking the integrability of a formal symbol*)
 
 
-
 IntegrableQ::argerr="This can take a while! It is recommended to use the formal sb symbols when checking the integrability condition.";
 
 
@@ -946,7 +952,7 @@ Return["IntegrableQ[expression_,FtensorOrAlphabet_] cannot mix both sb and SB fo
 ];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Null Space commands*)*)
 
 
@@ -1169,40 +1175,22 @@ If[TEMPsol==={},"No solution",(First[TEMPsol][[1,2]]/.RT[ifoo_]:> listOfRoots[[i
 
 
 (* Apply the Gr\[ODoubleDot]bner basis resolution method to each element of an array *)
-resolveRootViaGroebnerBasis::nnarg="The size of 'listOfRoots' must match the size of 'listOfRootPowers'! ";
+resolveRootViaGroebnerBasisMatrix::nnarg="The size of 'listOfRoots' must match the size of 'listOfRootPowers'! ";
 
-
-
-resolveRootViaGroebnerBasisMatrix[arrayToSimplify_,listOfRoots_,listOfRootPowers_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[resolveRootViaGroebnerBasis::nnarg];False]:=If[listOfRoots==={},
+resolveRootViaGroebnerBasisMatrix[arrayToSimplify_,listOfRoots_,listOfRootPowers_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[resolveRootViaGroebnerBasisMatrix::nnarg];False]:=
+If[listOfRoots==={},
 Return[arrayToSimplify],
 If[globalSymBuildParallelize,
-(*Parallel*)
+(*If running in parallel*)
 DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRoots,listOfRootPowers];
 PrintTemporary[" Evaluating the Gr\[ODoubleDot]bner basis resolution in parallel. No monitoring is available, be patient...."];
 Return[ParallelMap[resolveRootViaGroebnerBasis[#,listOfRoots,listOfRootPowers]&,arrayToSimplify,{2},Method-> "CoarsestGrained"]],
-(*Series*)
+(*If running in series*)
 Return[Monitor[
 Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRoots,listOfRootPowers],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}],
 {"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]]
 ];
 ];
-
-
-
-(*mapMonitor::usage=" A monitoring function for 'Map'.";
-
-mapMonitor[operation_,expr_,lvlSpec_:{1}]:=Block[{Auxf,counter=0},Auxf[x_]:=(counter++;operation[x]);
-Monitor[Map[Auxf,expr,lvlSpec],counter]];
-
-
-parallelMapMonitor::usage=" A rough monitoring function for 'ParallelMap'.";
-
-parallelMapMonitor[operation_,expr_,Threshold_Integer:100,lvlSpec_:{1}]:=Block[{thresh=Threshold,Auxf,counter=0,localcounter},
-SetSharedVariable[counter];
-ParallelEvaluate[localcounter=1;];
-Auxf[x_]:=(If[localcounter\[GreaterEqual]thresh,counter=counter+localcounter;localcounter=1,localcounter++];operation[x]);
-Monitor[ParallelMap[Auxf,expr,lvlSpec],{"Rougly at step ", counter}]
-];*)
 
 
 (* ::Section::Initialization:: *)
