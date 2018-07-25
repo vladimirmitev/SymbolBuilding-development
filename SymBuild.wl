@@ -25,7 +25,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the contruction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["Version 0.38, July 24, 2018 "]
+Print["Version 0.38, July 25, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
@@ -113,8 +113,8 @@ The variable 'sparseArrayRules' is a tensor obtained by using the command 'dotSy
 Then the command takes this tensor with L-M+3 indices and expresses it a list of formal symbols. 
 
 The expression can be made in 3 different ways: If 'options' is the string 'Recursive'' then the output is of the type 
-'Sum of  sym[S[j_{M-1}],{i_{M},i_{M+1},...,i_L}]' where S[j_{M-1}] are the integrable symbols of weight M and the remainig i_s indices indicate the attached letters.
-If 'options= 'Complete'', then the S[j_{M-1}] is replaced by an index in the remaining array, like this : 'Sum of sym[{i_{M-1},i_{M},...,i_L}]'. This is only meaningful if M=2 or M=1. 
+'Sum of  sb[\[ScriptCapitalS][j_{M-1}],{i_{M},i_{M+1},...,i_L}]' where \[ScriptCapitalS][j_{M-1}] are the integrable symbols of weight M and the remainig i_s indices indicate the attached letters.
+If 'options= 'Complete'', then the \[ScriptCapitalS][j_{M-1}] is replaced by an index in the remaining array, like this : 'Sum of sb[{i_{M-1},i_{M},...,i_L}]'. This is only meaningful if M=2 or M=1. 
 If 'options= 'DropFirst'', then the output is similar to the 'Complete' case bu the first entry of the array is ignored and the output is of the type 'Sum of sym[{i_{M},i_{M+1},...}]'. 
 This is only ok for M=1";
 
@@ -779,7 +779,7 @@ End[]; (* End Private Context *)
 (*(*The public part of the package*)*)
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Symbol tensors and their manipulation*)*)
 
 
@@ -828,18 +828,22 @@ SparseArray[Most[ArrayRules[symbolsTensor]]/. ({a1_,a2_,a3_}->a4_):>{a3,(a1-1) s
 (* ::Input::Initialization:: *)
 (*---------------------------------------------------------------------*)
 
-Default[expressTensorAsSymbols]="Complete";
+Default[expressTensorAsSymbols]="Recursive";
+expressTensorAsSymbols::argerr="When using the 'Complete' option, the first index of the symbolsTensorArray has to have just one entry corresponding to the weight 0 symbol.
+ Use the 'dotSymbolTensors' command to contract the tensors of the integrable symbols all the way down to the weight 1 tensor. ";
 
-expressTensorAsSymbols[sparseArrayRules_,options_.]:=Module[{tensorLength,positionTable,TEMPsparseTensor},
-TEMPsparseTensor=If[Head[sparseArrayRules]===SparseArray,sparseArrayRules//ArrayRules,sparseArrayRules];
+expressTensorAsSymbols[symbolsTensorArray_,options_.]:=Module[{tensorLength,positionTable,TEMPsparseTensor},
+TEMPsparseTensor=ArrayRules[symbolsTensorArray];
 tensorLength=TEMPsparseTensor[[1,1]]//Length;
 positionTable=positionDuplicates[Drop[TEMPsparseTensor[[All,1]][[All,tensorLength]],-1]];
 Which[options=="Complete",
-Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[Drop[TEMPsparseTensor[[ifoo,1]],-1]],{ifoo,posList}],{posList,positionTable}],
-options=="DropFirst",
-Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[Drop[Drop[TEMPsparseTensor[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}],
+If[Dimensions[symbolsTensorArray][[1]]==1,
+Return[Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[Drop[Drop[TEMPsparseTensor[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}]]
+,Message[expressTensorAsSymbols::argerr]; Return[Null]
+(*Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[Drop[TEMPsparseTensor[[ifoo,1]],-1]],{ifoo,posList}],{posList,positionTable}]*)
+];,
 options=="Recursive",
-Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[\[ScriptCapitalS][TEMPsparseTensor[[ifoo,1]]//First],Drop[Drop[TEMPsparseTensor[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}]
+Return[Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[\[ScriptCapitalS][TEMPsparseTensor[[ifoo,1]]//First],Drop[Drop[TEMPsparseTensor[[ifoo,1]],-1],1]],{ifoo,posList}],{posList,positionTable}]]
 ]
 ];
 
@@ -939,8 +943,9 @@ SBCases==={},
 sbCases=DeleteDuplicates[Length/@(sbCases/.sb[\[ScriptCapitalS][x_],A_]:> A/.sb[A_]:> A)];
 If[!((FtensorOrVariables//Dimensions//Length)===3),Return["When using sb formal symbols, the second entry of IntegrableQ[expression_,FtensorOrAlphabet_] must be an integrability tensor!"]];
 If[
-Length[sbCases]>1,
-Return["IntegrableQ[expression_,FtensorOrAlphabet_] has to act on expressions containing sb[list_] or sb[\[ScriptCapitalS][i],list_], where 'list' has at least 2 elements. Furthermore, the formal symbols have to be expressed uniformly"],
+Length[sbCases]>1||Min[sbCases]==1,
+Return["IntegrableQ[expression_,FtensorOrAlphabet_] has to act on expressions containing sb[list_] or sb[\[ScriptCapitalS][i],list_], where 'list' has at least 2 elements. 
+Furthermore, the formal symbols have to be expressed uniformly, meaning that all the lists have to have the same length. "],
 Return[{0}===((expression/.sb[\[ScriptCapitalS][x_],A_]:> Table[sb[\[ScriptCapitalS][x],Join[A[[1;;(iter-1)]],A[[(iter+2);;]]]]FtensorOrVariables[[All,A[[iter]],A[[iter+1]]]],{iter,1,Length[A]-1}]/.sb[A_]:> Table[sb[Join[A[[1;;(iter-1)]],A[[(iter+2);;]]]]FtensorOrVariables[[All,A[[iter]],A[[iter+1]]]],{iter,1,Length[A]-1}])//Flatten//DeleteDuplicates)];
 ];,
 sbCases==={},
