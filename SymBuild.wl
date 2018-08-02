@@ -228,6 +228,11 @@ Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2]. 'allvar
 can be used to replace some formal objects in the list of minimal polynomials with explicit expression in the 'allvariables'. ";
 
 
+computeTheDerivativeRules::usage="The command 'computeTheDerivativeRules[listOfVariables_,listOfRootVariables_,listOfMinimalPolynomials_,listOfReplacementRules_:{}]'
+is an auxiliary function used in 'integrableEquationsWithRoots' and 'dLogAlphabet'. Its purpose is to compute the first order derivatives of the 
+roots in listOfRootVariables (that are solutions to the minimal polynomials) w.r.t. the variables in 'listOfVariables'. ";
+
+
 (*---------------------------------------------------------------------*)
 (*Resolve the roots using Gr\[ODoubleDot]bner bases*)
 (*!!!!! REDO THE DESCRIPTION *)
@@ -404,6 +409,8 @@ computes their derivative w.r.t. 'variable'. ";
 presentIntegrableSymbolsData::usage="The command 'presentIntegrableSymbolsData[{tensorList_,signsArray_}]' takes an array of two elements, one being the tensor of integrable symbols and the other
 the list of 0 and 1 indicating which symbols are even/odd, and presents the data in a nice way. Alternatively, it can be called as 'presentIntegrableSymbolsData[tensorList_]' 
 in which case it does not care about the even/odd symbols. ";
+
+presentTheIntegrabilityTensor::usage="The function presentTheIntegrabilityTensor acts on an integrability tensor an represents it as a list of antisymmetric matrices. ";
 
 
 
@@ -745,6 +752,8 @@ auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray
 presentIntegrableSymbolsData[tensorList_]:=Print["----------------------------------------- \n", Dimensions[tensorList][[3]]," integrable symbols in an alphabet with ",Dimensions[tensorList][[2]]," letters. The number of symbols of previous weight is ",Dimensions[tensorList][[1]],". \n-----------------------------------------" ];
 
 presentIntegrableSymbolsData[{tensorList_,signsArray_}]:=Print["----------------------------------------- \n", Dimensions[tensorList][[3]]," integrable symbols (",Count[signsArray,0]," even, ",Count[signsArray,1]," odd) in an alphabet with ",Dimensions[tensorList][[2]]," letters. The number of symbols of previous weight is ",Dimensions[tensorList][[1]],". \n-----------------------------------------" ];
+
+presentTheIntegrabilityTensor[tensor_]:=Table[tensor[[iter]]//MatrixForm,{iter,1,Length[tensor]}];
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -1201,6 +1210,7 @@ Return[TEMPeqn/.variablesRedefReverse/.root[a_][X__]:> listOfRootVariables[[a]]]
 
 (*---------------------------------------------------*)
 
+
 (*auxiliary command used in 'integrableEquationsWithRoots'*)
 computeTheDerivativeRules[listOfVariables_,listOfRootVariables_,listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
 Module[{solTEMP},Flatten[Table[solTEMP=Solve[D[(listOfMinimalPolynomials/.listOfReplacementRules),listOfVariables[[jbar]]]
@@ -1319,7 +1329,7 @@ listPrimes=Prime[Range[sampleSize]];
 newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];
 variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariables]}];
 variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];
-TEMPsetOfEquations=SparseArray[(setOfEquations//ArrayRules)/. variablesRedef];
+TEMPsetOfEquations=SparseArray[(setOfEquations//ArrayRules)/. variablesRedef,Dimensions[setOfEquations]];
 
 TEMPmatrix={};
 
@@ -1329,23 +1339,17 @@ Monitor[Do[
 TEMPfunction[Sequence@@(Pattern[#1,_]&)/@newVariables]:=Evaluate[TEMPsetOfEquations[[fctIter]]];
 extraSamples=0;
 Do[
-timeMeasure=SessionTime[];
+timeMeasure=SessionTime[]; 
 (*-------------------------------------------------*)
 (* Add a new sample point and avoid singularities *)
 succesfullTry=0;
 Do[
-TEMPrandomSample=RandomSample[listPrimes,Length[newVariables]];
-TEMPtryTheFunction=TEMPfunction[Sequence@@TEMPrandomSample]//Quiet;
-If[Cases[ArrayRules[TEMPtryTheFunction][[All,2]],ComplexInfinity,Infinity]==={},succesfullTry=1;Break[]]
-,
-{iterbaz,1,toleranceForRetries}];
+TEMPrandomSample=RandomSample[listPrimes,Length[newVariables]];TEMPtryTheFunction=TEMPfunction[Sequence@@TEMPrandomSample]//Quiet;If[Cases[ArrayRules[TEMPtryTheFunction][[All,2]],ComplexInfinity,Infinity]==={},succesfullTry=1;Break[]]
+,{iterbaz,1,toleranceForRetries}];
 (*-------------------------------------------------*)
 If[succesfullTry==1,TEMPmatrix=Append[TEMPmatrix,TEMPtryTheFunction];,Return["Error: increase 'toleranceForRetries'"]];
-,
-{step,1,maxSamplePoints}];
-,
-{fctIter,1,Length[TEMPsetOfEquations]}],"Adding equation "<>ToString[fctIter]];
-Return[rowReduceMatrix[TEMPmatrix//Normal]//SparseArray//sparseArrayZeroRowCut]
+,{step,1,maxSamplePoints}];
+,{fctIter,1,Length[TEMPsetOfEquations]}],"Adding equation "<>ToString[fctIter]];TEMPmatrix=rowReduceMatrix[TEMPmatrix//Normal];Return[SparseArray[TEMPmatrix,Dimensions[TEMPmatrix]]//sparseArrayZeroRowCut]
 ];
 
 
@@ -1389,6 +1393,7 @@ TEMPintegrableEquationsResolved=resolveRootViaGroebnerBasisMatrix[TEMPintegrable
 TEMPintegrableEquationsRationalized=collectRootCoefficients[TEMPintegrableEquationsResolved,listOfRootVariables];
 Print["Done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."];
 ];
+If[TEMPintegrableEquationsRationalized==={},Print["There are no relations in this alphabet and hence no need for an integrability tensor."];Return[Null]];
 TEMPintegrabilityMatrix=buildFMatrixReducedForASetOfEquations[TEMPintegrableEquationsRationalized//Normal//Factor,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
 Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 ];
