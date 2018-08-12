@@ -992,7 +992,7 @@ True, Return[getNullSpaceStepByStep[matrix,globalGetNullSpaceStep]]];
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*Checking the independence of the alphabet*)
 
 
@@ -1364,7 +1364,7 @@ Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 *)
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*Computing the integrable symbols*)
 
 
@@ -1406,10 +1406,11 @@ nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Fl
 
 
 determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]:=
-Module[{tempEquations,tempSol },
-tempEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
-PrintTemporary["Done generating the equations. It's a ", Dimensions[tempEquations], " matrix."];
-tempSol=getNullSpace[tempEquations];
+Module[{integrabilityEquations,tempSol },
+integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
+Print["Done generating the integrability equations. It's a ", Dimensions[integrabilityEquations], " matrix of equations. Solving...."];
+tempSol=getNullSpace[integrabilityEquations];
+Print["...done."];
 solutionSpaceToSymbolsTensor[tempSol,Dimensions[FmatrixTensor][[2]]]];
 
 
@@ -1423,7 +1424,7 @@ Module[{integrabilityEquations,nextWeightNullSpace,sizeAlphabet=Length[listOfSym
 (* Get the integrability equations *)
 
 integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
-Print["Done computing the integrability equations. Solving...."];
+Print["Done generating the integrability equations. It's a ", Dimensions[integrabilityEquations], " matrix of equations. Solving...."];
 
 (*-------------------------------------------*)
 (* Introduce the weight L entry conditions *)
