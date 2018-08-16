@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Title::Initialization:: *)
-(*(*Beginning/ First declarations *)*)
+(*Beginning/ First declarations *)
 
 
 (*----------------------------------------------------------------------------------------------------------------------------------*)
@@ -24,14 +24,14 @@
 
 BeginPackage["SymBuild`"]
 
-Print["SymBuild: Mathematica package for the contruction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["Version 0.38, July 25, 2018 "]
+Print["SymBuild: Mathematica package for the construction and manipulation of integrable symbols in scattering amplitudes. "]
+Print["Version 0.45, August 16, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
 
 (* ::Title::Initialization:: *)
-(*(*Descriptions of the exported symbols*)*)
+(*Descriptions of the all commands and symbols*)
 
 
 (*----------------------------------------------------------------------------------------------------------*)
@@ -41,20 +41,21 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University 
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Protected symbols*)
 
 
 (* 
 The name 'derivative' is used in the command 'symbolDerivative'.
 The name \[ScriptCapitalS] is used in 'expressTensorAsSymbols' to express formal symbols of lower weight. 
+\[DoubleStruckCapitalX] and rt are used in the minimal polynomial computing command radicalSmoother and its auxliary functions
 *)
 
-Protect[derivative,\[ScriptCapitalS]];
+Protect[derivative,\[ScriptCapitalS],\[DoubleStruckCapitalX],rt];
 
 
 (* ::Chapter::Initialization:: *)
-(*(*General command on lists and matrices manipulations *)*)
+(*General command on lists and matrices manipulations *)
 
 
 (*----------------------------------------------------------------------------------------------------------*)
@@ -62,7 +63,6 @@ Protect[derivative,\[ScriptCapitalS]];
 sparseArrayGlueRight::usage="sparseArrayGlueRight[matrix1, matrix2] glues the two sparse matrices with the same number of rows, placing them left and right.";
 sparseArrayGlue::usage="sparseArrayGlue[matrix1, matrix2] glues two matrices with the same number of columns, placing them top and bottom. If the function is instead given an array of matrices with the same number of columns, then it glues them all. ";
 sparseArrayZeroRowCut::usage="sparseArrayZeroRowCut[matrix] removes the zero rows at the bottom of the sparse matrix.";
-transposeLevelsSparseArray::usage="transposeLevelsSparseArray[matrix, level specification] generalizes matrix transposition to a sparse array with many indices. It can be used in two ways. Either as 'transposeLevelsSparseArray[sparseArray_,level1_,level2_]' in which case it takes a tensor with index structure T[i_1,....i_level1,...i_level2...] and turns it into T[i_1,....i_level2,...i_level1...] or as  'transposeLevelsSparseArray[sparseArray_,swappedOrder_]' in which case swappedOrder={neworder_1, ..., neworder_sizearray} gives the new position of the indices. ";
 
 dotSymbolTensors::usage="dotSymbolTensors contracts the last entry of the R-tensor tensorL with the first entry of the Q-tensor tensorR to produce a new (R+Q-2) tensor. 
 It can be used as 'dotSymbolTensors[tensorL_,tensorR_]' in which case it contracts the two arrays or as 'dotSymbolTensors[A_]',
@@ -91,7 +91,7 @@ a specialized function that determines the left inverse of a sparse matrix that 
 
 
 (* ::Chapter::Initialization:: *)
-(*(*Symbol tensors and their manipulations*)*)
+(*Symbol tensors and their manipulations*)
 
 
 (*---------------------------------------------------------------------*)
@@ -121,7 +121,7 @@ This is only ok for M=1";
 
 
 (* ::Chapter::Initialization:: *)
-(*(*Formal symbols manipulation*)*)
+(*Formal symbols manipulation*)
 
 
 (* ::Input::Initialization:: *)
@@ -172,7 +172,7 @@ When acting on expressions of sb formal symbols, the second entry must be an int
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Commands used in checking the independence of the alphabet*)
 
 
@@ -180,14 +180,15 @@ When acting on expressions of sb formal symbols, the second entry must be an int
 
 dLogAlphabet::usage="Compute the dLog of an alphabet (with roots). Used then in the command 'findRelationsInAlphabet' to determine if an alphabet is independent or not. ";
 
+
 findRelationsInAlphabet::usage="The command 'findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]' 
 determines if the dlog of the functions in 'alphabet' are linearly independent or not. 
 The parameters 'sampleSize_,maxSamplePoints_,toleranceForRetries_' play the same role as in the command 'buildFMatrixReducedIterativelyForASetOfEquations'. 
-If the alphabet is not idenpendent, the command will generate a matrix whose rows are the linear combinations of letters that are zero. ";
+If the alphabet is not independent, the command will generate a matrix whose rows are the linear combinations of letters that are zero. ";
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Computing the difference equation if given a sequence of dimensions*)
 
 
@@ -198,7 +199,7 @@ at given weight (up to some cutoff) and attemps to guess a sequence of numbers {
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Counting the number of products and of irreducible symbols*)
 
 
@@ -210,7 +211,7 @@ dimProductSymbols::usage="The function dimProductSymbols[L_] gives the number of
 dimIrreducibleSymbols::usage="The function dimIrreducibleSymbols[cutoffWeight_] gives a table {dimQ[0], dimQ[1], ..., dimQ[cutoffWeight]} of the number of irreducible integrable symbols (i.e. those that cannot be written as products) of weight smaller or equal to cutoffWeight. The answer is given as a function of dimH[n], which is the total number of integrable symbols of weight n.";
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Computing the integrability tensor \[DoubleStruckCapitalF]*)
 
 
@@ -219,18 +220,29 @@ matrixFReducedToTensor::usage="matrixFReducedToTensor[sparse matrix] transforms 
 
 integrableEquationsRational::usage="integrableEquationsRational[alphabet, list of variables] takes an alphabet of rational functions in the variables and generates a matrix of size Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2], each entry of which is a rational function.  ";
 
-integrableEquationsWithRoots::usage="integrableEquationsWithRoots[alphabet, list of variables, list of roots, list of root powers] takes an alphabet of rational functions in the variables and in the roots and generates a matrix of size Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2]. The 'list of roots', should be a list of rational functions \!\(\*SubscriptBox[\(\[CapitalDelta]\), \(i\)]\) in the variables and the 'list of root powers' contains the powers \!\(\*SubscriptBox[\(n\), \(i\)]\) such that root[i\!\(\*SuperscriptBox[\(]\), SubscriptBox[\(n\), \(i\)]]\) = \!\(\*SubscriptBox[\(\[CapitalDelta]\), \(i\)]\). The roots should be represented in the alphabet as formal functions root[i][variable 1, variable 2,....]. ";
+integrableEquationsWithRoots::usage="The command 'integrableEquationsWithRoots[alphabet_,allvariables_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]'
+ takes an alphabet of rational functions in the variables and in the roots and generates a matrix of size 
+Binomial[number of variables, 2] x Binomial[ length of the alphabet, 2]. 'allvariables' is the list of the variables, while 'listOfRootVariables' is the list of roots.
+ 'listOfMinimalPolynomials' is a set of minimal polynomials describing the roots. Finally, 'listOfReplacementRules' is an optional list of rules that 
+can be used to replace some formal objects in the list of minimal polynomials with explicit expression in the 'allvariables'. ";
+
+
+computeTheDerivativeRules::usage="The command 'computeTheDerivativeRules[listOfVariables_,listOfRootVariables_,listOfMinimalPolynomials_,listOfReplacementRules_:{}]'
+is an auxiliary function used in 'integrableEquationsWithRoots' and 'dLogAlphabet'. Its purpose is to compute the first order derivatives of the 
+roots in listOfRootVariables (that are solutions to the minimal polynomials) w.r.t. the variables in 'listOfVariables'. ";
 
 
 (*---------------------------------------------------------------------*)
 (*Resolve the roots using Gr\[ODoubleDot]bner bases*)
-resolveRootViaGroebnerBasis::usage="resolveRootViaGroebnerBasis[expressionToSimplify, list of roots, list of root powers] takes a rational function 
-in the formal root[i][variable1, variable2,...] (such as the entries of the matrix generated by 'integrableEquationsWithRoots') and uses Gr\[ODoubleDot]bner bases to simplify them, 
-such as the output is of the form: Sum[r[s1,s2,...] \[Rho]1^s1 \[Rho]2^s2...,{s1,0,n1-1},{s2,0,n2-1}], where the powers n1, n2,... satisfy the conditions
-root[i]^(ni) = \[CapitalDelta]i. Here, 'list of roots' = {\[CapitalDelta]1,...} and 'list of root powers' ={n1,n2,...}. ";
+resolveRootViaGroebnerBasis::usage="resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRootVariables_,listOfMinimalPolynomials_,listOfReplacementRules_:{}] takes 
+a rational function 'expressionToSimplify' in the variables and in the roots and transforms it into a polynomial expression in the roots, with the coefficients of the 
+polynomial being rational functions in the variables. The array 'listOfRootVariables' is the list of root variables (their names), 'listOfMinimalPolynomials' is a list of minimal polynomials whose roots
+determine the roots of 'listOfRootVariables' and 'listOfReplacementRules' is an optional list of replacement rules for formal objects in 'listOfMinimalPolynomials' that are actually functions 
+of the variables. ";
 
 (*---------------------------------------------------------------------*)
-resolveRootViaGroebnerBasisMatrix::usage="resolveRootViaGroebnerBasisMatrix[matrix , list of roots, list of root powers] applies 'resolveRootViaGroebnerBasis' to each element of an array. For our purposes, the array will be a dense one. ";
+resolveRootViaGroebnerBasisMatrix::usage="resolveRootViaGroebnerBasisMatrix[matrix , list of roots, list of root powers] applies 'resolveRootViaGroebnerBasis' to each element of an array.
+ For our purposes, the array will be a dense one. ";
 
 
 (*---------------------------------------------------------------------*)
@@ -253,12 +265,17 @@ expressionArray= { coefficients_{n1n2...} * \[Rho]1^n1 \[Rho]2^n2....., .....} a
 
 (*---------------------------------------------------------------------*)
 (* The simplest end-user command for the computation of the integrability tensor *)
-computeTheIntegrabilityTensor::usage="The command 'computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]' computes the integrability tensor \[DoubleStruckCapitalF] for a given alphabet 'alphabet_' in the variables 'allvariables_'. The array 'listOfRoots_' contains a list of rational functions {\[CapitalDelta]1, ..., \[CapitalDelta]s} such that the roots \[Rho]i obey \[Rho]i^{ni}=\[CapitalDelta]i, where the powers ni are contained in the array 'listOfRootPowers_'. See the command 'buildFMatrixReducedForASetOfEquations' for an explanation of the parameters 'sampleSize_,maxSamplePoints_,toleranceForRetries_'.  ";
+computeTheIntegrabilityTensor::usage="The command 'computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRootVariables_,
+listOfMinimalPolynomials_,listOfReplacementRules_:{},sampleSize_,maxSamplePoints_,toleranceForRetries_]' 
+computes the integrability tensor \[DoubleStruckCapitalF] for a given alphabet 'alphabet_' in the variables 'allvariables_'.
+The array 'listOfRootVariables_' is a list of the names of all the root variables and 'listOfMinimalPolynomials_' is a list of minimal polynomials that determine the roots. 
+Finally, 'listOfReplacementRules' is an optional list of replacement rules that express formal objects in 'listOfMinimalPolynomials_' as functions of 'allvariables_'.
+See the command 'buildFMatrixReducedForASetOfEquations' for an explanation of the parameters 'sampleSize_,maxSamplePoints_,toleranceForRetries_'.  ";
 
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Null space commands*)
 
 
@@ -279,7 +296,7 @@ If the number of rows of 'matrix' is larger than the global variable 'globalSpaS
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Row reduction of the finite fields*)
 
 
@@ -297,28 +314,36 @@ rowReduceOverPrimes::usage="Use the finite field reduction over primes. Start wi
 
 (*---------------------------------------------------------------------*)
 (*Row reduction (over the finite fields)*)
-rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' computes the row-eshelon form of a matrix. FINISH THE DESCRIPTION!! ";
+rowReduceMatrix::usage=" The command 'rowReduceMatrix[matrix_]' computes the row-eshelon form of a matrix. If the number of rows of 'matrix_' is lower than
+the global variable 'globalLowerThreshold' then the usual RowReduce command is used. If it is bigger, then we use command 'rowReduceOverPrimes'. If the number of rows exceeds
+ 'globalSpaSMThreshold' AND globalSpaSMSwitch=True, then SpaSM is called.";
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Determine the tranformation matrices between sets of integrable symbols*)
 
 
 buildTransformationMatrix::usage="The command 'buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]' produces the weight L matrix T_L that gives the limit of the integrable symbols in the alphabet A1 in the alphabet A2. It takes  as input: 1) the matrix 'alphabetTransformationMatrix' which tells us how the limit of the letters of A1 are expressed in letters of the limit alphabet A2, 2) the symbol tensor 'weightLsymbolTensor' of the weight L integrable symbols in A1, 3) the matrix 'previousTransformationMatrix' (this is T_{L-1}) and 4) the matrix 'limitAlphabetInversionMatrix' which is the weight L inversion matrix for the integrable symbols in the alphabet A2.  ";
 
 
+computeTheInversionMatrix::usage="The command 'computeTheInversionMatrix' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion matrix as explained in section 3.4. 
+This matrix can then be transformed in a 3-tensor in the language of section 3.3 by using the command 'inverseMatrixToTensor'. "
+
+computeTheInversionTensor::usage="The command 'computeTheInversionTensor' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion tensor E as explained in section 3.4."
+
+
 inverseMatrixToTensor::usage="The command 'inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]' takes the weight L inversion matrix E_L for the integrable symbols in a certain alphabet A and transforms it into a 3-tensor by splitting the column index in a bi-index (j,k) where k=1,... Length[A]. ";
 
 
-(* Two auxiliary commands *)
+(* Two auxiliary commands used in buildTransformationMatrixco *)
 auxFlattenTwoIndices12::usage="The auxiliary command 'auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]' flattens the first two indices of a 3-tensor with indices (i,j,k), where the second index j is in the interval j=1,..., sizeAlphabet. ";
 
 auxFlattenTwoIndices23::usage="The auxiliary command 'auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]' flattens the last two indices of a 3-tensor with indices (i,j,k), where the third index k is in the interval k=1,..., sizeAlphabet. ";
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Computing the next level symbols*)
 
 
@@ -374,7 +399,7 @@ is the tensor for the  weight L-1 integrable symbols and 'listOfSymbolSigns' is 
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Taking derivatives of the symbols*)
 
 
@@ -385,7 +410,7 @@ computes their derivative w.r.t. 'variable'. ";
 
 
 
-(* ::Chapter:: *)
+(* ::Chapter::Initialization:: *)
 (*Presentation commands*)
 
 
@@ -393,13 +418,30 @@ presentIntegrableSymbolsData::usage="The command 'presentIntegrableSymbolsData[{
 the list of 0 and 1 indicating which symbols are even/odd, and presents the data in a nice way. Alternatively, it can be called as 'presentIntegrableSymbolsData[tensorList_]' 
 in which case it does not care about the even/odd symbols. ";
 
+presentTheIntegrabilityTensor::usage="The function presentTheIntegrabilityTensor acts on an integrability tensor an represents it as a list of antisymmetric matrices. ";
 
 
-(* ::Title::Initialization:: *)
-(*(*Global variables: definitions and descriptions *)*)
+
+(* ::Chapter:: *)
+(*Computing minimal polynomials*)
 
 
-(* ::Section:: *)
+(*---------------------------------------------------------------------*)
+(* auxiliary commands*)
+blockOrder::usage=" DESCRIPTION!!!!";
+radicalFinder::usage="DESCRIPTION!!!!";
+constraintEquation::usage="DESCRIPTION!!!!";
+
+(*---------------------------------------------------------------------*)
+radicalRefine::usage="The command 'RadicalRefine' takes a list of root expressions {R1,....} and attemps to compute a list of minimal polynomials whose roots are (R1,....). ";
+
+
+
+(* ::Title::Initialization::Closed:: *)
+(*Global variables: definitions and descriptions *)
+
+
+(* ::Section::Initialization:: *)
 (*Parallelize*)
 
 
@@ -408,7 +450,7 @@ globalSymBuildParallelize=False;
 
 
 (* ::Section::Initialization:: *)
-(*(*SpaSM global variables*)*)
+(*SpaSM global variables*)
 
 
 (* ::Input::Initialization:: *)
@@ -434,7 +476,7 @@ globalSpaSMNumberOfKernels=2;
 
 
 (* ::Section::Initialization:: *)
-(*(*Global parameters for 'getNullSpace'*)*)
+(*Global parameters for 'getNullSpace'*)
 
 
 (* ::Input::Initialization:: *)
@@ -453,7 +495,7 @@ globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
 (* ::Section::Initialization:: *)
-(*(*Global parameters of 'rowReduceMatrix' and 'rowReduceOverPrimes'*)*)
+(*Global parameters of 'rowReduceMatrix' and 'rowReduceOverPrimes'*)
 
 
 (* ::Input::Initialization:: *)
@@ -477,7 +519,7 @@ globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
 (* ::Section::Initialization:: *)
-(*(*Resetting the global parameters/choosing various prepackages possibilities*)*)
+(*Resetting the global parameters/choosing various prepackages possibilities*)
 
 
 (* ::Input::Initialization:: *)
@@ -503,17 +545,17 @@ Return["The global variables have been reset to their standard values. "]
 
 
 (* ::Title::Initialization:: *)
-(*(*The private part of the package*)*)
+(*The private part of the package*)
 
 
-(* ::Section:: *)
+(* ::Section::Initialization:: *)
 (*Beginning*)
 
 
 Begin["`Private`"] (* Begin Private Context *)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*General commands on lists and matrices manipulations*)
 
 
@@ -535,19 +577,6 @@ sparseArrayZeroRowCut[sarray_]:=Module[{entriesPosition=Drop[(sarray//ArrayRules
 dotSymbolTensors[tensorL_,tensorR_]:=tensorL.tensorR;
 dotSymbolTensors[A_]:=Which[Length[A]==0,{},Length[A]==1,A[[1]], Length[A]==2,dotSymbolTensors[A[[1]],A[[2]]],Length[A]>2, dotSymbolTensors[Join[{dotSymbolTensors[A[[1]],A[[2]]]},Drop[A,2]]]];
 
-(*---------------------------------------------------------------------*)
-
-transposeLevelsSparseArray[sparseArray_,level1_,level2_]:=Module[{array=Drop[sparseArray//ArrayRules,-1], dimensions=Dimensions[sparseArray],swappedOrder},
-swappedOrder=Range[Length[dimensions]]/.{level1-> level2,level2-> level1};
-SparseArray[Table[array[[iter,1]][[swappedOrder]]-> array[[iter,2]],{iter,1,Length[array]}],dimensions[[swappedOrder]]]
-];
-
-transposeLevelsSparseArray[sparseArray_,swappedOrder_]:=Module[{array=Drop[sparseArray//ArrayRules,-1], dimensions=Dimensions[sparseArray]},
-SparseArray[Table[array[[iter,1]][[swappedOrder]]-> array[[iter,2]],{iter,1,Length[array]}],dimensions[[swappedOrder]]]
-];
-
-positionDuplicates[list_]:=GatherBy[Range@Length[list],list[[#]]&] ;
-
 
 
 (* Dense Matrix Manipulation*)
@@ -568,14 +597,7 @@ linearIndependentColumns[mat_]:=Map[Position[#,Except[0,_?NumericQ],1,1]&,RowRed
 
 
 (*---------------------------------------------------------------------*)
-(*
-(* OLD VERSION *)
-determineLeftInverse[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverse::nnarg];False]:=Module[{rowLength, columnLength, TEMPmatrix},
-{rowLength, columnLength}=Dimensions[sparseMatrix]; 
-TEMPmatrix=rowReduceMatrix[sparseArrayGlueRight[sparseMatrix,SparseArray[Band[{1,1}]-> 1,{rowLength,rowLength}]]];
-Return[SparseArray[TEMPmatrix[[1;;columnLength, columnLength+1;;]]]];
-];
-*)
+
 determineLeftInverse::nnarg=" The number of rows must be bigger or equal to the number of columns! ";
 
 determineLeftInverse[sparseMatrix_]/;If[Dimensions[sparseMatrix][[1]]>= Dimensions[sparseMatrix][[2]],True,Message[determineLeftInverse::nnarg];False]:=
@@ -596,7 +618,7 @@ Return[SparseArray[Table[{iter,dependentCoeff[[iter]]}-> 1,{iter,1,Length[depend
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*Formal symbols manipulations*)
 
 
@@ -607,15 +629,15 @@ A12=shuffledz=Join[A1,A2];
 (shuffledz[[#]]=A12;shuffledz)&/@Join[p1,p2,2]];
 
 
-(* ::Subsubsection:: *)
-(*Miscellaneous*)
+(* ::Subsubsection::Initialization:: *)
+(*modified RowReduce command - transform to a normal matrix to avoid Mathematica hanging up*)
 
 
 modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Rational reconstruction*)*)
+(*Rational reconstruction*)
 
 
 (* ::Input::Initialization:: *)
@@ -631,7 +653,7 @@ Return[r1/s1]
 rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]},Map[rationalReconstructionAlgorithm[#,prime]&,TEMPArray,{Depth[TEMPArray]-1}]];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*Row Reduction over the finite fields for a dense matrix*)
 
 
@@ -674,7 +696,7 @@ Return["No solution! Choose different primes or increase the iteration! "];
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*Null space commands*)
 
 
@@ -717,17 +739,16 @@ Return[n0]];
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*Two auxiliary commands for the determination of transformation matrices between two alphabets*)
 
 
 auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray//ArrayRules]/. ({a1_,a2_,a3_}->a4_):>({(a1-1) sizeAlphabet+a2,a3}->a4),{Dimensions[sparsearray][[1]]*sizeAlphabet,Dimensions[sparsearray][[3]]}];
 
-
 auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray//ArrayRules]/. ({a1_,a2_,a3_}->a4_):>({a1,(a2-1) sizeAlphabet+a3}->a4),{Dimensions[sparsearray][[1]],Dimensions[sparsearray][[2]]*sizeAlphabet}];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*Presentation commands*)
 
 
@@ -735,10 +756,12 @@ presentIntegrableSymbolsData[tensorList_]:=Print["------------------------------
 
 presentIntegrableSymbolsData[{tensorList_,signsArray_}]:=Print["----------------------------------------- \n", Dimensions[tensorList][[3]]," integrable symbols (",Count[signsArray,0]," even, ",Count[signsArray,1]," odd) in an alphabet with ",Dimensions[tensorList][[2]]," letters. The number of symbols of previous weight is ",Dimensions[tensorList][[1]],". \n-----------------------------------------" ];
 
+presentTheIntegrabilityTensor[tensor_]:=Table[tensor[[iter]]//MatrixForm,{iter,1,Length[tensor]}];
+
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Commands for the computation of Even + odd symbols *)*)
-(*(**)*)
+(*Commands for the computation of Even + odd symbols *)
+(**)
 
 
 makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_]:=Module[{biIndexTable=Flatten[Table[{fooH,fooL},{fooH,index1},{fooL,index2}],1]},
@@ -768,7 +791,53 @@ True,Return[sparseArrayGlue[mat1,mat2]]];
 
 
 
-(* ::Section:: *)
+(* ::Subsubsection:: *)
+(*Computing minimal polynomials*)
+
+
+blockOrder[size1_,size2_]:=SparseArray[
+	Join[Table[{1,j}->1,{j,1,size1}],
+	Table[{size1-j+1,j+1}->-1,{j,1,size1-1}],
+	Table[{1+size1,j+size1}->1,{j,1,size2}],
+	Table[{size1+size2-j+1,j+size1+1}->-1,{j,1,size2-1}]
+]
+,{size1+size2,size1+size2}
+]//Normal;
+
+
+radicalFinder[exp_]:=Module[{target,radList},
+target=exp/.Power[x_,y_]:>POW[x,y]/;!IntegerQ[y];
+radList=Select[Variables[target],Head[#]==POW&]//Sort;
+radList=radList/.POW[x_,y_]:>Power[x,y];
+Return[radList];
+];
+
+
+constraintEquation[exp_]:=Module[{Eqns={},RadicalQueue={},RadicalRules={},target,exponent,p,q,ip=1,RadicalQ,RadicalList},
+RadicalQueue=radicalFinder[exp];
+Eqns={\[DoubleStruckCapitalX]-exp};
+While[ip<=Length[RadicalQueue],
+If[Head[RadicalQueue[[ip]]]!=Power,Return[]];
+target=RadicalQueue[[ip]][[1]];    (* The expression inside a radical *)
+exponent=RadicalQueue[[ip]][[2]];   (* The exponent of a radical *)
+p=Numerator[exponent];
+q=Denominator[exponent];
+AppendTo[Eqns,target^p-rt[ip]^q];    
+AppendTo[RadicalRules,RadicalQueue[[ip]]->rt[ip]];
+RadicalList=Sort[Complement[radicalFinder[target],RadicalQueue]];
+RadicalQueue=Join[RadicalQueue,RadicalList];
+ip++;
+];
+
+Eqns=Eqns/.RadicalRules;
+Eqns=Numerator[Together/@Eqns];
+Return[{Eqns/.RadicalRules,RadicalRules,rt/@Range[ip-1]}];
+]; 
+
+
+
+
+(* ::Section::Initialization:: *)
 (*End*)
 
 
@@ -776,15 +845,15 @@ End[]; (* End Private Context *)
 
 
 (* ::Title::Initialization:: *)
-(*(*The public part of the package*)*)
+(*The public part of the package*)
 
 
-(* ::Chapter::Initialization:: *)
-(*(*Symbol tensors and their manipulation*)*)
+(* ::Chapter::Initialization::Closed:: *)
+(*Symbol tensors and their manipulation*)
 
 
 (* ::Section::Initialization::Closed:: *)
-(*(*Glue two lists of tensors that give integrable symbols*)*)
+(*Glue two lists of tensors that give integrable symbols*)
 
 
 (* ::Input::Initialization:: *)
@@ -795,8 +864,8 @@ SparseArray[Union[ArrayRules[A1],(ArrayRules[A2]/. {a1_,a2_,a3_}:>{a1,a2,a3+dim}
 ];
 
 
-(* ::Section::Initialization:: *)
-(*(*Writing the null spaces into tensors and doing the reverse*)*)
+(* ::Section::Initialization::Closed:: *)
+(*Writing the null spaces into tensors and doing the reverse*)
 
 
 (* ::Input::Initialization:: *)
@@ -822,7 +891,7 @@ SparseArray[Most[ArrayRules[symbolsTensor]]/. ({a1_,a2_,a3_}->a4_):>{a3,(a1-1) s
 
 
 (* ::Section::Initialization:: *)
-(*(*Rewriting the tensors into sums of formal symbols*)*)
+(*Rewriting the tensors into sums of formal symbols*)
 
 
 (* ::Input::Initialization:: *)
@@ -847,20 +916,23 @@ Return[Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[\[ScriptCapitalS][TEMPsparseTensor
 ]
 ];
 
+(*---------------------------------------------------------------------*)
+positionDuplicates[list_]:=GatherBy[Range@Length[list],list[[#]]&] ;
 
-(* ::Chapter::Initialization:: *)
-(*(*Formal Symbols and their manipulations *)*)
+
+(* ::Chapter::Initialization::Closed:: *)
+(*Formal Symbols and their manipulations *)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Shuffle products*)*)
+(*Shuffle products*)
 
 
 shuffleProduct[symbol1_,symbol2_]:=(symbol1 (symbol2/.SB[A_]:> SB2[A])//Expand)/.SB[A_]SB2[B_]:> Sum[SB[foo],{foo,shuffles[A,B]}];
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Define the formal symbols*)*)
+(*Define the formal symbols*)
 
 
 (* ::Input::Initialization:: *)
@@ -872,7 +944,7 @@ SB[{A___,A1_/A2_,B___}]:=SB[{A,A1,B}]-SB[{A,A2,B}];
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Extracting limits of formal symbols*)*)
+(*Extracting limits of formal symbols*)
 
 
 (* ::Input::Initialization:: *)
@@ -891,7 +963,7 @@ singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Expanding formal symbols in a given basis*)*)
+(*Expanding formal symbols in a given basis*)
 
 
 expandInSymbolBasis[exp_,basis_]:=Module[{coefficientsTEMP,ansatzTEMP,solTEMP,expTEMP=factorSymbols[exp],basisTEMP=factorSymbols[basis],varSBTEMP},
@@ -903,7 +975,7 @@ True,"The supposed basis is not linearly independent."]
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Projecting products away*)*)
+(*Projecting products away*)
 
 
 (* ::Input::Initialization:: *)
@@ -917,7 +989,7 @@ If[lengthList==1,Return[symbol]];
 productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProjection[SB[A]];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*Conversion of formal symbols*)
 
 
@@ -928,7 +1000,7 @@ convertFormalSymbol[expr_,alphabet_]:=expr/.sb[A_]:> If[Head[A]===List,SB[Table[
 
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Initialization:: *)
 (*Checking the integrability of a formal symbol*)
 
 
@@ -957,8 +1029,8 @@ Return["IntegrableQ[expression_,FtensorOrAlphabet_] cannot mix both sb and SB fo
 ];
 
 
-(* ::Chapter::Initialization:: *)
-(*(*Null Space commands*)*)
+(* ::Chapter::Initialization::Closed:: *)
+(*Null Space commands*)
 
 
 getNullSpace[matrix_]:=Module[{nullMatrix},
@@ -973,42 +1045,36 @@ True, Return[getNullSpaceStepByStep[matrix,globalGetNullSpaceStep]]];
 
 
 (* ::Chapter::Initialization:: *)
-(*(*Checking the independence of the alphabet*)*)
+(*Checking the independence of the alphabet*)
 
 
 (* ::Input::Initialization:: *)
-dLogAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_]:=Module[{TEMPeqn,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
-
-newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];
-variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariables]}];
-variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];
-TEMPalphabet=alphabet/.variablesRedef;
-newRoots=listOfRoots/.variablesRedef;
+dLogAlphabet[alphabet_,allvariables_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=Module[{TEMPeqn,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,rootRedefinition},
+newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariables]}];variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];rootRedefinition=Table[listOfRootVariables[[iter]]-> root[iter][Sequence@@newVariables],{iter,1,Length[listOfRootVariables]}];
+TEMPalphabet=alphabet/.variablesRedef/.rootRedefinition;
 
 TEMPeqn=Table[D[Log[TEMPalphabet[[iterletter]]],newVariables[[itervar]]],{itervar,1,Length[newVariables]},{iterletter,1,Length[TEMPalphabet]}];
 
-TEMPeqn=(TEMPeqn/.\!\(\*
+(*Take the derivatives and express the derivatives of the roots nicely *)TEMPeqn=TEMPeqn/.\!\(\*
 TagBox[
 StyleBox[
 RowBox[{
 RowBox[{
 RowBox[{"Derivative", "[", "derInder__", "]"}], "[", 
-RowBox[{"root", "[", "a_", "]"}], "]"}], "[", "X__", "]"}],
+RowBox[{"root", "[", "a_", "]"}], "]"}], "[", "X___", "]"}],
 ShowSpecialCharacters->False,
 ShowStringCharacters->True,
 NumberMarks->True],
-FullForm]\):> root[a]/(newRoots[[a]]listOfRootPowers[[a]]) Module[{tempList=List[derInder]},D[newRoots[[a]],Sequence@@Table[{newVariables[[i]],tempList[[i]]},{i,1,Length[tempList]}]]] );
-TEMPeqn=TEMPeqn/.root[a_][X__]:> root[a]/.root[a_]:> ToExpression["\[Rho]"<>ToString[a]]/.variablesRedefReverse;
-Return[TEMPeqn]
+FullForm]\):> derivative[listOfRootVariables[[a]],(List@derInder).newVariables];TEMPeqn=TEMPeqn/.computeTheDerivativeRules[newVariables,listOfRootVariables, listOfMinimalPolynomials/.variablesRedef,listOfReplacementRules/.variablesRedef];Return[TEMPeqn/.variablesRedefReverse/.root[a_][X__]:> listOfRootVariables[[a]]]
 ];
 
+(*-----------------------------------------------------------------------------------------------*)
 
+findRelationsInAlphabet[alphabet_,allvariables_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{},sampleSize_,maxSamplePoints_,toleranceForRetries_]:=Module[{TEMPdLogEquations,TEMPmatrix,TEMPNullSpace},
 
-findRelationsInAlphabet[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]:=Module[{TEMPdLogEquations,TEMPmatrix,TEMPNullSpace},
-
-TEMPdLogEquations=dLogAlphabet[alphabet,allvariables,listOfRoots,listOfRootPowers];
-TEMPdLogEquations=resolveRootViaGroebnerBasisMatrix[TEMPdLogEquations,listOfRoots,listOfRootPowers];
-TEMPdLogEquations=collectRootCoefficients[TEMPdLogEquations,Table[ToExpression["\[Rho]"<>ToString[iter]],{iter,1,Length[listOfRoots]}]];
+TEMPdLogEquations=dLogAlphabet[alphabet,allvariables,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules];
+TEMPdLogEquations=resolveRootViaGroebnerBasisMatrix[TEMPdLogEquations,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules];
+TEMPdLogEquations=collectRootCoefficients[TEMPdLogEquations,listOfRootVariables];
 
 TEMPmatrix=buildFMatrixReducedForASetOfEquations[TEMPdLogEquations,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
 TEMPNullSpace=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
@@ -1016,16 +1082,12 @@ Return[If[TEMPNullSpace=={},"The alphabet is indepedent.", {"The alphabet is dep
 ];
 
 
-(* ::Chapter::Initialization::Closed:: *)
-(*(*Difference equations/Counting products and irreducible symbols*)*)
+(* ::Chapter::Initialization:: *)
+(*Difference equations/Counting products and irreducible symbols*)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Computing the difference equation if given a sequence of dimensions*)*)
-
-
-(* ::Input::Initialization:: *)
-
+(*Computing the difference equation if given a sequence of dimensions*)
 
 
 computeCoefficientsOfDifferenceEquation[dimSequence_]:=Module[{M=dimSequence[[2]],Rsequence,TEMPeqn,varAlpha,tempDim,tempCond,tempa},
@@ -1039,11 +1101,7 @@ Return[Table[tempa[i],{i,0,Length[varAlpha]}]/.Solve[TEMPeqn==0,varAlpha][[1]]/.
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Counting the number of products and of irreducible symbols*)*)
-
-
-(* ::Input::Initialization:: *)
-
+(*Counting the number of products and of irreducible symbols*)
 
 
 rewritePartition[partition_]:=Module[{max=Max[partition]},Table[Count[partition,i],{i,1,max}]];
@@ -1061,16 +1119,12 @@ dimIrreducibleSymbols[cutoffWeight_]:=
 Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
 
 
-(* ::Chapter::Initialization:: *)
-(*(*Rational reconstruction algorithms*)*)
-
-
-(* ::Chapter::Initialization:: *)
-(*(*Row reduction (over the finite fields)*)*)
+(* ::Chapter::Initialization::Closed:: *)
+(*Row reduction (over the finite fields)*)
 
 
 (* ::Section::Initialization:: *)
-(*(*The general row reduction command*)*)
+(*The general row reduction command*)
 
 
 rowReduceMatrix[matrix_]:=Which[Length[matrix]<globalLowerThreshold,SparseArray[RowReduce[Normal[matrix]]],
@@ -1080,12 +1134,12 @@ True,rowReduceOverPrimes[matrix]
 
 
 
-(* ::Chapter::Initialization:: *)
-(*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
+(* ::Chapter::Initialization::Closed:: *)
+(*Computing the integrability tensor \[DoubleStruckCapitalF]*)
 
 
 (* ::Section::Initialization::Closed:: *)
-(*(*Transforming the reduced \[DoubleStruckCapitalM] matrix into the integrability tensor \[DoubleStruckCapitalF]*)*)
+(*Transforming the reduced \[DoubleStruckCapitalM] matrix into the integrability tensor \[DoubleStruckCapitalF]*)
 
 
 (* ::Input::Initialization:: *)
@@ -1098,7 +1152,7 @@ SparseArray[Flatten[Table[{Join[{foo[[1,1]]},TEMPIndexTable[[foo[[1,2]]]]]-> foo
 
 
 (* ::Section::Initialization:: *)
-(*(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)*)
+(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)
 
 
 integrableEquationsRational[alphabet_,allvariables_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
@@ -1117,6 +1171,7 @@ Return[TEMPeqn/.variablesRedefReverse]
 
 
 
+(*
 integrableEquationsWithRoots[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
 listOfIndices=Flatten[Table[{iter1,iter2},{iter1,1,Length[allvariables]-1},{iter2,iter1+1,Length[allvariables]}],1];
 
@@ -1129,77 +1184,101 @@ newRoots=listOfRoots/.variablesRedef;
 TEMPeqn=Monitor[Table[Flatten[Table[D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]-D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]],{iter1,1,Length[TEMPalphabet]-1},{iter2,iter1+1,Length[TEMPalphabet]}]],{iterbaz,1,Length[listOfIndices]}],iterbaz];
 
 (*Take the derivatives and express the derivatives of the roots nicely *)
-TEMPeqn=(TEMPeqn/.\!\(\*
+TEMPeqn=(TEMPeqn/.Derivative[derInder__][root[a_]][X__]:> root[a]/(newRoots[[a]]listOfRootPowers[[a]]) Module[{tempList=List[derInder]},D[newRoots[[a]],Sequence@@Table[{newVariables[[i]],tempList[[i]]},{i,1,Length[tempList]}]]] );
+TEMPeqn=TEMPeqn/.root[a_][X__]:> root[a]/.root[a_]:> ToExpression["\[Rho]"<>ToString[a]]/.variablesRedefReverse;
+Return[TEMPeqn]
+];
+*)
+
+integrableEquationsWithRoots[alphabet_,allvariables_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
+Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,rootRedefinition},
+listOfIndices=Flatten[Table[{iter1,iter2},{iter1,1,Length[allvariables]-1},{iter2,iter1+1,Length[allvariables]}],1];
+
+newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];
+variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariables]}];
+variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];
+rootRedefinition=Table[listOfRootVariables[[iter]]-> root[iter][Sequence@@newVariables],{iter,1,Length[listOfRootVariables]}];
+TEMPalphabet=alphabet/.variablesRedef/.rootRedefinition;
+
+TEMPeqn=Monitor[Table[Flatten[Table[D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]-D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]],{iter1,1,Length[TEMPalphabet]-1},{iter2,iter1+1,Length[TEMPalphabet]}]],{iterbaz,1,Length[listOfIndices]}],iterbaz];
+
+(*Take the derivatives and express the derivatives of the roots nicely *)
+TEMPeqn=TEMPeqn/.\!\(\*
 TagBox[
 StyleBox[
 RowBox[{
 RowBox[{
 RowBox[{"Derivative", "[", "derInder__", "]"}], "[", 
-RowBox[{"root", "[", "a_", "]"}], "]"}], "[", "X__", "]"}],
+RowBox[{"root", "[", "a_", "]"}], "]"}], "[", "X___", "]"}],
 ShowSpecialCharacters->False,
 ShowStringCharacters->True,
 NumberMarks->True],
-FullForm]\):> root[a]/(newRoots[[a]]listOfRootPowers[[a]]) Module[{tempList=List[derInder]},D[newRoots[[a]],Sequence@@Table[{newVariables[[i]],tempList[[i]]},{i,1,Length[tempList]}]]] );
-TEMPeqn=TEMPeqn/.root[a_][X__]:> root[a]/.root[a_]:> ToExpression["\[Rho]"<>ToString[a]]/.variablesRedefReverse;
-Return[TEMPeqn]
+FullForm]\):> derivative[listOfRootVariables[[a]],(List@derInder).newVariables];
+TEMPeqn=TEMPeqn/.computeTheDerivativeRules[newVariables,listOfRootVariables, listOfMinimalPolynomials/.variablesRedef,listOfReplacementRules/.variablesRedef];
+Return[TEMPeqn/.variablesRedefReverse/.root[a_][X__]:> listOfRootVariables[[a]]]
+];
+
+(*---------------------------------------------------*)
+
+
+(*auxiliary command used in 'integrableEquationsWithRoots'*)
+computeTheDerivativeRules[listOfVariables_,listOfRootVariables_,listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
+Module[{solTEMP},Flatten[Table[solTEMP=Solve[D[(listOfMinimalPolynomials/.listOfReplacementRules),listOfVariables[[jbar]]]
++Sum[derivative[listOfRootVariables[[iterfoo]],listOfVariables[[jbar]]] D[listOfMinimalPolynomials,listOfRootVariables[[iterfoo]]],{iterfoo,1,Length[listOfRootVariables]}]==0,
+Table[derivative[listOfRootVariables[[iterfoo]],listOfVariables[[jbar]]],{iterfoo,1,Length[listOfRootVariables]}]];
+If[solTEMP==={},
+Print["Error - no solution found for the derivatives. More minimal polynomials might be needed!"];Abort[];,
+First[solTEMP]],{jbar,1,Length[listOfVariables]}]]
 ];
 
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Resolve the roots using Gr\[ODoubleDot]bner bases*)*)
+(*Resolve the roots using Gr\[ODoubleDot]bner bases*)
+(*(**)*)
 
 
-resolveRootViaGroebnerBasis::nnarg="The size of 'listOfRoots' must match the size of 'listOfRootPowers'! ";
-
-resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRoots_,listOfRootPowers_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[resolveRootViaGroebnerBasis::nnarg];False]:=
+resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
 Module[{
-TEMPExpression,TEMPgrobBasis,TEMPsol,TEMPgrobBasisTry,
-listOfRootNames,listOfMinPolynomials,
-Xbaz,positionOfTheLinearPolynomialInXbaz,RT,listOfMinPolynomialsResolved},
+TEMPExpression,TEMPgrobBasis,TEMPgrobBasisTry, TEMPsol,TEMPMinPolynomials, Xbaz,positionOfTheLinearPolynomialInXbaz},
 
-TEMPExpression=expressionToSimplify//Factor;
+TEMPExpression=Factor[expressionToSimplify];
 
-listOfRootNames=Table[ToExpression["\[Rho]"<>ToString[ibaz]],{ibaz,1,Length[listOfRoots]}];
-(* Ignore entries that don't contain roots. Makes it faster... *)
-If[Table[Cases[TEMPExpression,fooRoot,Infinity],{fooRoot,listOfRootNames}]//Flatten,Return[TEMPExpression]];
+TEMPMinPolynomials=Prepend[listOfMinimalPolynomials,Xbaz Denominator[TEMPExpression]-Numerator[TEMPExpression]];
 
-listOfMinPolynomials=Prepend[Table[listOfRootNames[[ibat]]^listOfRootPowers[[ibat]]-RT[ibat],{ibat,1,Length[listOfRoots]}],Xbaz Denominator[TEMPExpression]-Numerator[TEMPExpression]];
-listOfMinPolynomialsResolved=listOfMinPolynomials/.RT[ifoo_]:> listOfRoots[[ifoo]];
-
-TEMPgrobBasisTry=TimeConstrained[GroebnerBasis[listOfMinPolynomialsResolved,Prepend[listOfRootNames,Xbaz],CoefficientDomain->RationalFunctions],1];
-If[TEMPgrobBasisTry===$Aborted,
-TEMPgrobBasis=GroebnerBasis[listOfMinPolynomials,Prepend[listOfRootNames,Xbaz],CoefficientDomain->RationalFunctions];
+If[listOfReplacementRules==={},
+TEMPgrobBasis=GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions];
+,
+TEMPgrobBasisTry=TimeConstrained[GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions],1];
+If[TEMPgrobBasisTry===$Aborted,TEMPgrobBasis=GroebnerBasis[(TEMPMinPolynomials/.listOfReplacementRules),Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions];
 ,
 TEMPgrobBasis=TEMPgrobBasisTry];
-
+];
 positionOfTheLinearPolynomialInXbaz=Position[Exponent[#,Xbaz]&/@TEMPgrobBasis,1][[1,1]];
 TEMPsol=Solve[TEMPgrobBasis[[positionOfTheLinearPolynomialInXbaz]]==0,Xbaz];
-If[TEMPsol==={},"No solution",(First[TEMPsol][[1,2]]/.RT[ifoo_]:> listOfRoots[[ifoo]])]
+If[TEMPsol==={},"No solution",(First[TEMPsol][[1,2]]/.listOfReplacementRules)]
 ];
 
+(*--------------------------------------*)
 
-(* Apply the Gr\[ODoubleDot]bner basis resolution method to each element of an array *)
-resolveRootViaGroebnerBasisMatrix::nnarg="The size of 'listOfRoots' must match the size of 'listOfRootPowers'! ";
-
-resolveRootViaGroebnerBasisMatrix[arrayToSimplify_,listOfRoots_,listOfRootPowers_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[resolveRootViaGroebnerBasisMatrix::nnarg];False]:=
+resolveRootViaGroebnerBasisMatrix[arrayToSimplify_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
 If[listOfRoots==={},
 Return[arrayToSimplify],
 If[globalSymBuildParallelize,
 (*If running in parallel*)
-DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRoots,listOfRootPowers];
+DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRootVariables, listOfMinimalPolynomials];
 PrintTemporary[" Evaluating the Gr\[ODoubleDot]bner basis resolution in parallel. No monitoring is available, be patient...."];
-Return[ParallelMap[resolveRootViaGroebnerBasis[#,listOfRoots,listOfRootPowers]&,arrayToSimplify,{2},Method-> "CoarsestGrained"]],
+Return[ParallelMap[resolveRootViaGroebnerBasis[#,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules]&,arrayToSimplify,{2},Method-> "CoarsestGrained"]],
 (*If running in series*)
 Return[Monitor[
-Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRoots,listOfRootPowers],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}],
+Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}],
 {"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]]
 ];
 ];
 
 
 (* ::Section::Initialization:: *)
-(*(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)*)
+(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)
 
 
 (* ::Input::Initialization:: *)
@@ -1213,7 +1292,7 @@ listPrimes=Prime[Range[sampleSize]];
 newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];
 variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariables]}];
 variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];
-TEMPsetOfEquations=SparseArray[(setOfEquations//ArrayRules)/. variablesRedef];
+TEMPsetOfEquations=SparseArray[(setOfEquations//ArrayRules)/. variablesRedef,Dimensions[setOfEquations]];
 
 TEMPmatrix={};
 
@@ -1223,44 +1302,63 @@ Monitor[Do[
 TEMPfunction[Sequence@@(Pattern[#1,_]&)/@newVariables]:=Evaluate[TEMPsetOfEquations[[fctIter]]];
 extraSamples=0;
 Do[
-timeMeasure=SessionTime[];
+timeMeasure=SessionTime[]; 
 (*-------------------------------------------------*)
 (* Add a new sample point and avoid singularities *)
 succesfullTry=0;
 Do[
-TEMPrandomSample=RandomSample[listPrimes,Length[newVariables]];
-TEMPtryTheFunction=TEMPfunction[Sequence@@TEMPrandomSample]//Quiet;
-If[Cases[ArrayRules[TEMPtryTheFunction][[All,2]],ComplexInfinity,Infinity]==={},succesfullTry=1;Break[]]
-,
-{iterbaz,1,toleranceForRetries}];
+TEMPrandomSample=RandomSample[listPrimes,Length[newVariables]];TEMPtryTheFunction=TEMPfunction[Sequence@@TEMPrandomSample]//Quiet;If[Cases[ArrayRules[TEMPtryTheFunction][[All,2]],ComplexInfinity,Infinity]==={},succesfullTry=1;Break[]]
+,{iterbaz,1,toleranceForRetries}];
 (*-------------------------------------------------*)
 If[succesfullTry==1,TEMPmatrix=Append[TEMPmatrix,TEMPtryTheFunction];,Return["Error: increase 'toleranceForRetries'"]];
-,
-{step,1,maxSamplePoints}];
-,
-{fctIter,1,Length[TEMPsetOfEquations]}],"Adding equation "<>ToString[fctIter]];
-Return[rowReduceMatrix[TEMPmatrix//Normal]//SparseArray//sparseArrayZeroRowCut]
+,{step,1,maxSamplePoints}];
+,{fctIter,1,Length[TEMPsetOfEquations]}],"Adding equation "<>ToString[fctIter]];TEMPmatrix=rowReduceMatrix[TEMPmatrix//Normal];Return[SparseArray[TEMPmatrix,Dimensions[TEMPmatrix]]//sparseArrayZeroRowCut]
 ];
 
 
 (* ::Section::Initialization:: *)
-(*(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots*)*)
+(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots*)
 
 
 (* ::Input::Initialization:: *)
 takeSecondEntry[array_]:=If[#==={},0,#[[1,2]]]&/@array;
 
 
-collectRootCoefficients[expressionArray_,namesOfRoots_]:=Module[{arrayOfRootCoefficients=Map[CoefficientRules[#,namesOfRoots]&,expressionArray,{2}], possiblePowers,eqnMatrix},possiblePowers=Sort[DeleteDuplicates[Flatten[Table[arrayOfRootCoefficients[[iter]][[All,All,1]],{iter,1,Length[arrayOfRootCoefficients]}],2]]];
-eqnMatrix=Table[takeSecondEntry[Table[Select[arrayOfRootCoefficients[[iterrow,iterbaz]],(#[[1]]===fooPower)&],{fooPower,possiblePowers}]],{iterrow,1,Length[arrayOfRootCoefficients]},{iterbaz,1,Dimensions[arrayOfRootCoefficients][[2]]}];
-Flatten[transposeLevelsSparseArray[eqnMatrix//SparseArray,{3,1,2}],1]
+
+collectRootCoefficients[expressionArray_,namesOfRoots_]:=
+Module[{arrayOfRootCoefficients=Map[Module[{temp=CoefficientRules[#1,namesOfRoots]}, 
+If[temp==={},{{0}-> 0},temp]]&,expressionArray,{2}],possiblePowers,eqnMatrix},
+possiblePowers=Sort[DeleteDuplicates[Flatten[Table[arrayOfRootCoefficients[[iter]][[All,All,1]],{iter,1,Length[arrayOfRootCoefficients]}],2]]];
+eqnMatrix=Table[takeSecondEntry[Table[Select[arrayOfRootCoefficients[[iterrow,iterbaz]],#1[[1]]===fooPower&],{fooPower,possiblePowers}]]
+,{iterrow,1,Length[arrayOfRootCoefficients]},{iterbaz,1,Dimensions[arrayOfRootCoefficients][[2]]}];
+Flatten[Transpose[SparseArray[eqnMatrix],{2,3,1}],1]
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Initialization:: *)
 (*Putting all the commands together into one such that it is easy for the user*)
 
 
+(*-------------------------------------------------------------*)
+
+computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{},sampleSize_,maxSamplePoints_,toleranceForRetries_]:=
+Module[{TEMPintegrableEquations, TEMPintegrableEquationsResolved,TEMPintegrableEquationsRationalized,TEMPintegrabilityMatrix},
+Print["Generating the integrability equations..."];
+If[listOfRootVariables==={},
+TEMPintegrableEquationsRationalized=integrableEquationsRational[alphabet,allvariables];
+Print["...Done. Generating the integrability tensor..."];
+,
+TEMPintegrableEquations=integrableEquationsWithRoots[alphabet,allvariables,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules];
+TEMPintegrableEquationsResolved=resolveRootViaGroebnerBasisMatrix[TEMPintegrableEquations,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules];
+TEMPintegrableEquationsRationalized=collectRootCoefficients[TEMPintegrableEquationsResolved,listOfRootVariables];
+Print["Done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."];
+];
+If[TEMPintegrableEquationsRationalized==={},Print["There are no relations in this alphabet and hence no need for an integrability tensor."];Return[Null]];
+TEMPintegrabilityMatrix=buildFMatrixReducedForASetOfEquations[TEMPintegrableEquationsRationalized//Normal//Factor,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
+Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
+];
+
+(*
 computeTheIntegrabilityTensor::nnarg=" The size of the array 'listOfRoots' must match the size of the array 'listOfRootPowers'!  ";
 
 computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[sparseArrayGlue::nnarg];False]:=Module[{TEMPintegrableEquations, TEMPintegrableEquationsResolved,TEMPintegrableEquationsRationalized,TEMPintegrabilityMatrix},
@@ -1277,18 +1375,19 @@ Print["Done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Ge
 TEMPintegrabilityMatrix=buildFMatrixReducedForASetOfEquations[TEMPintegrableEquationsRationalized//Normal//Factor,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
 Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 ];
+*)
 
 
 (* ::Chapter::Initialization:: *)
-(*(*Computing the integrable symbols*)*)
+(*Computing the integrable symbols*)
 
 
 (* ::Section::Initialization:: *)
-(*(*Computing the tensors for the integrable symbols*)*)
+(*Computing the tensors for the integrable symbols*)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*n-Entry conditions and the weight 1 construction *)*)
+(*n-Entry conditions and the weight 1 construction *)
 
 
 (* ::Input::Initialization:: *)
@@ -1314,21 +1413,19 @@ SparseArray[Drop[preTensor,-1]/.Rule[a__,b_]:>Rule[Append[a,Last[listOfForbidden
 
 
 (* ::Subsubsection::Initialization:: *)
-(*(*Computing the next level symbols*)*)
+(*Computing the next level symbols*)
 
 
-nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Flatten[transposeLevelsSparseArray[transposeLevelsSparseArray[previousWeightSymbolsTensor,2,3].transposeLevelsSparseArray[FmatrixTensor,1,2],{1,3,2,4}],{{1,2},{3,4}}];
-
-
+nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Flatten[Transpose[Transpose[previousWeightSymbolsTensor,{1,3,2}].Transpose[FmatrixTensor],{1,3,2,4}],{{1,2},{3,4}}];
 
 
 determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]:=
-Module[{tempEquations,tempSol },
-tempEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
-PrintTemporary["Done generating the equations. It's a ", Dimensions[tempEquations], " matrix."];
-tempSol=getNullSpace[tempEquations];
+Module[{integrabilityEquations,tempSol },
+integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
+Print["Done generating the integrability equations. It's a ", Dimensions[integrabilityEquations], " matrix of equations. Solving...."];
+tempSol=getNullSpace[integrabilityEquations];
+Print["...done."];
 solutionSpaceToSymbolsTensor[tempSol,Dimensions[FmatrixTensor][[2]]]];
-
 
 
 
@@ -1341,7 +1438,7 @@ Module[{integrabilityEquations,nextWeightNullSpace,sizeAlphabet=Length[listOfSym
 (* Get the integrability equations *)
 
 integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
-Print["Done computing the integrability equations. Solving...."];
+Print["Done generating the integrability equations. It's a ", Dimensions[integrabilityEquations], " matrix of equations. Solving...."];
 
 (*-------------------------------------------*)
 (* Introduce the weight L entry conditions *)
@@ -1380,18 +1477,26 @@ Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,
 
 
 (* ::Chapter::Initialization:: *)
-(*(*Determine tranformation matrices between alphabets*)*)
+(*Determine tranformation matrices between alphabets*)
 
 
-buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
-tempArray=auxFlattenTwoIndices23[transposeLevelsSparseArray[weightLsymbolTensor,{3,1,2}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].transposeLevelsSparseArray[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{2,3,1}],limitAlphabetSize];
+(*buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
+tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{3,1,2}],limitAlphabetSize];
 Return[SparseArray[tempArray,Dimensions[tempArray]]];
+];*)
+buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,AlphabetPrimeInversionTensor_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
+tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[AlphabetPrimeInversionTensor,{3,1,2}],limitAlphabetSize];
+Return[SparseArray[tempArray,Dimensions[tempArray]]]
 ];
+
 inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]:=SparseArray[Most[inverseMatrix//ArrayRules]/. ({a1_,a2_}->a3_):>({a1,Quotient[a2-1,sizeAlphabet]+1,Mod[a2,sizeAlphabet,1]}->a3),{Dimensions[inverseMatrix][[1]],Dimensions[inverseMatrix][[2]]/sizeAlphabet,sizeAlphabet}];
 
 
+computeTheInversionMatrix[symbolTensor_]:=determineLeftInverse[Transpose[symbolsTensorToSolutionSpace[symbolTensor]]];
+computeTheInversionTensor[symbolTensor_]:=inverseMatrixToTensor[computeTheInversionMatrix[symbolTensor],Dimensions[symbolTensor][[2]]];
 
-(* ::Chapter:: *)
+
+(* ::Chapter::Initialization::Closed:: *)
 (*Taking derivatives of symbols*)
 
 
@@ -1437,8 +1542,55 @@ Return["The number of times one differentiates has to be a positive integer!"]
 
 
 
-(* ::Title::Initialization:: *)
-(*(*End *)*)
+(* ::Chapter::Initialization:: *)
+(*Computing minimal polynomials*)
+
+
+(* ::Input::Initialization:: *)
+radicalRefine[explist_]:=Module[{Eqns,Constraints,RadicalRulesA,RadicalRulesB,indice,roots,Gr,minPoly,rootRed,len,i,j,Relations={},Xs,MinimalEqns,RedundantRoots={}},
+
+len=explist//Length;
+
+Constraints=Table[constraintEquation[explist[[i]]]/.{\[DoubleStruckCapitalX]->\[DoubleStruckCapitalX][i],rt->rt[i]},{i,1,len}];
+
+(*{Eqns,RadicalRules,roots}=constraintEquation[exp]; *)
+
+(* To identify the roots *)
+
+For[i=1,i<=len,i++,
+	RadicalRulesA=Constraints[[i,2]];
+	For[j=i+1,j<=len,j++,
+                     RadicalRulesB=Constraints[[j,2]];
+		  indice=Flatten[Table[{k,l},{k,1,RadicalRulesA//Length},{l,1,RadicalRulesB//Length}],1];
+		  indice=Select[indice,RadicalRulesA[[#[[1]],1]]==RadicalRulesB[[#[[2]],1]]&];
+		  Relations=Join[Relations,RadicalRulesA[[#[[1]],2]]-RadicalRulesB[[#[[1]],2]]&/@indice];
+		 
+	];
+
+
+];
+
+Eqns=Join[Flatten[#[[1]]&/@Constraints],Relations];
+roots=Flatten[#[[3]]&/@Constraints];
+Xs=Table[\[DoubleStruckCapitalX][i],{i,1,len}];
+
+
+
+
+Gr=GroebnerBasis[Eqns,Join[roots,Xs],CoefficientDomain->RationalFunctions,MonomialOrder->blockOrder[roots//Length,Xs//Length]];
+
+MinimalEqns=Select[Gr,Intersection[Variables[#],roots]=={}&];
+
+rootRed=Table[Constraints[[i,2,j,1]]->PolynomialReduce[rt[i][j],Gr,Join[roots,Xs],CoefficientDomain->RationalFunctions,MonomialOrder->blockOrder[roots//Length,Xs//Length]][[2]],{i,1,len},{j,1,Length[Constraints[[i,2]]]}]//Flatten;
+rootRed=rootRed//Union;   (* Remove the redundant root definition *)
+Return[{MinimalEqns,rootRed}];   (* rootRed is the root reduction rule *)
+];
+
+
+
+
+(* ::Title::Initialization::Closed:: *)
+(*End *)
 
 
 EndPackage[]
