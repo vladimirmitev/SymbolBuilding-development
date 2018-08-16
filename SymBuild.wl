@@ -327,10 +327,10 @@ the global variable 'globalLowerThreshold' then the usual RowReduce command is u
 buildTransformationMatrix::usage="The command 'buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]' produces the weight L matrix T_L that gives the limit of the integrable symbols in the alphabet A1 in the alphabet A2. It takes  as input: 1) the matrix 'alphabetTransformationMatrix' which tells us how the limit of the letters of A1 are expressed in letters of the limit alphabet A2, 2) the symbol tensor 'weightLsymbolTensor' of the weight L integrable symbols in A1, 3) the matrix 'previousTransformationMatrix' (this is T_{L-1}) and 4) the matrix 'limitAlphabetInversionMatrix' which is the weight L inversion matrix for the integrable symbols in the alphabet A2.  ";
 
 
-computeTheInversionMatrix::usage="The command 'computeTheInversionMatrix' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion matrix as explained in section 3.3. 
+computeTheInversionMatrix::usage="The command 'computeTheInversionMatrix' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion matrix as explained in section 3.4. 
 This matrix can then be transformed in a 3-tensor in the language of section 3.3 by using the command 'inverseMatrixToTensor'. "
 
-computeTheInversionTensor::usage="The command 'computeTheInversionTensor' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion tensor E as explained in section 3.3."
+computeTheInversionTensor::usage="The command 'computeTheInversionTensor' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion tensor E as explained in section 3.4."
 
 
 inverseMatrixToTensor::usage="The command 'inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]' takes the weight L inversion matrix E_L for the integrable symbols in a certain alphabet A and transforms it into a 3-tensor by splitting the column index in a bi-index (j,k) where k=1,... Length[A]. ";
