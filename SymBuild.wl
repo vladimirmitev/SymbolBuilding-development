@@ -25,7 +25,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the construction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["Version 0.43, August 12, 2018 "]
+Print["Version 0.45, August 16, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
@@ -330,10 +330,13 @@ buildTransformationMatrix::usage="The command 'buildTransformationMatrix[weightL
 computeTheInversionMatrix::usage="The command 'computeTheInversionMatrix' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion matrix as explained in section 3.3. 
 This matrix can then be transformed in a 3-tensor in the language of section 3.3 by using the command 'inverseMatrixToTensor'. "
 
+computeTheInversionTensor::usage="The command 'computeTheInversionTensor' acts on a symbol tensor d[j_{L-1},i_L,j_L] and gives the inversion tensor E as explained in section 3.3."
+
+
 inverseMatrixToTensor::usage="The command 'inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]' takes the weight L inversion matrix E_L for the integrable symbols in a certain alphabet A and transforms it into a 3-tensor by splitting the column index in a bi-index (j,k) where k=1,... Length[A]. ";
 
 
-(* Two auxiliary commands used in buildTransformationMatrix *)
+(* Two auxiliary commands used in buildTransformationMatrixco *)
 auxFlattenTwoIndices12::usage="The auxiliary command 'auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]' flattens the first two indices of a 3-tensor with indices (i,j,k), where the second index j is in the interval j=1,..., sizeAlphabet. ";
 
 auxFlattenTwoIndices23::usage="The auxiliary command 'auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]' flattens the last two indices of a 3-tensor with indices (i,j,k), where the third index k is in the interval k=1,..., sizeAlphabet. ";
@@ -1477,16 +1480,20 @@ Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,
 (*Determine tranformation matrices between alphabets*)
 
 
-buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
+(*buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
 tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{3,1,2}],limitAlphabetSize];
 Return[SparseArray[tempArray,Dimensions[tempArray]]];
+];*)
+buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,AlphabetPrimeInversionTensor_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
+tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[AlphabetPrimeInversionTensor,{3,1,2}],limitAlphabetSize];
+Return[SparseArray[tempArray,Dimensions[tempArray]]]
 ];
 
 inverseMatrixToTensor[inverseMatrix_,sizeAlphabet_]:=SparseArray[Most[inverseMatrix//ArrayRules]/. ({a1_,a2_}->a3_):>({a1,Quotient[a2-1,sizeAlphabet]+1,Mod[a2,sizeAlphabet,1]}->a3),{Dimensions[inverseMatrix][[1]],Dimensions[inverseMatrix][[2]]/sizeAlphabet,sizeAlphabet}];
 
 
 computeTheInversionMatrix[symbolTensor_]:=determineLeftInverse[Transpose[symbolsTensorToSolutionSpace[symbolTensor]]];
-
+computeTheInversionTensor[symbolTensor_]:=inverseMatrixToTensor[computeTheInversionMatrix[symbolTensor],Dimensions[symbolTensor][[2]]];
 
 
 (* ::Chapter::Initialization::Closed:: *)
