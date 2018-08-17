@@ -206,7 +206,9 @@ at given weight (up to some cutoff) and attemps to guess a sequence of numbers {
 (*---------------------------------------------------------------------*)
 rewritePartition::usage="The function 'rewritePartition[partition_]' takes an integer partition of N, i.e. a list 'partition'= {n_1,n_2,n_3,...n_r} with N=Sum_i n_i and n_i>= n_{i+1}, and rewrites it as a table {m_1,m_2,...,m_s}, where m_j is the number of times the number j appears in 'partition' and s is the largest number that appears in 'partition'. For instance, rewritePartition[{5,1,1}]={2,0,2,0,1}. ";
 
-dimProductSymbols::usage="The function dimProductSymbols[L_] gives the number of integrable symbols at weight L that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n. ";
+dimIndividualProductSymbols::usage="The function dimIndividualProductSymbols[L_] gives the number of integrable symbols at weight L that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n. ";
+
+dimProductSymbols::usage="The function dimProductSymbols[cufoffWeight_] gives a table {dimP[0], dimP[1], ..., dimP[cutoffWeight]} of the number of symbols that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n.";
 
 dimIrreducibleSymbols::usage="The function dimIrreducibleSymbols[cutoffWeight_] gives a table {dimQ[0], dimQ[1], ..., dimQ[cutoffWeight]} of the number of irreducible integrable symbols (i.e. those that cannot be written as products) of weight smaller or equal to cutoffWeight. The answer is given as a function of dimH[n], which is the total number of integrable symbols of weight n.";
 
@@ -1107,16 +1109,19 @@ Return[Table[tempa[i],{i,0,Length[varAlpha]}]/.Solve[TEMPeqn==0,varAlpha][[1]]/.
 rewritePartition[partition_]:=Module[{max=Max[partition]},Table[Count[partition,i],{i,1,max}]];
 
 
-dimProductSymbols[L_]:=Module[{tempPartitions},
+dimIndividualProductSymbols[L_]:=Module[{tempPartitions},
 If[L==0,Return[0]];
 tempPartitions=Drop[(rewritePartition[#]&/@IntegerPartitions[L]),1];
 Sum[Product[Binomial[dimQ[jfoo]+fooPartition[[jfoo]]-1,fooPartition[[jfoo]]],{jfoo,1,Length[fooPartition]}],{fooPartition,tempPartitions}]
 ];
 
+dimProductSymbols[cutoffWeight_]:=Table[dimIndividualProductSymbols[L],{L,0,cutoffWeight}];
+
+
 
 
 dimIrreducibleSymbols[cutoffWeight_]:=
-Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
+Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimIndividualProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
 
 
 (* ::Chapter::Initialization::Closed:: *)
