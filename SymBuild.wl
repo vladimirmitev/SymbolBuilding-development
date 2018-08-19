@@ -25,7 +25,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the construction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["Version 0.45, August 16, 2018 "]
+Print["Version 0.46, August 19, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
@@ -200,7 +200,7 @@ at given weight (up to some cutoff) and attemps to guess a sequence of numbers {
 
 
 (* ::Chapter::Initialization:: *)
-(*(*Counting the number of products and of irreducible symbols*)*)
+(*(*Counting the number of products and of irreducible symbols/Projecting the products away *)*)
 
 
 (*---------------------------------------------------------------------*)
@@ -211,6 +211,29 @@ dimIndividualProductSymbols::usage="The function dimIndividualProductSymbols[L_]
 dimProductSymbols::usage="The function dimProductSymbols[cufoffWeight_] gives a table {dimP[0], dimP[1], ..., dimP[cutoffWeight]} of the number of symbols that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n.";
 
 dimIrreducibleSymbols::usage="The function dimIrreducibleSymbols[cutoffWeight_] gives a table {dimQ[0], dimQ[1], ..., dimQ[cutoffWeight]} of the number of irreducible integrable symbols (i.e. those that cannot be written as products) of weight smaller or equal to cutoffWeight. The answer is given as a function of dimH[n], which is the total number of integrable symbols of weight n.";
+
+
+
+(* see the paper 1401.6446 for some details*)
+(* Project products away using the \[Rho] map (see section 2) *)
+
+productProjection::usage=" productProjection[symbolExpression_] takes an expression in explicit symbols sb[A_] or SB[A_] and projects the products away. ";
+
+
+removeProductsFromSymbolTensorArray::usage=" removeProductsFromSymbolTensorArray[tensorArray_] takes a tensor array, i.e. a complete tensor describing 
+the whole information about the integrable symbols up to weight L, and removes all the products. The tensor array is obtained from the symbols tensors using the command 
+'dotSymbolTensors', like this: dotSymbolTensors[{tensor[1],....,tensor[L]}]. The command 'removeProductsFromSymbolTensorArray' does not just project the products away, 
+it also chooses a basis in the image space of the projection, i.e. it chooses a basis of irreducible tensors. ";
+
+(*-----------------*)
+(* auxiliary commands *)
+auxProductProjectionSB::usage=" Auxiliary command in 'productProjection' that removes products from expressions involving explicit SB symbols. ";
+
+
+auxProductProjectionsb::usage=" Auxiliary command in 'productProjection' that removes products from expressions involving explicit sb symbols. ";
+
+
+
 
 
 (* ::Chapter::Initialization:: *)
@@ -357,20 +380,19 @@ It is used in the end-user command 'determineNextWeightSymbols'. ";
 
 (*---------------------------------------------------------------------*)
 
-determineNextWeightSymbolsSimple::usage="The command 'determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]' computes the weight L solution (in tensor form) 
-if given the weight L-1 solution and the integrability tensor \[DoubleStruckCapitalF]. This is a simple command - it does not care for even vs odd symbols nor for any additional forbidden entries beyond
- those put by hand at weight 1 by using the command 'weight1Solution'. ";
- 
-(*---------------------------------------------------------------------*)
-(* The combination command for the even+odd symbol computation *)
+determineNextWeightSymbolsSimple::usage="The command 'determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]' 
+computes the weight L solution (in tensor form) if given the weight L-1 solution and the integrability tensor \[DoubleStruckCapitalF]. This is a simple command - it does not care for even vs odd symbols. 
+The optional sparse array 'forbiddenSequenceConditions' is a matrix of conditions determined using the command 'weightLForbiddenSequencesEquationMatrix' that forbid certain sequences of letters. 
+By default, it set to 'False', meaning that no weight L entry condition is imposed. Finally, one can demand that the last entries be from some other alphabet. This is specified by 
+putting a matrix 'lastEntriesMatrix' which expresses the (symbols of the) last entries in a linear combination of the alphabet.";
 
- 
-determineNextWeightSymbols::usage="The command 'determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_.]' is 
-the end-user command for the computation of the next weight (weight = L) integrable symbols (with optional forbidden entries) and their decomposition into even + odd symbols. The variable 'previousWeightSymbolsTensor'
+determineNextWeightSymbols::usage="The command 'determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]'
+ is the end-user command for the computation of the next weight (weight = L) integrable symbols (with optional forbidden entries) and their decomposition into even + odd symbols. The variable 'previousWeightSymbolsTensor'
 is the weight L-1 integrable symbol tensor, the array 'previousWeightSymbolsSigns' is the list of 0 and 1 determining the signs of the symbols, 'FmatrixTensor' is the integrability tensor for the 
-alphabet under consideration and 'listOfSymbolSigns' is the array of 0 and 1 determining the signs of the letters of the alphabet.  Finally, the optional sparse array 'forbiddenSequenceConditions' is a 
-matrix of conditions determined using the command 'weightLForbiddenSequencesEquationMatrix' that forbid certain sequences of letters. By default, it is empty, meaning that no weight L entry condition
-is imposed.  ";
+alphabet under consideration and 'listOfSymbolSigns' is the array of 0 and 1 determining the signs of the letters of the alphabet.  Furthermore, the optional sparse array 'forbiddenSequenceConditions' is a 
+matrix of conditions determined using the command 'weightLForbiddenSequencesEquationMatrix' that forbid certain sequences of letters. By default, it set to 'False', meaning that no weight L entry condition
+is imposed. Finally, one can demand that the last entries be from some other alphabet. This is specified by 
+putting a matrix 'lastEntriesMatrix' which expresses the (symbols of the) last entries in a linear combination of the alphabet. ";
 
 
 (*---------------------------------------------------------------------*)
@@ -439,7 +461,7 @@ radicalRefine::usage="The command 'RadicalRefine' takes a list of root expressio
 
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*Global variables: definitions and descriptions *)*)
 
 
@@ -635,7 +657,8 @@ A12=shuffledz=Join[A1,A2];
 (*(*modified RowReduce command - transform to a normal matrix to avoid Mathematica hanging up*)*)
 
 
-modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
+(*modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];*)
+modifiedRowReduce[sparseArray_]:=rowReduceMatrix[Normal[sparseArray]];
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -922,7 +945,7 @@ Return[Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[\[ScriptCapitalS][TEMPsparseTensor
 positionDuplicates[list_]:=GatherBy[Range@Length[list],list[[#]]&] ;
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Formal Symbols and their manipulations *)*)
 
 
@@ -981,14 +1004,23 @@ True,"The supposed basis is not linearly independent."]
 
 
 (* ::Input::Initialization:: *)
-subProductProjection[symbol_]:=Module[{list=(symbol/.SB[A_]:> A),lengthList},
+
+(* Two auxiliary commands for productProjection *)
+
+auxProductProjectionSB[symbol_]:=Module[{list=(symbol/.SB[A_]:> A),lengthList},
 lengthList=Length[list]; 
 If[lengthList==1,Return[symbol]]; 
-(lengthList-1)/lengthList ((subProductProjection[SB[Drop[list,-1]]]/.SB[A_]:> SB[Join[A,{list[[lengthList]]}]])-(subProductProjection[SB[Drop[list,1]]]/.SB[A_]:> SB[Join[A,{list[[1]]}]]))
+(lengthList-1)/lengthList ((auxProductProjectionSB[SB[Drop[list,-1]]]/.SB[A_]:> SB[Join[A,{list[[lengthList]]}]])-(auxProductProjectionSB[SB[Drop[list,1]]]/.SB[A_]:> SB[Join[A,{list[[1]]}]]))
 ];
 
 
-productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProjection[SB[A]];
+auxProductProjectionsb[symbol_]:=Module[{list=(symbol/.sb[A_]:> A),lengthList},
+lengthList=Length[list]; 
+If[lengthList==1,Return[symbol]]; 
+(lengthList-1)/lengthList ((auxProductProjectionsb[sb[Drop[list,-1]]]/.sb[A_]:> sb[Join[A,{list[[lengthList]]}]])-(auxProductProjectionsb[sb[Drop[list,1]]]/.sb[A_]:> sb[Join[A,{list[[1]]}]]))
+];
+
+
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -1124,7 +1156,37 @@ dimIrreducibleSymbols[cutoffWeight_]:=
 Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimIndividualProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Subsubsection:: *)
+(*Projecting products away*)
+
+
+
+(* acting on formal symbols *)
+productProjection[symbolExpression_]:=(symbolExpression/.sb[A_]:> auxProductProjectionsb[sb[A]])/.SB[A_]:> auxProductProjection[SB[A]];
+
+(* acting on symbol tensor arrays *)
+removeProductsFromSymbolTensorArray[tensorArray_, fullReduce_:False, undercountingParameter_:5]:=Module[{length=Depth[tensorArray]-3,tList,dtemp,projectedProducts,flattenedArray,linearlyIndependentElements,TEMPnullSpace,TEMPsortedEntries},
+PrintTemporary["It might take a while to perform the projection. Patience... "];
+tList={dtemp[Range[length]]};
+Do[
+tList=Flatten[Table[{foo,-foo/.Table[iter-> Mod[iter-1,length-repeat,1],{iter,1,length-repeat}]},{foo,tList}],1]
+,{repeat,0,length-2}];
+projectedProducts=1/length (Plus@@(tList/.dtemp[A_]:> Transpose[tensorArray,InversePermutation[Join[{1},A/.Table[iter-> iter+1,{iter,1,length}],{length+2}]]]));
+PrintTemporary["...done. Projected the products away. Now to determine a basis out of the remaining elements... "];
+
+flattenedArray=Flatten[projectedProducts,Range[length+1]];
+
+TEMPnullSpace=getNullSpace[flattenedArray];
+
+TEMPsortedEntries=GatherBy[Map[First,Most[ArrayRules[TEMPnullSpace]]],First[#]&];
+linearlyIndependentElements=Complement[Range[Dimensions[flattenedArray][[2]]],Sort[Map[Last[Last[#]]&,TEMPsortedEntries]]];
+Return[projectedProducts[[Sequence@@Join[Table[All,{i,1,length+1}],{linearlyIndependentElements}]]]];
+
+];
+
+
+
+(* ::Chapter::Initialization:: *)
 (*(*Row reduction (over the finite fields)*)*)
 
 
@@ -1395,10 +1457,6 @@ Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 (*(*n-Entry conditions and the weight 1 construction *)*)
 
 
-(* ::Input::Initialization:: *)
-
-
-
 Default[weight1Solution]={};
 
 weight1Solution[alphabet_,forbiddenEntries_.]:=Table[KroneckerDelta[i1,j1],{j0,1,1},{i1,1,Length[alphabet]},{j1,Complement[Range[Length[alphabet]],forbiddenEntries]}]//SparseArray;
@@ -1421,9 +1479,17 @@ SparseArray[Drop[preTensor,-1]/.Rule[a__,b_]:>Rule[Append[a,Last[listOfForbidden
 (*(*Computing the next level symbols*)*)
 
 
+(*
 nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Flatten[Transpose[Transpose[previousWeightSymbolsTensor,{1,3,2}].Transpose[FmatrixTensor],{1,3,2,4}],{{1,2},{3,4}}];
+*)
 
+nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_,lastEntriesMatrix_:False]:=
+If[lastEntriesMatrix===False,
+Flatten[Transpose[Transpose[previousWeightSymbolsTensor,{1,3,2}].Transpose[FmatrixTensor],{1,3,2,4}],{{1,2},{3,4}}],
+Flatten[Transpose[Transpose[previousWeightSymbolsTensor,{1,3,2}].Transpose[FmatrixTensor].Transpose[lastEntriesMatrix],{1,3,2,4}],{{1,2},{3,4}}]
+];
 
+(*
 determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]:=
 Module[{integrabilityEquations,tempSol },
 integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
@@ -1431,29 +1497,54 @@ Print["Done generating the integrability equations. It's a ", Dimensions[integra
 tempSol=getNullSpace[integrabilityEquations];
 Print["...done."];
 solutionSpaceToSymbolsTensor[tempSol,Dimensions[FmatrixTensor][[2]]]];
+*)
+
+determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]:=Module[{integrabilityEquations,nextWeightNullSpace},
+
+(* Potential last Entries *)
+integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor,lastEntriesMatrix];
+
+(*-------------------------------------------*)
+(* Introduce the weight L entry conditions *)
+(* They have to be computed separately using the command 'weightLForbiddenSequencesEquationMatrix' *)
+If[!(forbiddenSequenceConditions===False),integrabilityEquations=sparseArrayGlue[integrabilityEquations,forbiddenSequenceConditions]];
+Print["Done generating the integrability equations. It's a ",Dimensions[integrabilityEquations]," matrix of equations. Solving...."];
+nextWeightNullSpace=getNullSpace[integrabilityEquations];Print["...done."];
+
+(* Giving back the integrability tensor*)
+(* Have to check if there are last entries to take into account *)
+Return[
+If[lastEntriesMatrix===False,
+solutionSpaceToSymbolsTensor[nextWeightNullSpace,Dimensions[FmatrixTensor][[2]]],
+Transpose[Transpose[solutionSpaceToSymbolsTensor[nextWeightNullSpace,Length[lastEntriesMatrix]],{1,3,2}].lastEntriesMatrix,{1,3,2}]
+]
+];
+];
 
 
-
-Default[determineNextWeightSymbols]={};
-
-determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_.]:=
+determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]:=
 Module[{integrabilityEquations,nextWeightNullSpace,sizeAlphabet=Length[listOfSymbolSigns],nextWeightEven,nextWeightOdd},
 
 (*-------------------------------------------*)
 (* Get the integrability equations *)
 
-integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
-Print["Done generating the integrability equations. It's a ", Dimensions[integrabilityEquations], " matrix of equations. Solving...."];
-
+(* Potential last Entries *)
+integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor,lastEntriesMatrix];
 (*-------------------------------------------*)
 (* Introduce the weight L entry conditions *)
 (* They have to be computed separately using the command 'weightLForbiddenSequencesEquationMatrix' *)
-If[!(forbiddenSequenceConditions==={}),integrabilityEquations=sparseArrayGlue[integrabilityEquations,forbiddenSequenceConditions]];
+If[!(forbiddenSequenceConditions===False),integrabilityEquations=sparseArrayGlue[integrabilityEquations,forbiddenSequenceConditions]];
+Print["Done generating the integrability equations. It's a ",Dimensions[integrabilityEquations]," matrix of equations. Solving...."];
 
 (*-------------------------------------------*)
-(* Get the integrable symbols*)
 nextWeightNullSpace=getNullSpace[integrabilityEquations];
+(* Have to check if there are last entries to take into account *)
+If[!(lastEntriesMatrix===False),
+nextWeightNullSpace=symbolsTensorToSolutionSpace[Transpose[Transpose[solutionSpaceToSymbolsTensor[nextWeightNullSpace,Length[lastEntriesMatrix]],{1,3,2}].lastEntriesMatrix,{1,3,2}]];
+];
+
 Print["...done. Separating into even + odd...."];
+
 (*-------------------------------------------*)
 (* Compute the even and odd symbols *)
 (* If all the symbols are even, bypass the computation *)
@@ -1476,6 +1567,7 @@ nextWeightEven=solutionSpaceToSymbolsTensor[nextWeightEven.nextWeightNullSpace,s
 nextWeightOdd=solutionSpaceToSymbolsTensor[nextWeightOdd.nextWeightNullSpace,sizeAlphabet];
 Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,Dimensions[nextWeightEven][[3]]],Table[1,Dimensions[nextWeightOdd][[3]]]]}];
 ];
+
 ];
 
 
@@ -1485,10 +1577,6 @@ Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,
 (*(*Determine tranformation matrices between alphabets*)*)
 
 
-(*buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
-tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{3,1,2}],limitAlphabetSize];
-Return[SparseArray[tempArray,Dimensions[tempArray]]];
-];*)
 buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,AlphabetPrimeInversionTensor_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
 tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[AlphabetPrimeInversionTensor,{3,1,2}],limitAlphabetSize];
 Return[SparseArray[tempArray,Dimensions[tempArray]]]
@@ -1547,7 +1635,7 @@ Return["The number of times one differentiates has to be a positive integer!"]
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Computing minimal polynomials*)*)
 
 
