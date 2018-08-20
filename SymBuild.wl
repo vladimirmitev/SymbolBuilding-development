@@ -25,7 +25,7 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the construction and manipulation of integrable symbols in scattering amplitudes. "]
-Print["Version 0.45, August 16, 2018 "]
+Print["Version 0.47, August 19, 2018 "]
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
@@ -200,15 +200,40 @@ at given weight (up to some cutoff) and attemps to guess a sequence of numbers {
 
 
 (* ::Chapter::Initialization:: *)
-(*(*Counting the number of products and of irreducible symbols*)*)
+(*(*Counting the number of products and of irreducible symbols/Projecting the products away *)*)
 
 
 (*---------------------------------------------------------------------*)
 rewritePartition::usage="The function 'rewritePartition[partition_]' takes an integer partition of N, i.e. a list 'partition'= {n_1,n_2,n_3,...n_r} with N=Sum_i n_i and n_i>= n_{i+1}, and rewrites it as a table {m_1,m_2,...,m_s}, where m_j is the number of times the number j appears in 'partition' and s is the largest number that appears in 'partition'. For instance, rewritePartition[{5,1,1}]={2,0,2,0,1}. ";
 
-dimProductSymbols::usage="The function dimProductSymbols[L_] gives the number of integrable symbols at weight L that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n. ";
+dimIndividualProductSymbols::usage="The function dimIndividualProductSymbols[L_] gives the number of integrable symbols at weight L that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n. ";
+
+dimProductSymbols::usage="The function dimProductSymbols[cufoffWeight_] gives a table {dimP[0], dimP[1], ..., dimP[cutoffWeight]} of the number of symbols that are products. The answer is given as a function of 'dimQ[n]' which is the number of 'irreducible' symbols of weight n.";
 
 dimIrreducibleSymbols::usage="The function dimIrreducibleSymbols[cutoffWeight_] gives a table {dimQ[0], dimQ[1], ..., dimQ[cutoffWeight]} of the number of irreducible integrable symbols (i.e. those that cannot be written as products) of weight smaller or equal to cutoffWeight. The answer is given as a function of dimH[n], which is the total number of integrable symbols of weight n.";
+
+
+
+(* see the paper 1401.6446 for some details*)
+(* Project products away using the \[Rho] map (see section 2) *)
+
+productProjection::usage=" productProjection[symbolExpression_] takes an expression in explicit symbols sb[A_] or SB[A_] and projects the products away. ";
+
+
+removeProductsFromSymbolTensorArray::usage=" removeProductsFromSymbolTensorArray[tensorArray_] takes a tensor array, i.e. a complete tensor describing 
+the whole information about the integrable symbols up to weight L, and removes all the products. The tensor array is obtained from the symbols tensors using the command 
+'dotSymbolTensors', like this: dotSymbolTensors[{tensor[1],....,tensor[L]}]. The command 'removeProductsFromSymbolTensorArray' does not just project the products away, 
+it also chooses a basis in the image space of the projection, i.e. it chooses a basis of irreducible tensors. ";
+
+(*-----------------*)
+(* auxiliary commands *)
+auxProductProjectionSB::usage=" Auxiliary command in 'productProjection' that removes products from expressions involving explicit SB symbols. ";
+
+
+auxProductProjectionsb::usage=" Auxiliary command in 'productProjection' that removes products from expressions involving explicit sb symbols. ";
+
+
+
 
 
 (* ::Chapter::Initialization:: *)
@@ -355,20 +380,19 @@ It is used in the end-user command 'determineNextWeightSymbols'. ";
 
 (*---------------------------------------------------------------------*)
 
-determineNextWeightSymbolsSimple::usage="The command 'determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]' computes the weight L solution (in tensor form) 
-if given the weight L-1 solution and the integrability tensor \[DoubleStruckCapitalF]. This is a simple command - it does not care for even vs odd symbols nor for any additional forbidden entries beyond
- those put by hand at weight 1 by using the command 'weight1Solution'. ";
- 
-(*---------------------------------------------------------------------*)
-(* The combination command for the even+odd symbol computation *)
+determineNextWeightSymbolsSimple::usage="The command 'determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]' 
+computes the weight L solution (in tensor form) if given the weight L-1 solution and the integrability tensor \[DoubleStruckCapitalF]. This is a simple command - it does not care for even vs odd symbols. 
+The optional sparse array 'forbiddenSequenceConditions' is a matrix of conditions determined using the command 'weightLForbiddenSequencesEquationMatrix' that forbid certain sequences of letters. 
+By default, it set to 'False', meaning that no weight L entry condition is imposed. Finally, one can demand that the last entries be from some other alphabet. This is specified by 
+putting a matrix 'lastEntriesMatrix' which expresses the (symbols of the) last entries in a linear combination of the alphabet.";
 
- 
-determineNextWeightSymbols::usage="The command 'determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_.]' is 
-the end-user command for the computation of the next weight (weight = L) integrable symbols (with optional forbidden entries) and their decomposition into even + odd symbols. The variable 'previousWeightSymbolsTensor'
+determineNextWeightSymbols::usage="The command 'determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]'
+ is the end-user command for the computation of the next weight (weight = L) integrable symbols (with optional forbidden entries) and their decomposition into even + odd symbols. The variable 'previousWeightSymbolsTensor'
 is the weight L-1 integrable symbol tensor, the array 'previousWeightSymbolsSigns' is the list of 0 and 1 determining the signs of the symbols, 'FmatrixTensor' is the integrability tensor for the 
-alphabet under consideration and 'listOfSymbolSigns' is the array of 0 and 1 determining the signs of the letters of the alphabet.  Finally, the optional sparse array 'forbiddenSequenceConditions' is a 
-matrix of conditions determined using the command 'weightLForbiddenSequencesEquationMatrix' that forbid certain sequences of letters. By default, it is empty, meaning that no weight L entry condition
-is imposed.  ";
+alphabet under consideration and 'listOfSymbolSigns' is the array of 0 and 1 determining the signs of the letters of the alphabet.  Furthermore, the optional sparse array 'forbiddenSequenceConditions' is a 
+matrix of conditions determined using the command 'weightLForbiddenSequencesEquationMatrix' that forbid certain sequences of letters. By default, it set to 'False', meaning that no weight L entry condition
+is imposed. Finally, one can demand that the last entries be from some other alphabet. This is specified by 
+putting a matrix 'lastEntriesMatrix' which expresses the (symbols of the) last entries in a linear combination of the alphabet. ";
 
 
 (*---------------------------------------------------------------------*)
@@ -427,7 +451,7 @@ presentTheIntegrabilityTensor::usage="The function presentTheIntegrabilityTensor
 
 
 (*---------------------------------------------------------------------*)
-(* auxiliary commands*)
+(* auxiliary commands for radicalRefine *)
 blockOrder::usage=" DESCRIPTION!!!!";
 radicalFinder::usage="DESCRIPTION!!!!";
 constraintEquation::usage="DESCRIPTION!!!!";
@@ -437,8 +461,12 @@ radicalRefine::usage="The command 'RadicalRefine' takes a list of root expressio
 
 
 
-(* ::Title::Initialization::Closed:: *)
+(* ::Title::Initialization:: *)
 (*(*Global variables: definitions and descriptions *)*)
+
+
+globalVerbose::usage=" The variable 'globalVerbose' determines whether the various commands should provide messages or not. By default it is true. Put it to 'False' if you want SymBuild to be quiet. ";
+globalVerbose=True;
 
 
 (* ::Section::Initialization:: *)
@@ -633,7 +661,8 @@ A12=shuffledz=Join[A1,A2];
 (*(*modified RowReduce command - transform to a normal matrix to avoid Mathematica hanging up*)*)
 
 
-modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];
+(*modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];*)
+modifiedRowReduce[sparseArray_]:=rowReduceMatrix[Normal[sparseArray]];
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -682,7 +711,7 @@ tallyList=Tally[reducedMatrixReconstructed];
 If[tallyList[[1,2]]/globalRowReduceOverPrimesInitialNumberOfIterations>1/2,Return[tallyList[[1,1]]]];
 (*Print[MatrixForm[#]&/@reducedMatrixReconstructed];*)
 For[iterbar=globalRowReduceOverPrimesInitialNumberOfIterations+1,iterbar< globalRowReduceOverPrimesMaxNumberOfIterations+1,iterbar++,
-PrintTemporary["Need more than " <>ToString[globalRowReduceOverPrimesInitialNumberOfIterations]<>" primes. Trying with "<>ToString[iterbar]<>" primes."];
+If[globalVerbose,PrintTemporary["Need more than " <>ToString[globalRowReduceOverPrimesInitialNumberOfIterations]<>" primes. Trying with "<>ToString[iterbar]<>" primes."]];
 reducedMatrix=Append[reducedMatrix,RowReduce[matrix,Modulus->samplePrimes[[iterbar]]]];
 primeList=Take[samplePrimes,iterbar];
 (*The 'SparseArray' part in the table below removes rare instances of sparse matrices in which entries of the type {a,b}\[Rule] 0 have been saved separately. *)
@@ -711,11 +740,17 @@ SparseArray[Map[SparseArray[#,{matrixNumberOfColumns}]&, solutions],{Length[solu
 
 getNullSpaceStepByStep::nnarg=" The variable 'step' should be smaller than the number of rows in the matrix! ";
 
+getNullSpaceStepByStep::err="Error in getting the null space";
+
 getNullSpaceStepByStep[matrix_,step_]/;If[Dimensions[matrix][[1]]>= step,True,Message[getNullSpace::nnarg];False]:=Module[
 {outputMonitoring="Preparing to compute the null space.",n0,numberOfIterations,
 TEMPmatrix,oldRank,newRank,lenMatrix=First[Dimensions[matrix]],checkn0},
 numberOfIterations=IntegerPart[lenMatrix/step]-1;
-PrintTemporary["The number of full steps for the row reduction is "<>ToString[Ceiling[lenMatrix/step]]];
+
+(*-----------------*)
+(* Suppress output monitoring if desired *)
+If[globalVerbose,
+PrintTemporary["The number of full steps for the row reduction is "<>ToString[Ceiling[lenMatrix/step]]]
 Monitor[
 n0=getNullSpaceFromRowReducedMatrix[SparseArray[modifiedRowReduce[Take[matrix,step]]]];
 oldRank=First[Dimensions[n0]];
@@ -723,7 +758,7 @@ Do[
 TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step j+1,step(j+1)}].Transpose[n0]]]; 
 checkn0=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
 If[checkn0==={},Return[{}],n0=checkn0.n0];
-newRank=First[Dimensions[n0]];If[oldRank<newRank,Print["Error in getting the null space"]];oldRank=newRank;
+newRank=First[Dimensions[n0]];If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];oldRank=newRank;
 outputMonitoring={"Current step: "<>ToString[j+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};,
 {j,1,numberOfIterations}];
 If[Length[matrix]>step(numberOfIterations+1),
@@ -731,11 +766,33 @@ TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step(numberOfIterations+1)
 checkn0=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
 If[checkn0==={},Return[{}],n0=checkn0.n0];
 newRank=First[Dimensions[n0]];
-If[oldRank<newRank,Print["Error in getting the null space!"]];
+If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];
 outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};
 Return[n0],
 Return[n0]];
-,outputMonitoring]
+,outputMonitoring];
+,
+(*-----------------*)
+n0=getNullSpaceFromRowReducedMatrix[SparseArray[modifiedRowReduce[Take[matrix,step]]]];
+oldRank=First[Dimensions[n0]];
+Do[
+TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step j+1,step(j+1)}].Transpose[n0]]]; 
+checkn0=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
+If[checkn0==={},Return[{}],n0=checkn0.n0];
+newRank=First[Dimensions[n0]];If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];oldRank=newRank;
+outputMonitoring={"Current step: "<>ToString[j+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};,
+{j,1,numberOfIterations}];
+If[Length[matrix]>step(numberOfIterations+1),
+TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step(numberOfIterations+1)+1,lenMatrix}].Transpose[n0]]];
+checkn0=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
+If[checkn0==={},Return[{}],n0=checkn0.n0];
+newRank=First[Dimensions[n0]];
+If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];
+outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};
+Return[n0],
+Return[n0]];
+];
+
 ];
 
 
@@ -761,7 +818,6 @@ presentTheIntegrabilityTensor[tensor_]:=Table[tensor[[iter]]//MatrixForm,{iter,1
 
 (* ::Subsubsection::Initialization:: *)
 (*(*Commands for the computation of Even + odd symbols *)*)
-(*(**)*)
 
 
 makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_]:=Module[{biIndexTable=Flatten[Table[{fooH,fooL},{fooH,index1},{fooL,index2}],1]},
@@ -920,7 +976,7 @@ Return[Table[Sum[TEMPsparseTensor[[ifoo,2]]sb[\[ScriptCapitalS][TEMPsparseTensor
 positionDuplicates[list_]:=GatherBy[Range@Length[list],list[[#]]&] ;
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Formal Symbols and their manipulations *)*)
 
 
@@ -979,14 +1035,23 @@ True,"The supposed basis is not linearly independent."]
 
 
 (* ::Input::Initialization:: *)
-subProductProjection[symbol_]:=Module[{list=(symbol/.SB[A_]:> A),lengthList},
+
+(* Two auxiliary commands for productProjection *)
+
+auxProductProjectionSB[symbol_]:=Module[{list=(symbol/.SB[A_]:> A),lengthList},
 lengthList=Length[list]; 
 If[lengthList==1,Return[symbol]]; 
-(lengthList-1)/lengthList ((subProductProjection[SB[Drop[list,-1]]]/.SB[A_]:> SB[Join[A,{list[[lengthList]]}]])-(subProductProjection[SB[Drop[list,1]]]/.SB[A_]:> SB[Join[A,{list[[1]]}]]))
+(lengthList-1)/lengthList ((auxProductProjectionSB[SB[Drop[list,-1]]]/.SB[A_]:> SB[Join[A,{list[[lengthList]]}]])-(auxProductProjectionSB[SB[Drop[list,1]]]/.SB[A_]:> SB[Join[A,{list[[1]]}]]))
 ];
 
 
-productProjection[symbolExpression_]:=symbolExpression/.SB[A_]:> subProductProjection[SB[A]];
+auxProductProjectionsb[symbol_]:=Module[{list=(symbol/.sb[A_]:> A),lengthList},
+lengthList=Length[list]; 
+If[lengthList==1,Return[symbol]]; 
+(lengthList-1)/lengthList ((auxProductProjectionsb[sb[Drop[list,-1]]]/.sb[A_]:> sb[Join[A,{list[[lengthList]]}]])-(auxProductProjectionsb[sb[Drop[list,1]]]/.sb[A_]:> sb[Join[A,{list[[1]]}]]))
+];
+
+
 
 
 (* ::Subsubsection::Initialization:: *)
@@ -1107,19 +1172,52 @@ Return[Table[tempa[i],{i,0,Length[varAlpha]}]/.Solve[TEMPeqn==0,varAlpha][[1]]/.
 rewritePartition[partition_]:=Module[{max=Max[partition]},Table[Count[partition,i],{i,1,max}]];
 
 
-dimProductSymbols[L_]:=Module[{tempPartitions},
+dimIndividualProductSymbols[L_]:=Module[{tempPartitions},
 If[L==0,Return[0]];
 tempPartitions=Drop[(rewritePartition[#]&/@IntegerPartitions[L]),1];
 Sum[Product[Binomial[dimQ[jfoo]+fooPartition[[jfoo]]-1,fooPartition[[jfoo]]],{jfoo,1,Length[fooPartition]}],{fooPartition,tempPartitions}]
 ];
 
+dimProductSymbols[cutoffWeight_]:=Table[dimIndividualProductSymbols[L],{L,0,cutoffWeight}];
+
+
 
 
 dimIrreducibleSymbols[cutoffWeight_]:=
-Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
+Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[weight]- FunctionExpand[dimIndividualProductSymbols[weight]]),{weight,0,cutoffWeight}]==0,Table[dimQ[weight],{weight,0,cutoffWeight}]][[1]];
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Subsubsection:: *)
+(*Projecting products away*)
+
+
+
+(* acting on formal symbols *)
+productProjection[symbolExpression_]:=(symbolExpression/.sb[A_]:> auxProductProjectionsb[sb[A]])/.SB[A_]:> auxProductProjection[SB[A]];
+
+(* acting on symbol tensor arrays *)
+removeProductsFromSymbolTensorArray[tensorArray_, fullReduce_:False, undercountingParameter_:5]:=Module[{length=Depth[tensorArray]-3,tList,dtemp,projectedProducts,flattenedArray,linearlyIndependentElements,TEMPnullSpace,TEMPsortedEntries},
+If[globalVerbose,PrintTemporary["It might take a while to perform the projection. Patience... "]];
+tList={dtemp[Range[length]]};
+Do[
+tList=Flatten[Table[{foo,-foo/.Table[iter-> Mod[iter-1,length-repeat,1],{iter,1,length-repeat}]},{foo,tList}],1]
+,{repeat,0,length-2}];
+projectedProducts=1/length (Plus@@(tList/.dtemp[A_]:> Transpose[tensorArray,InversePermutation[Join[{1},A/.Table[iter-> iter+1,{iter,1,length}],{length+2}]]]));
+If[globalVerbose,PrintTemporary["...done. Projected the products away. Now to determine a basis out of the remaining elements... "]];
+
+flattenedArray=Flatten[projectedProducts,Range[length+1]];
+
+TEMPnullSpace=getNullSpace[flattenedArray];
+
+TEMPsortedEntries=GatherBy[Map[First,Most[ArrayRules[TEMPnullSpace]]],First[#]&];
+linearlyIndependentElements=Complement[Range[Dimensions[flattenedArray][[2]]],Sort[Map[Last[Last[#]]&,TEMPsortedEntries]]];
+Return[projectedProducts[[Sequence@@Join[Table[All,{i,1,length+1}],{linearlyIndependentElements}]]]];
+
+];
+
+
+
+(* ::Chapter::Initialization:: *)
 (*(*Row reduction (over the finite fields)*)*)
 
 
@@ -1164,31 +1262,17 @@ variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariabl
 variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];
 TEMPalphabet=alphabet/.variablesRedef;
 
+(* suppress monitoring if desired *)
+If[globalVerbose,
 TEMPeqn=Monitor[Table[Flatten[Table[D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]-D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]],{iter1,1,Length[TEMPalphabet]-1},{iter2,iter1+1,Length[TEMPalphabet]}]],{iterbaz,1,Length[listOfIndices]}],iterbaz];
+,
+TEMPeqn=Table[Flatten[Table[D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]-D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]],{iter1,1,Length[TEMPalphabet]-1},{iter2,iter1+1,Length[TEMPalphabet]}]],{iterbaz,1,Length[listOfIndices]}];
+];
 
 Return[TEMPeqn/.variablesRedefReverse]
 ];
 
 
-
-(*
-integrableEquationsWithRoots[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
-listOfIndices=Flatten[Table[{iter1,iter2},{iter1,1,Length[allvariables]-1},{iter2,iter1+1,Length[allvariables]}],1];
-
-newVariables=Table[ToExpression["xTEMP"<>ToString[i]],{i,1,Length[allvariables]}];
-variablesRedef=Table[allvariables[[i]]->newVariables[[i]],{i,1,Length[newVariables]}];
-variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[newVariables]}];
-TEMPalphabet=alphabet/.variablesRedef;
-newRoots=listOfRoots/.variablesRedef;
-
-TEMPeqn=Monitor[Table[Flatten[Table[D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]-D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]],{iter1,1,Length[TEMPalphabet]-1},{iter2,iter1+1,Length[TEMPalphabet]}]],{iterbaz,1,Length[listOfIndices]}],iterbaz];
-
-(*Take the derivatives and express the derivatives of the roots nicely *)
-TEMPeqn=(TEMPeqn/.Derivative[derInder__][root[a_]][X__]:> root[a]/(newRoots[[a]]listOfRootPowers[[a]]) Module[{tempList=List[derInder]},D[newRoots[[a]],Sequence@@Table[{newVariables[[i]],tempList[[i]]},{i,1,Length[tempList]}]]] );
-TEMPeqn=TEMPeqn/.root[a_][X__]:> root[a]/.root[a_]:> ToExpression["\[Rho]"<>ToString[a]]/.variablesRedefReverse;
-Return[TEMPeqn]
-];
-*)
 
 integrableEquationsWithRoots[alphabet_,allvariables_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
 Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,rootRedefinition},
@@ -1200,7 +1284,12 @@ variablesRedefReverse=Table[newVariables[[i]]->allvariables[[i]],{i,1,Length[new
 rootRedefinition=Table[listOfRootVariables[[iter]]-> root[iter][Sequence@@newVariables],{iter,1,Length[listOfRootVariables]}];
 TEMPalphabet=alphabet/.variablesRedef/.rootRedefinition;
 
+(* suppress monitoring if desired *)
+If[globalVerbose,
 TEMPeqn=Monitor[Table[Flatten[Table[D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]-D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]],{iter1,1,Length[TEMPalphabet]-1},{iter2,iter1+1,Length[TEMPalphabet]}]],{iterbaz,1,Length[listOfIndices]}],iterbaz];
+,
+TEMPeqn=Table[Flatten[Table[D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]-D[Log[TEMPalphabet[[iter1]]],newVariables[[listOfIndices[[iterbaz]][[2]]]]]D[Log[TEMPalphabet[[iter2]]],newVariables[[listOfIndices[[iterbaz]][[1]]]]],{iter1,1,Length[TEMPalphabet]-1},{iter2,iter1+1,Length[TEMPalphabet]}]],{iterbaz,1,Length[listOfIndices]}];
+];
 
 (*Take the derivatives and express the derivatives of the roots nicely *)
 TEMPeqn=TEMPeqn/.\!\(\*
@@ -1222,12 +1311,15 @@ Return[TEMPeqn/.variablesRedefReverse/.root[a_][X__]:> listOfRootVariables[[a]]]
 
 
 (*auxiliary command used in 'integrableEquationsWithRoots'*)
+
+computeTheDerivativeRules::err="Error - no solution found for the derivatives. More minimal polynomials might be needed!";
+
 computeTheDerivativeRules[listOfVariables_,listOfRootVariables_,listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
 Module[{solTEMP},Flatten[Table[solTEMP=Solve[D[(listOfMinimalPolynomials/.listOfReplacementRules),listOfVariables[[jbar]]]
 +Sum[derivative[listOfRootVariables[[iterfoo]],listOfVariables[[jbar]]] D[listOfMinimalPolynomials,listOfRootVariables[[iterfoo]]],{iterfoo,1,Length[listOfRootVariables]}]==0,
 Table[derivative[listOfRootVariables[[iterfoo]],listOfVariables[[jbar]]],{iterfoo,1,Length[listOfRootVariables]}]];
 If[solTEMP==={},
-Print["Error - no solution found for the derivatives. More minimal polynomials might be needed!"];Abort[];,
+Message[computeTheDerivativeRules::err];Abort[];,
 First[solTEMP]],{jbar,1,Length[listOfVariables]}]]
 ];
 
@@ -1235,7 +1327,6 @@ First[solTEMP]],{jbar,1,Length[listOfVariables]}]]
 
 (* ::Subsubsection::Initialization:: *)
 (*(*Resolve the roots using Gr\[ODoubleDot]bner bases*)*)
-(*(*(**)*)*)
 
 
 resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
@@ -1306,12 +1397,20 @@ Return[arrayToSimplify],
 If[globalSymBuildParallelize,
 (*If running in parallel*)
 DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRootVariables, listOfMinimalPolynomials];
-PrintTemporary[" Evaluating the Gr\[ODoubleDot]bner basis resolution in parallel. No monitoring is available, be patient...."];
+If[globalVerbose,PrintTemporary[" Evaluating the Gr\[ODoubleDot]bner basis resolution in parallel. No monitoring is available, be patient...."]];
 Return[ParallelMap[resolveRootViaGroebnerBasis[#,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules]&,arrayToSimplify,{2},Method-> "CoarsestGrained"]],
 (*If running in series*)
-Return[Monitor[
+
+Return[
+If[globalVerbose,
+Monitor[
 Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}],
-{"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]]
+{"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]
+,
+Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}]
+];
+];
+
 ];
 ]; *)
 
@@ -1335,7 +1434,7 @@ TEMPsetOfEquations=SparseArray[(setOfEquations//ArrayRules)/. variablesRedef,Dim
 
 TEMPmatrix={};
 
-PrintTemporary["Starting to make the irreducible matrix. This might take a while...."];
+If[globalVerbose,PrintTemporary["Starting to make the irreducible matrix. This might take a while...."]];
 
 Monitor[Do[
 TEMPfunction[Sequence@@(Pattern[#1,_]&)/@newVariables]:=Evaluate[TEMPsetOfEquations[[fctIter]]];
@@ -1380,41 +1479,24 @@ Flatten[Transpose[SparseArray[eqnMatrix],{2,3,1}],1]
 
 (*-------------------------------------------------------------*)
 
+computeTheIntegrabilityTensor::err="There are no relations in this alphabet and hence no need for an integrability tensor!";
+
 computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{},sampleSize_,maxSamplePoints_,toleranceForRetries_]:=
 Module[{TEMPintegrableEquations, TEMPintegrableEquationsResolved,TEMPintegrableEquationsRationalized,TEMPintegrabilityMatrix},
-Print["Generating the integrability equations..."];
+If[globalVerbose,Print["Generating the integrability equations..."]];
 If[listOfRootVariables==={},
 TEMPintegrableEquationsRationalized=integrableEquationsRational[alphabet,allvariables];
-Print["...Done. Generating the integrability tensor..."];
+If[globalVerbose,Print["...Done. Generating the integrability tensor..."]];
 ,
 TEMPintegrableEquations=integrableEquationsWithRoots[alphabet,allvariables,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules];
 TEMPintegrableEquationsResolved=resolveRootViaGroebnerBasisMatrix[TEMPintegrableEquations,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules];
 TEMPintegrableEquationsRationalized=collectRootCoefficients[TEMPintegrableEquationsResolved,listOfRootVariables];
-Print["Done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."];
+If[globalVerbose,Print["Done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."]];
 ];
-If[TEMPintegrableEquationsRationalized==={},Print["There are no relations in this alphabet and hence no need for an integrability tensor."];Return[Null]];
+If[TEMPintegrableEquationsRationalized==={},Message[computeTheIntegrabilityTensor::err];Return[Null]];
 TEMPintegrabilityMatrix=buildFMatrixReducedForASetOfEquations[TEMPintegrableEquationsRationalized//Normal//Factor,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
 Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 ];
-
-(*
-computeTheIntegrabilityTensor::nnarg=" The size of the array 'listOfRoots' must match the size of the array 'listOfRootPowers'!  ";
-
-computeTheIntegrabilityTensor[alphabet_,allvariables_,listOfRoots_,listOfRootPowers_,sampleSize_,maxSamplePoints_,toleranceForRetries_]/;If[Length[listOfRoots]==Length[listOfRootPowers],True,Message[sparseArrayGlue::nnarg];False]:=Module[{TEMPintegrableEquations, TEMPintegrableEquationsResolved,TEMPintegrableEquationsRationalized,TEMPintegrabilityMatrix},
-Print["Generating the integrability equations..."];
-If[listOfRoots==={},
-TEMPintegrableEquationsRationalized=integrableEquationsRational[alphabet,allvariables];
-Print["...Done. Generating the integrability tensor..."];
-,
-TEMPintegrableEquations=integrableEquationsWithRoots[alphabet,allvariables,listOfRoots,listOfRootPowers];
-TEMPintegrableEquationsResolved=resolveRootViaGroebnerBasisMatrix[TEMPintegrableEquations,listOfRoots,listOfRootPowers];
-TEMPintegrableEquationsRationalized=collectRootCoefficients[TEMPintegrableEquationsResolved,Table[ToExpression["\[Rho]"<>ToString[iter]],{iter,1,Length[listOfRoots]}]];
-Print["Done with the resolution of the roots using Gr\[ODoubleDot]bner bases. Generating the integrability tensor..."];
-];
-TEMPintegrabilityMatrix=buildFMatrixReducedForASetOfEquations[TEMPintegrableEquationsRationalized//Normal//Factor,allvariables,sampleSize,maxSamplePoints,toleranceForRetries];
-Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
-];
-*)
 
 
 (* ::Chapter::Initialization:: *)
@@ -1427,10 +1509,6 @@ Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 
 (* ::Subsubsection::Initialization:: *)
 (*(*n-Entry conditions and the weight 1 construction *)*)
-
-
-(* ::Input::Initialization:: *)
-
 
 
 Default[weight1Solution]={};
@@ -1455,39 +1533,59 @@ SparseArray[Drop[preTensor,-1]/.Rule[a__,b_]:>Rule[Append[a,Last[listOfForbidden
 (*(*Computing the next level symbols*)*)
 
 
-nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_]:=Flatten[Transpose[Transpose[previousWeightSymbolsTensor,{1,3,2}].Transpose[FmatrixTensor],{1,3,2,4}],{{1,2},{3,4}}];
+nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_,lastEntriesMatrix_:False]:=
+If[lastEntriesMatrix===False,
+Flatten[Transpose[Transpose[previousWeightSymbolsTensor,{1,3,2}].Transpose[FmatrixTensor],{1,3,2,4}],{{1,2},{3,4}}],
+Flatten[Transpose[Transpose[previousWeightSymbolsTensor,{1,3,2}].Transpose[FmatrixTensor].Transpose[lastEntriesMatrix],{1,3,2,4}],{{1,2},{3,4}}]
+];
+
+determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]:=Module[{integrabilityEquations,nextWeightNullSpace},
+
+(* Potential last Entries *)
+integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor,lastEntriesMatrix];
+
+(*-------------------------------------------*)
+(* Introduce the weight L entry conditions *)
+(* They have to be computed separately using the command 'weightLForbiddenSequencesEquationMatrix' *)
+If[!(forbiddenSequenceConditions===False),integrabilityEquations=sparseArrayGlue[integrabilityEquations,forbiddenSequenceConditions]];
+If[globalVerbose,Print["Done generating the integrability equations. It's a ",Dimensions[integrabilityEquations]," matrix of equations. Solving...."]];
+nextWeightNullSpace=getNullSpace[integrabilityEquations];
+If[globalVerbose,Print["...done."]];
+
+(* Giving back the integrability tensor*)
+(* Have to check if there are last entries to take into account *)
+Return[
+If[lastEntriesMatrix===False,
+solutionSpaceToSymbolsTensor[nextWeightNullSpace,Dimensions[FmatrixTensor][[2]]],
+Transpose[Transpose[solutionSpaceToSymbolsTensor[nextWeightNullSpace,Length[lastEntriesMatrix]],{1,3,2}].lastEntriesMatrix,{1,3,2}]
+]
+];
+];
 
 
-determineNextWeightSymbolsSimple[previousWeightSymbolsTensor_,FmatrixTensor_]:=
-Module[{integrabilityEquations,tempSol },
-integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
-Print["Done generating the integrability equations. It's a ", Dimensions[integrabilityEquations], " matrix of equations. Solving...."];
-tempSol=getNullSpace[integrabilityEquations];
-Print["...done."];
-solutionSpaceToSymbolsTensor[tempSol,Dimensions[FmatrixTensor][[2]]]];
-
-
-
-Default[determineNextWeightSymbols]={};
-
-determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_.]:=
+determineNextWeightSymbols[previousWeightSymbolsTensor_,previousWeightSymbolsSigns_,FmatrixTensor_,listOfSymbolSigns_,forbiddenSequenceConditions_:False,lastEntriesMatrix_:False]:=
 Module[{integrabilityEquations,nextWeightNullSpace,sizeAlphabet=Length[listOfSymbolSigns],nextWeightEven,nextWeightOdd},
 
 (*-------------------------------------------*)
 (* Get the integrability equations *)
 
-integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor];
-Print["Done generating the integrability equations. It's a ", Dimensions[integrabilityEquations], " matrix of equations. Solving...."];
-
+(* Potential last Entries *)
+integrabilityEquations=nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor,FmatrixTensor,lastEntriesMatrix];
 (*-------------------------------------------*)
 (* Introduce the weight L entry conditions *)
 (* They have to be computed separately using the command 'weightLForbiddenSequencesEquationMatrix' *)
-If[!(forbiddenSequenceConditions==={}),integrabilityEquations=sparseArrayGlue[integrabilityEquations,forbiddenSequenceConditions]];
+If[!(forbiddenSequenceConditions===False),integrabilityEquations=sparseArrayGlue[integrabilityEquations,forbiddenSequenceConditions]];
+If[globalVerbose,Print["Done generating the integrability equations. It's a ",Dimensions[integrabilityEquations]," matrix of equations. Solving...."]];
 
 (*-------------------------------------------*)
-(* Get the integrable symbols*)
 nextWeightNullSpace=getNullSpace[integrabilityEquations];
-Print["...done. Separating into even + odd...."];
+(* Have to check if there are last entries to take into account *)
+If[!(lastEntriesMatrix===False),
+nextWeightNullSpace=symbolsTensorToSolutionSpace[Transpose[Transpose[solutionSpaceToSymbolsTensor[nextWeightNullSpace,Length[lastEntriesMatrix]],{1,3,2}].lastEntriesMatrix,{1,3,2}]];
+];
+
+If[globalVerbose,Print["...done. Separating into even + odd...."]];
+
 (*-------------------------------------------*)
 (* Compute the even and odd symbols *)
 (* If all the symbols are even, bypass the computation *)
@@ -1496,7 +1594,7 @@ Return[{solutionSpaceToSymbolsTensor[nextWeightNullSpace,sizeAlphabet],Table[0,L
 (*Otherwise, compute the even and odd conditions and symbols. Make sure that there are no empty arrays....*)
 nextWeightEven=getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,0].Transpose[nextWeightNullSpace]];
 nextWeightOdd=getNullSpace[makeTheEvenOddConditionsMatrix[previousWeightSymbolsSigns,listOfSymbolSigns,1].Transpose[nextWeightNullSpace]];
-Print["...done. "];
+If[globalVerbose,Print["...done. "]];
 Which[nextWeightEven==={},
 nextWeightOdd=solutionSpaceToSymbolsTensor[nextWeightOdd.nextWeightNullSpace,sizeAlphabet];
 Return[{nextWeightOdd,Table[1,Dimensions[nextWeightOdd][[3]]]}];
@@ -1510,6 +1608,7 @@ nextWeightEven=solutionSpaceToSymbolsTensor[nextWeightEven.nextWeightNullSpace,s
 nextWeightOdd=solutionSpaceToSymbolsTensor[nextWeightOdd.nextWeightNullSpace,sizeAlphabet];
 Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,Dimensions[nextWeightEven][[3]]],Table[1,Dimensions[nextWeightOdd][[3]]]]}];
 ];
+
 ];
 
 
@@ -1519,10 +1618,6 @@ Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,
 (*(*Determine tranformation matrices between alphabets*)*)
 
 
-(*buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
-tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[inverseMatrixToTensor[limitAlphabetInversionMatrix,limitAlphabetSize],{3,1,2}],limitAlphabetSize];
-Return[SparseArray[tempArray,Dimensions[tempArray]]];
-];*)
 buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,AlphabetPrimeInversionTensor_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
 tempArray=auxFlattenTwoIndices23[Transpose[weightLsymbolTensor,{2,3,1}].SparseArray[alphabetTransformationMatrix],limitAlphabetSize].auxFlattenTwoIndices12[SparseArray[previousTransformationMatrix].Transpose[AlphabetPrimeInversionTensor,{3,1,2}],limitAlphabetSize];
 Return[SparseArray[tempArray,Dimensions[tempArray]]]
@@ -1581,7 +1676,7 @@ Return["The number of times one differentiates has to be a positive integer!"]
 
 
 
-(* ::Chapter::Initialization:: *)
+(* ::Chapter::Initialization::Closed:: *)
 (*(*Computing minimal polynomials*)*)
 
 
