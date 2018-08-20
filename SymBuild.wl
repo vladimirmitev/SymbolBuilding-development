@@ -1134,7 +1134,7 @@ True,rowReduceOverPrimes[matrix]
 
 
 
-(* ::Chapter::Initialization::Closed:: *)
+(* ::Chapter::Initialization:: *)
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
@@ -1247,6 +1247,45 @@ TEMPExpression=Factor[expressionToSimplify];
 TEMPMinPolynomials=Prepend[listOfMinimalPolynomials,Xbaz Denominator[TEMPExpression]-Numerator[TEMPExpression]];
 
 If[listOfReplacementRules==={},
+TEMPgrobBasis=GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions,MonomialOrder->blockOrder[listOfRootVariables//Length,1]];
+,
+TEMPgrobBasisTry=TimeConstrained[GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions,MonomialOrder->blockOrder[listOfRootVariables//Length,1]],1];
+If[TEMPgrobBasisTry===$Aborted,TEMPgrobBasis=GroebnerBasis[(TEMPMinPolynomials/.listOfReplacementRules),Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions,MonomialOrder->blockOrder[listOfRootVariables//Length,1]];
+,
+TEMPgrobBasis=TEMPgrobBasisTry];
+];
+positionOfTheLinearPolynomialInXbaz=Position[Exponent[#,Xbaz]&/@TEMPgrobBasis,1][[1,1]];
+TEMPsol=Solve[TEMPgrobBasis[[positionOfTheLinearPolynomialInXbaz]]==0,Xbaz];
+If[TEMPsol==={},"No solution",(First[TEMPsol][[1,2]]/.listOfReplacementRules)]
+];
+
+(*--------------------------------------*)
+
+resolveRootViaGroebnerBasisMatrix[arrayToSimplify_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
+If[listOfRoots==={},
+Return[arrayToSimplify],
+If[globalSymBuildParallelize,
+(*If running in parallel*)
+DistributeDefinitions[resolveRootViaGroebnerBasis,arrayToSimplify,listOfRootVariables, listOfMinimalPolynomials];
+PrintTemporary[" Evaluating the Gr\[ODoubleDot]bner basis resolution in parallel. No monitoring is available, be patient...."];
+Return[ParallelMap[resolveRootViaGroebnerBasis[#,listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules]&,arrayToSimplify,{2},Method-> "CoarsestGrained"]],
+(*If running in series*)
+Return[Monitor[
+Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}],
+{"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]]
+];
+];
+
+
+(* resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
+Module[{
+TEMPExpression,TEMPgrobBasis,TEMPgrobBasisTry, TEMPsol,TEMPMinPolynomials, Xbaz,positionOfTheLinearPolynomialInXbaz},
+
+TEMPExpression=Factor[expressionToSimplify];
+
+TEMPMinPolynomials=Prepend[listOfMinimalPolynomials,Xbaz Denominator[TEMPExpression]-Numerator[TEMPExpression]];
+
+If[listOfReplacementRules==={},
 TEMPgrobBasis=GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions];
 ,
 TEMPgrobBasisTry=TimeConstrained[GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions],1];
@@ -1274,7 +1313,7 @@ Return[Monitor[
 Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRootVariables, listOfMinimalPolynomials,listOfReplacementRules],{irow,1,Dimensions[arrayToSimplify][[1]]},{ifoo,1,Dimensions[arrayToSimplify][[2]]}],
 {"row: "<>ToString[irow],"column: "<>ToString[ifoo]}]]
 ];
-];
+]; *)
 
 
 (* ::Section::Initialization:: *)
