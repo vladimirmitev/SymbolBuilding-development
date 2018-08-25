@@ -1,7 +1,11 @@
 (* ::Package:: *)
 
 (* ::Title::Initialization:: *)
+<<<<<<< HEAD
+(*Beginning/ First declarations *)
+=======
 (*(*Beginning/ First declarations *)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*----------------------------------------------------------------------------------------------------------------------------------*)
@@ -25,13 +29,21 @@
 BeginPackage["SymBuild`"]
 
 Print["SymBuild: Mathematica package for the construction and manipulation of integrable symbols in scattering amplitudes. "]
+<<<<<<< HEAD
+Print["Version 0.48, August 21, 2018 "]
+=======
 Print["Version 0.47, August 19, 2018 "]
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University of Mainz, Germany. "]
 
 
 
 (* ::Title::Initialization:: *)
+<<<<<<< HEAD
+(*Descriptions of the all commands and symbols*)
+=======
 (*(*Descriptions of the all commands and symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*----------------------------------------------------------------------------------------------------------*)
@@ -42,7 +54,11 @@ Print["Created by: Vladimir Mitev and Yang Zhang, Johannes Gutenberg University 
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Protected symbols*)
+=======
 (*(*Protected symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* 
@@ -55,7 +71,11 @@ Protect[derivative,\[ScriptCapitalS],\[DoubleStruckCapitalX],rt];
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*General command on lists and matrices manipulations *)
+=======
 (*(*General command on lists and matrices manipulations *)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*----------------------------------------------------------------------------------------------------------*)
@@ -91,7 +111,11 @@ a specialized function that determines the left inverse of a sparse matrix that 
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Symbol tensors and their manipulations*)
+=======
 (*(*Symbol tensors and their manipulations*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -121,7 +145,11 @@ This is only ok for M=1";
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Formal symbols manipulation*)
+=======
 (*(*Formal symbols manipulation*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -173,7 +201,11 @@ When acting on expressions of sb formal symbols, the second entry must be an int
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Commands used in checking the independence of the alphabet*)
+=======
 (*(*Commands used in checking the independence of the alphabet*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -189,7 +221,11 @@ If the alphabet is not independent, the command will generate a matrix whose row
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Computing the difference equation if given a sequence of dimensions*)
+=======
 (*(*Computing the difference equation if given a sequence of dimensions*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -200,7 +236,11 @@ at given weight (up to some cutoff) and attemps to guess a sequence of numbers {
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Counting the number of products and of irreducible symbols/Projecting the products away *)
+=======
 (*(*Counting the number of products and of irreducible symbols/Projecting the products away *)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -237,7 +277,11 @@ auxProductProjectionsb::usage=" Auxiliary command in 'productProjection' that re
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Computing the integrability tensor \[DoubleStruckCapitalF]*)
+=======
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -301,7 +345,11 @@ See the command 'buildFMatrixReducedForASetOfEquations' for an explanation of th
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Null space commands*)
+=======
 (*(*Null space commands*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -322,7 +370,11 @@ If the number of rows of 'matrix' is larger than the global variable 'globalSpaS
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Row reduction of the finite fields*)
+=======
 (*(*Row reduction of the finite fields*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -346,7 +398,11 @@ the global variable 'globalLowerThreshold' then the usual RowReduce command is u
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Determine the tranformation matrices between sets of integrable symbols*)
+=======
 (*(*Determine the tranformation matrices between sets of integrable symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 buildTransformationMatrix::usage="The command 'buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,limitAlphabetInversionMatrix_]' produces the weight L matrix T_L that gives the limit of the integrable symbols in the alphabet A1 in the alphabet A2. It takes  as input: 1) the matrix 'alphabetTransformationMatrix' which tells us how the limit of the letters of A1 are expressed in letters of the limit alphabet A2, 2) the symbol tensor 'weightLsymbolTensor' of the weight L integrable symbols in A1, 3) the matrix 'previousTransformationMatrix' (this is T_{L-1}) and 4) the matrix 'limitAlphabetInversionMatrix' which is the weight L inversion matrix for the integrable symbols in the alphabet A2.  ";
@@ -369,7 +425,11 @@ auxFlattenTwoIndices23::usage="The auxiliary command 'auxFlattenTwoIndices23[spa
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Computing the next level symbols*)
+=======
 (*(*Computing the next level symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------*)
@@ -424,7 +484,11 @@ is the tensor for the  weight L-1 integrable symbols and 'listOfSymbolSigns' is 
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Taking derivatives of the symbols*)
+=======
 (*(*Taking derivatives of the symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 symbolDerivative::usage="The operator 'symbolDerivative' can be used in two ways. First, it can be called with 2 entries as 'symbolDerivative[expression, variable]'
@@ -435,7 +499,11 @@ computes their derivative w.r.t. 'variable'. ";
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Presentation commands*)
+=======
 (*(*Presentation commands*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 presentIntegrableSymbolsData::usage="The command 'presentIntegrableSymbolsData[{tensorList_,signsArray_}]' takes an array of two elements, one being the tensor of integrable symbols and the other
@@ -452,9 +520,15 @@ presentTheIntegrabilityTensor::usage="The function presentTheIntegrabilityTensor
 
 (*---------------------------------------------------------------------*)
 (* auxiliary commands for radicalRefine *)
+<<<<<<< HEAD
+blockOrder::usage=" An auxiliary command used in assigning order to monomials in a Gr\[ODoubleDot]bner basis. See 'radicalRefine' for its implementation. ";
+radicalFinder::usage="An auxiliary command that finds roots in an expression. Used in 'radicalRefine'. ";
+constraintEquation::usage="An auxiliary command that transforms a root into a minimal polynomial. Used in 'radicalRefine'. ";
+=======
 blockOrder::usage=" DESCRIPTION!!!!";
 radicalFinder::usage="DESCRIPTION!!!!";
 constraintEquation::usage="DESCRIPTION!!!!";
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 (*---------------------------------------------------------------------*)
 radicalRefine::usage="The command 'RadicalRefine' takes a list of root expressions {R1,....} and attemps to compute a list of minimal polynomials whose roots are (R1,....). ";
@@ -462,7 +536,11 @@ radicalRefine::usage="The command 'RadicalRefine' takes a list of root expressio
 
 
 (* ::Title::Initialization:: *)
+<<<<<<< HEAD
+(*Global variables: definitions and descriptions *)
+=======
 (*(*Global variables: definitions and descriptions *)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 globalVerbose::usage=" The variable 'globalVerbose' determines whether the various commands should provide messages or not. By default it is true. Put it to 'False' if you want SymBuild to be quiet. ";
@@ -470,7 +548,11 @@ globalVerbose=True;
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Parallelize*)
+=======
 (*(*Parallelize*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 globalSymBuildParallelize::usage=" The variable 'globalSymBuildParallelize' determines whether parallelization takes place in SymBuild or not. By default, it is false. ";
@@ -478,7 +560,11 @@ globalSymBuildParallelize=False;
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*SpaSM global variables*)
+=======
 (*(*SpaSM global variables*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -504,7 +590,11 @@ globalSpaSMNumberOfKernels=2;
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Global parameters for 'getNullSpace'*)
+=======
 (*(*Global parameters for 'getNullSpace'*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -523,7 +613,11 @@ globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Global parameters of 'rowReduceMatrix' and 'rowReduceOverPrimes'*)
+=======
 (*(*Global parameters of 'rowReduceMatrix' and 'rowReduceOverPrimes'*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -547,7 +641,11 @@ globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Resetting the global parameters/choosing various prepackages possibilities*)
+=======
 (*(*Resetting the global parameters/choosing various prepackages possibilities*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -573,18 +671,30 @@ Return["The global variables have been reset to their standard values. "]
 
 
 (* ::Title::Initialization:: *)
+<<<<<<< HEAD
+(*The private part of the package*)
+
+
+(* ::Section::Initialization:: *)
+(*Beginning*)
+=======
 (*(*The private part of the package*)*)
 
 
 (* ::Section::Initialization:: *)
 (*(*Beginning*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 Begin["`Private`"] (* Begin Private Context *)
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*General commands on lists and matrices manipulations*)
+=======
 (*(*General commands on lists and matrices manipulations*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*Sparse Matrix Manipulation*)
@@ -647,7 +757,11 @@ Return[SparseArray[Table[{iter,dependentCoeff[[iter]]}-> 1,{iter,1,Length[depend
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Formal symbols manipulations*)
+=======
 (*(*Formal symbols manipulations*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 shuffles[A1_,A2_]:=Module[{nfoobar,p1,p2,shuffledz,A12},nfoobar=Length/@{A1,A2};
@@ -658,7 +772,11 @@ A12=shuffledz=Join[A1,A2];
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*modified RowReduce command - transform to a normal matrix to avoid Mathematica hanging up*)
+=======
 (*(*modified RowReduce command - transform to a normal matrix to avoid Mathematica hanging up*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*modifiedRowReduce[sparseArray_]:=RowReduce[Normal[sparseArray]];*)
@@ -666,7 +784,11 @@ modifiedRowReduce[sparseArray_]:=rowReduceMatrix[Normal[sparseArray]];
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Rational reconstruction*)
+=======
 (*(*Rational reconstruction*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -683,7 +805,11 @@ rationalReconstructionArray[array_,prime_]:=Module[{TEMPArray=SparseArray[array]
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Row Reduction over the finite fields for a dense matrix*)
+=======
 (*(*Row Reduction over the finite fields for a dense matrix*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 applyChineseRemainder[matrixList_,primesList_]:=Module[{listOfEntries=Union[Flatten[(Most[ArrayRules[#1][[All,1]]]&)/@matrixList,1]]},
@@ -726,7 +852,11 @@ Return["No solution! Choose different primes or increase the iteration! "];
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Null space commands*)
+=======
 (*(*Null space commands*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 getNullSpaceFromRowReducedMatrix[rowReducedMatrix_]:=Block[{freeCoeff,dependentCoeff,trivialIntgrb,solutions,matrixNumberOfColumns=Dimensions[rowReducedMatrix][[2]],sortedEntries},
@@ -746,7 +876,10 @@ getNullSpaceStepByStep[matrix_,step_]/;If[Dimensions[matrix][[1]]>= step,True,Me
 {outputMonitoring="Preparing to compute the null space.",n0,numberOfIterations,
 TEMPmatrix,oldRank,newRank,lenMatrix=First[Dimensions[matrix]],checkn0},
 numberOfIterations=IntegerPart[lenMatrix/step]-1;
+<<<<<<< HEAD
+=======
 
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 (*-----------------*)
 (* Suppress output monitoring if desired *)
 If[globalVerbose,
@@ -758,8 +891,12 @@ Do[
 TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step j+1,step(j+1)}].Transpose[n0]]]; 
 checkn0=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
 If[checkn0==={},Return[{}],n0=checkn0.n0];
+<<<<<<< HEAD
+newRank=First[Dimensions[n0]];If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];oldRank=newRank;outputMonitoring={"Current step: "<>ToString[j+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};,
+=======
 newRank=First[Dimensions[n0]];If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];oldRank=newRank;
 outputMonitoring={"Current step: "<>ToString[j+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};,
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 {j,1,numberOfIterations}];
 If[Length[matrix]>step(numberOfIterations+1),
 TEMPmatrix=SparseArray[modifiedRowReduce[Take[matrix,{step(numberOfIterations+1)+1,lenMatrix}].Transpose[n0]]];
@@ -767,9 +904,14 @@ checkn0=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
 If[checkn0==={},Return[{}],n0=checkn0.n0];
 newRank=First[Dimensions[n0]];
 If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];
+<<<<<<< HEAD
+outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]}
+];
+=======
 outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};
 Return[n0],
 Return[n0]];
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 ,outputMonitoring];
 ,
 (*-----------------*)
@@ -788,16 +930,27 @@ checkn0=getNullSpaceFromRowReducedMatrix[TEMPmatrix];
 If[checkn0==={},Return[{}],n0=checkn0.n0];
 newRank=First[Dimensions[n0]];
 If[oldRank<newRank,Message[getNullSpaceStepByStep::err]];
+<<<<<<< HEAD
+outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]}
+];
+];
+Return[n0];
+=======
 outputMonitoring={"Current step: "<>ToString[numberOfIterations+1],"Current dimensions of the null space: "<>ToString[Length[n0]],"Density of the sparse array: "<>ToString[n0["Density"]]};
 Return[n0],
 Return[n0]];
 ];
 
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 ];
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Two auxiliary commands for the determination of transformation matrices between two alphabets*)
+=======
 (*(*Two auxiliary commands for the determination of transformation matrices between two alphabets*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 auxFlattenTwoIndices12[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray//ArrayRules]/. ({a1_,a2_,a3_}->a4_):>({(a1-1) sizeAlphabet+a2,a3}->a4),{Dimensions[sparsearray][[1]]*sizeAlphabet,Dimensions[sparsearray][[3]]}];
@@ -806,7 +959,11 @@ auxFlattenTwoIndices23[sparsearray_,sizeAlphabet_]:=SparseArray[Most[sparsearray
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Presentation commands*)
+=======
 (*(*Presentation commands*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 presentIntegrableSymbolsData[tensorList_]:=Print["----------------------------------------- \n", Dimensions[tensorList][[3]]," integrable symbols in an alphabet with ",Dimensions[tensorList][[2]]," letters. The number of symbols of previous weight is ",Dimensions[tensorList][[1]],". \n-----------------------------------------" ];
@@ -817,7 +974,11 @@ presentTheIntegrabilityTensor[tensor_]:=Table[tensor[[iter]]//MatrixForm,{iter,1
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Commands for the computation of Even + odd symbols *)
+=======
 (*(*Commands for the computation of Even + odd symbols *)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 makeSparseMatrixOutOfIndexLists[index1_,index2_,size1_,size2_]:=Module[{biIndexTable=Flatten[Table[{fooH,fooL},{fooH,index1},{fooL,index2}],1]},
@@ -861,7 +1022,11 @@ blockOrder[size1_,size2_]:=SparseArray[
 ]//Normal;
 
 
+<<<<<<< HEAD
+radicalFinder[exp_]:=Module[{target,radList,POW},
+=======
 radicalFinder[exp_]:=Module[{target,radList},
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 target=exp/.Power[x_,y_]:>POW[x,y]/;!IntegerQ[y];
 radList=Select[Variables[target],Head[#]==POW&]//Sort;
 radList=radList/.POW[x_,y_]:>Power[x,y];
@@ -894,13 +1059,28 @@ Return[{Eqns/.RadicalRules,RadicalRules,rt/@Range[ip-1]}];
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*End*)
+=======
 (*(*End*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 End[]; (* End Private Context *)
 
 
 (* ::Title::Initialization:: *)
+<<<<<<< HEAD
+(*The public part of the package*)
+
+
+(* ::Chapter::Initialization::Closed:: *)
+(*Symbol tensors and their manipulation*)
+
+
+(* ::Section::Initialization::Closed:: *)
+(*Glue two lists of tensors that give integrable symbols*)
+=======
 (*(*The public part of the package*)*)
 
 
@@ -910,6 +1090,7 @@ End[]; (* End Private Context *)
 
 (* ::Section::Initialization::Closed:: *)
 (*(*Glue two lists of tensors that give integrable symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -921,7 +1102,11 @@ SparseArray[Union[ArrayRules[A1],(ArrayRules[A2]/. {a1_,a2_,a3_}:>{a1,a2,a3+dim}
 
 
 (* ::Section::Initialization::Closed:: *)
+<<<<<<< HEAD
+(*Writing the null spaces into tensors and doing the reverse*)
+=======
 (*(*Writing the null spaces into tensors and doing the reverse*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -947,7 +1132,11 @@ SparseArray[Most[ArrayRules[symbolsTensor]]/. ({a1_,a2_,a3_}->a4_):>{a3,(a1-1) s
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Rewriting the tensors into sums of formal symbols*)
+=======
 (*(*Rewriting the tensors into sums of formal symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -977,18 +1166,30 @@ positionDuplicates[list_]:=GatherBy[Range@Length[list],list[[#]]&] ;
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Formal Symbols and their manipulations *)
+
+
+(* ::Subsubsection::Initialization:: *)
+(*Shuffle products*)
+=======
 (*(*Formal Symbols and their manipulations *)*)
 
 
 (* ::Subsubsection::Initialization:: *)
 (*(*Shuffle products*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 shuffleProduct[symbol1_,symbol2_]:=(symbol1 (symbol2/.SB[A_]:> SB2[A])//Expand)/.SB[A_]SB2[B_]:> Sum[SB[foo],{foo,shuffles[A,B]}];
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Define the formal symbols*)
+=======
 (*(*Define the formal symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -1000,7 +1201,11 @@ SB[{A___,A1_/A2_,B___}]:=SB[{A,A1,B}]-SB[{A,A2,B}];
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Extracting limits of formal symbols*)
+=======
 (*(*Extracting limits of formal symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -1019,7 +1224,11 @@ singularPart=extractSingularPart[symbolSimple,var];factorSymbols[((symbolSimple-
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Expanding formal symbols in a given basis*)
+=======
 (*(*Expanding formal symbols in a given basis*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 expandInSymbolBasis[exp_,basis_]:=Module[{coefficientsTEMP,ansatzTEMP,solTEMP,expTEMP=factorSymbols[exp],basisTEMP=factorSymbols[basis],varSBTEMP},
@@ -1031,11 +1240,18 @@ True,"The supposed basis is not linearly independent."]
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Projecting products away*)
+
+
+(* ::Input::Initialization:: *)
+=======
 (*(*Projecting products away*)*)
 
 
 (* ::Input::Initialization:: *)
 
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 (* Two auxiliary commands for productProjection *)
 
 auxProductProjectionSB[symbol_]:=Module[{list=(symbol/.SB[A_]:> A),lengthList},
@@ -1055,7 +1271,11 @@ If[lengthList==1,Return[symbol]];
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Conversion of formal symbols*)
+=======
 (*(*Conversion of formal symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------------*)
@@ -1066,7 +1286,11 @@ convertFormalSymbol[expr_,alphabet_]:=expr/.sb[A_]:> If[Head[A]===List,SB[Table[
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Checking the integrability of a formal symbol*)
+=======
 (*(*Checking the integrability of a formal symbol*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 IntegrableQ::argerr="This can take a while! It is recommended to use the formal sb symbols when checking the integrability condition.";
@@ -1095,7 +1319,11 @@ Return["IntegrableQ[expression_,FtensorOrAlphabet_] cannot mix both sb and SB fo
 
 
 (* ::Chapter::Initialization::Closed:: *)
+<<<<<<< HEAD
+(*Null Space commands*)
+=======
 (*(*Null Space commands*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 getNullSpace[matrix_]:=Module[{nullMatrix},
@@ -1110,7 +1338,11 @@ True, Return[getNullSpaceStepByStep[matrix,globalGetNullSpaceStep]]];
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Checking the independence of the alphabet*)
+=======
 (*(*Checking the independence of the alphabet*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -1148,11 +1380,19 @@ Return[If[TEMPNullSpace=={},"The alphabet is indepedent.", {"The alphabet is dep
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Difference equations/Counting products and irreducible symbols*)
+
+
+(* ::Subsubsection::Initialization:: *)
+(*Computing the difference equation if given a sequence of dimensions*)
+=======
 (*(*Difference equations/Counting products and irreducible symbols*)*)
 
 
 (* ::Subsubsection::Initialization:: *)
 (*(*Computing the difference equation if given a sequence of dimensions*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 computeCoefficientsOfDifferenceEquation[dimSequence_]:=Module[{M=dimSequence[[2]],Rsequence,TEMPeqn,varAlpha,tempDim,tempCond,tempa},
@@ -1166,7 +1406,11 @@ Return[Table[tempa[i],{i,0,Length[varAlpha]}]/.Solve[TEMPeqn==0,varAlpha][[1]]/.
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Counting the number of products and of irreducible symbols*)
+=======
 (*(*Counting the number of products and of irreducible symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 rewritePartition[partition_]:=Module[{max=Max[partition]},Table[Count[partition,i],{i,1,max}]];
@@ -1191,7 +1435,10 @@ Table[dimQ[weight],{weight,0,cutoffWeight}]/.Solve[Table[dimQ[weight]- (dimH[wei
 (*Projecting products away*)
 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 (* acting on formal symbols *)
 productProjection[symbolExpression_]:=(symbolExpression/.sb[A_]:> auxProductProjectionsb[sb[A]])/.SB[A_]:> auxProductProjection[SB[A]];
 
@@ -1218,11 +1465,19 @@ Return[projectedProducts[[Sequence@@Join[Table[All,{i,1,length+1}],{linearlyInde
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Row reduction (over the finite fields)*)
+
+
+(* ::Section::Initialization:: *)
+(*The general row reduction command*)
+=======
 (*(*Row reduction (over the finite fields)*)*)
 
 
 (* ::Section::Initialization:: *)
 (*(*The general row reduction command*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 rowReduceMatrix[matrix_]:=Which[Length[matrix]<globalLowerThreshold,SparseArray[RowReduce[Normal[matrix]]],
@@ -1233,11 +1488,19 @@ True,rowReduceOverPrimes[matrix]
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Computing the integrability tensor \[DoubleStruckCapitalF]*)
+
+
+(* ::Section::Initialization::Closed:: *)
+(*Transforming the reduced \[DoubleStruckCapitalM] matrix into the integrability tensor \[DoubleStruckCapitalF]*)
+=======
 (*(*Computing the integrability tensor \[DoubleStruckCapitalF]*)*)
 
 
 (* ::Section::Initialization::Closed:: *)
 (*(*Transforming the reduced \[DoubleStruckCapitalM] matrix into the integrability tensor \[DoubleStruckCapitalF]*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -1250,7 +1513,11 @@ SparseArray[Flatten[Table[{Join[{foo[[1,1]]},TEMPIndexTable[[foo[[1,2]]]]]-> foo
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)
+=======
 (*(*Generating the set of equations involving only rational functions from which \[DoubleStruckCapitalF] is made*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 integrableEquationsRational[alphabet_,allvariables_]:=Module[{TEMPeqn,listOfIndices,newVariables,variablesRedef,variablesRedefReverse,TEMPalphabet,newRoots},
@@ -1326,7 +1593,11 @@ First[solTEMP]],{jbar,1,Length[listOfVariables]}]]
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Resolve the roots using Gr\[ODoubleDot]bner bases*)
+=======
 (*(*Resolve the roots using Gr\[ODoubleDot]bner bases*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 resolveRootViaGroebnerBasis[expressionToSimplify_,listOfRootVariables_, listOfMinimalPolynomials_,listOfReplacementRules_:{}]:=
@@ -1338,6 +1609,8 @@ TEMPExpression=Factor[expressionToSimplify];
 TEMPMinPolynomials=Prepend[listOfMinimalPolynomials,Xbaz Denominator[TEMPExpression]-Numerator[TEMPExpression]];
 
 If[listOfReplacementRules==={},
+<<<<<<< HEAD
+=======
 TEMPgrobBasis=GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions,MonomialOrder->blockOrder[listOfRootVariables//Length,1]];
 ,
 TEMPgrobBasisTry=TimeConstrained[GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions,MonomialOrder->blockOrder[listOfRootVariables//Length,1]],1];
@@ -1377,6 +1650,7 @@ TEMPExpression=Factor[expressionToSimplify];
 TEMPMinPolynomials=Prepend[listOfMinimalPolynomials,Xbaz Denominator[TEMPExpression]-Numerator[TEMPExpression]];
 
 If[listOfReplacementRules==={},
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 TEMPgrobBasis=GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions];
 ,
 TEMPgrobBasisTry=TimeConstrained[GroebnerBasis[TEMPMinPolynomials,Prepend[listOfRootVariables,Xbaz],CoefficientDomain->RationalFunctions],1];
@@ -1412,11 +1686,19 @@ Table[resolveRootViaGroebnerBasis[arrayToSimplify[[irow,ifoo]],listOfRootVariabl
 ];
 
 ];
+<<<<<<< HEAD
+];
+
+
+(* ::Section::Initialization:: *)
+(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)
+=======
 ]; *)
 
 
 (* ::Section::Initialization:: *)
 (*(*Generating the integrability matrix \[DoubleStruckCapitalM] from a list of rational equations*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -1455,7 +1737,11 @@ If[succesfullTry==1,TEMPmatrix=Append[TEMPmatrix,TEMPtryTheFunction];,Return["Er
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots*)
+=======
 (*(*Commands to use when the \[DoubleStruckCapitalM] matrix contains roots*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -1474,7 +1760,11 @@ Flatten[Transpose[SparseArray[eqnMatrix],{2,3,1}],1]
 
 
 (* ::Section::Initialization:: *)
+<<<<<<< HEAD
+(*Putting all the commands together into one such that it is easy for the user*)
+=======
 (*(*Putting all the commands together into one such that it is easy for the user*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*-------------------------------------------------------------*)
@@ -1500,6 +1790,17 @@ Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Computing the integrable symbols*)
+
+
+(* ::Section::Initialization:: *)
+(*Computing the tensors for the integrable symbols*)
+
+
+(* ::Subsubsection::Initialization:: *)
+(*n-Entry conditions and the weight 1 construction *)
+=======
 (*(*Computing the integrable symbols*)*)
 
 
@@ -1509,6 +1810,7 @@ Return [matrixFReducedToTensor[TEMPintegrabilityMatrix]];
 
 (* ::Subsubsection::Initialization:: *)
 (*(*n-Entry conditions and the weight 1 construction *)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 Default[weight1Solution]={};
@@ -1530,7 +1832,11 @@ SparseArray[Drop[preTensor,-1]/.Rule[a__,b_]:>Rule[Append[a,Last[listOfForbidden
 
 
 (* ::Subsubsection::Initialization:: *)
+<<<<<<< HEAD
+(*Computing the next level symbols*)
+=======
 (*(*Computing the next level symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 nextWeightSymbolsEquationMatrix[previousWeightSymbolsTensor_,FmatrixTensor_,lastEntriesMatrix_:False]:=
@@ -1615,7 +1921,11 @@ Return[{integrableSymbolsTensorsGlue[nextWeightEven,nextWeightOdd],Join[Table[0,
 
 
 (* ::Chapter::Initialization:: *)
+<<<<<<< HEAD
+(*Determine tranformation matrices between alphabets*)
+=======
 (*(*Determine tranformation matrices between alphabets*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 buildTransformationMatrix[weightLsymbolTensor_,previousTransformationMatrix_,alphabetTransformationMatrix_,AlphabetPrimeInversionTensor_]:=Module[{limitAlphabetSize=Dimensions[alphabetTransformationMatrix][[2]],tempArray},
@@ -1631,7 +1941,11 @@ computeTheInversionTensor[symbolTensor_]:=inverseMatrixToTensor[computeTheInvers
 
 
 (* ::Chapter::Initialization::Closed:: *)
+<<<<<<< HEAD
+(*Taking derivatives of symbols*)
+=======
 (*(*Taking derivatives of symbols*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (*---------------------------------------------------------------------------*)
@@ -1676,8 +1990,13 @@ Return["The number of times one differentiates has to be a positive integer!"]
 
 
 
+<<<<<<< HEAD
+(* ::Chapter::Initialization:: *)
+(*Computing minimal polynomials*)
+=======
 (* ::Chapter::Initialization::Closed:: *)
 (*(*Computing minimal polynomials*)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 (* ::Input::Initialization:: *)
@@ -1724,7 +2043,11 @@ Return[{MinimalEqns,rootRed}];   (* rootRed is the root reduction rule *)
 
 
 (* ::Title::Initialization::Closed:: *)
+<<<<<<< HEAD
+(*End *)
+=======
 (*(*End *)*)
+>>>>>>> 73de24b91135d6d702f576002216ebe6605d1237
 
 
 EndPackage[]
