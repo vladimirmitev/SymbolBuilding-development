@@ -493,7 +493,7 @@ globalSpaSMSwitch=False;
 
 (* globalSpaSMExchangePath::usage=" This is a global parameter that specifies the folder in which the temporary files used by SpaSM are to be stored. (YANG?)";
 globalSpaSMExchangePath="/home/vladimir/SpaSM/exchange"; *)
-SpaSMExchangePath="/home/vladimir/SpaSM/exchange";
+(* SpaSMExchangePath="/home/vladimir/SpaSM/exchange"; *)
 
 
 globalSpaSMListOfPrimes::usage=" This is a global parameter that provides a list of primes that can be used in SpaSM. The primes used in that program should not be larger than \!\(\*SuperscriptBox[\(2\), \(16\)]\).";
