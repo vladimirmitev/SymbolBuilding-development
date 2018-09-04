@@ -1,11 +1,11 @@
 (* ::Package:: *)
 
 (* ::Title::Initialization:: *)
-(*Loading the package*)
+(*(*Loading the package*)*)
 
 
 (* ::Section::Initialization:: *)
-(*Loading 'SymBuild' and *)
+(*(*Loading 'SymBuild' and *)*)
 
 
 (* ::Input::Initialization:: *)
@@ -29,14 +29,14 @@ LaunchKernels[2];
 
 
 (* ::Section::Initialization:: *)
-(*Loading SpaSM if needed (load after the 'SymBuild' package )*)
+(*(*Loading SpaSM if needed (load after the 'SymBuild' package )*)*)
 
 
 (* ::Input::Initialization:: *)
 (*
 (*---------------------------------------------------------------------------*)
 (* Loading the package *)
-Get["/home/vladimir/SpaSM/src/spasm_m/spasm_m.wl"];
+
 Import["/home/vladimir/SpaSM/src/Farey_fraction/Eculidean_lift.wl"];
 Import["/home/vladimir/SpaSM/src/Modular_Linear_Algebra/FF_linear_algebra.wl"];
 
@@ -44,9 +44,9 @@ Import["/home/vladimir/SpaSM/src/Modular_Linear_Algebra/FF_linear_algebra.wl"];
 SpaSMExchangePath="/home/vladimir/SpaSM/exchange";
 SpaSMPath="/home/vladimir/SpaSM/spasm/bench";
 
-(* This is needed to make the two packages work integrate with one another. *)
+(* This is needed to make the two packages work integrate with one another. *) 
 globalSpaSMExchangePath=SpaSMExchangePath;
-*)
+*)  (* not needed *)
 
 
 
@@ -55,7 +55,7 @@ globalSpaSMExchangePath=SpaSMExchangePath;
 
 
 (* ::Section::Initialization:: *)
-(*Additional SymBuild global variables*)
+(*(*Additional SymBuild global variables*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -77,15 +77,15 @@ globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];*)
 
 
 (* ::Title::Initialization:: *)
-(*Functionality examples*)
+(*(*Functionality examples*)*)
 
 
 (* ::Subchapter::Initialization:: *)
-(*Computing integrable symbols for the planar 5-pt alphabet*)
+(*(*Computing integrable symbols for the planar 5-pt alphabet*)*)
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Setup*)
+(*(*Setup*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -101,7 +101,7 @@ FtensorPlanar=computeTheIntegrabilityTensor[alphabetPlanar,varPlanar,{\[Epsilon]
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Setting up the weight 1 symbols + first entry conditions + even/odd symbols*)
+(*(*Setting up the weight 1 symbols + first entry conditions + even/odd symbols*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -112,7 +112,7 @@ forbiddenFirstEntries=Complement[Range[26],Range[5]];
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Weight 2*)
+(*(*Weight 2*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -129,7 +129,7 @@ Put[{timeMeasure,tensorLists[2],signs[2]},testDirectory<>"testWeight2.txt"]
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Weight 3*)
+(*(*Weight 3*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -146,7 +146,7 @@ Put[{timeMeasure,tensorLists[3],signs[3]},testDirectory<>"testWeight3.txt"]
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Weight 4*)
+(*(*Weight 4*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -167,7 +167,7 @@ Put[{timeMeasure,tensorLists[weightHere],signs[weightHere]},testDirectory<>"test
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Weight 5*)
+(*(*Weight 5*)*)
 
 
 (* ::Input::Initialization:: *)
@@ -188,7 +188,7 @@ Put[{timeMeasure,tensorLists[weightHere],signs[weightHere]},testDirectory<>"test
 
 
 (* ::Subsubsection::Initialization:: *)
-(*Weight 6*)
+(*(*Weight 6*)*)
 
 
 (* ::Input::Initialization:: *)
