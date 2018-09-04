@@ -487,12 +487,13 @@ globalSymBuildParallelize=False;
 
 
 (* ::Input::Initialization:: *)
-globalSpaSMSwitch::usage=" This is a global parameter that specifies whether 'SpaSM' is used or not. By default it is true. Do not forget to set 'globalSpaSMExchangePath=SpaSMExchangePath'
-in the notebook! ";
+globalSpaSMSwitch::usage=" This is a global parameter that specifies whether 'SpaSM' is used or not. By default it is true. "
 globalSpaSMSwitch=False;
 
 
-globalSpaSMExchangePath::usage=" This is a global parameter that specifies the folder in which the temporary files used by SpaSM are to be stored. (YANG?)";globalSpaSMExchangePath="/home/vladimir/SpaSM/exchange";
+(* globalSpaSMExchangePath::usage=" This is a global parameter that specifies the folder in which the temporary files used by SpaSM are to be stored. (YANG?)";
+globalSpaSMExchangePath="/home/vladimir/SpaSM/exchange"; *)
+SpaSMExchangePath="/home/vladimir/SpaSM/exchange";
 
 
 globalSpaSMListOfPrimes::usage=" This is a global parameter that provides a list of primes that can be used in SpaSM. The primes used in that program should not be larger than \!\(\*SuperscriptBox[\(2\), \(16\)]\).";
@@ -1102,7 +1103,7 @@ Which[
 Length[matrix]<globalLowerThreshold, 
 nullMatrix=NullSpace[matrix]; If[nullMatrix==={},Return[{}],Return[SparseArray[NullSpace[matrix]]]],
 (Length[matrix]>=globalSpaSMThreshold)&&globalSpaSMSwitch,
-Return[getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrimes,MatrixDirectory->globalSpaSMExchangePath,Nkernel->globalSpaSMNumberOfKernels]]],
+Return[getNullSpaceFromRowReducedMatrix[FFRREF[matrix,globalGetNullSpaceSpaSMPrimes,Nkernel->globalSpaSMNumberOfKernels]]],
 True, Return[getNullSpaceStepByStep[matrix,globalGetNullSpaceStep]]];
 ];
 
@@ -1224,7 +1225,7 @@ Return[projectedProducts[[Sequence@@Join[Table[All,{i,1,length+1}],{linearlyInde
 
 
 rowReduceMatrix[matrix_]:=Which[Length[matrix]<globalLowerThreshold,SparseArray[RowReduce[Normal[matrix]]],
-(Length[matrix]>=globalSpaSMThreshold)&&globalSpaSMSwitch,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,MatrixDirectory->globalSpaSMExchangePath,Nkernel->globalSpaSMNumberOfKernels],
+(Length[matrix]>=globalSpaSMThreshold)&&globalSpaSMSwitch,FFRREF[matrix,globalRowReduceMatrixSpaSMPrimes,Nkernel->globalSpaSMNumberOfKernels],
 True,rowReduceOverPrimes[matrix]
 ];
 
