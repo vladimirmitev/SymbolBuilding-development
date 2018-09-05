@@ -65,6 +65,8 @@ globalRowReduceOverPrimesMethod="Random";
 globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];*)
 
 (* The command resetTheGlobalParameters[] resets everything to standard *)
+globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-8];
+globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-8];
 
 
 (* ::Title:: *)
@@ -95,7 +97,7 @@ alphabetSigns=Join[Table[0,25],Table[1,5],Table[0,1]]
 forbiddenFirstEntries=Complement[Range[31],Join[Range[5],15+Range[5]]]
 
 {tensorLists[1],signs[1]}=weight1SolutionEvenAndOdd[alphabetNonPlanar,alphabetSigns,forbiddenFirstEntries];
-presentIntegrableSymbolsData[%]
+presentIntegrableSymbolsData[{tensorLists[1],signs[1]}]
 
 
 (* ::Subsubsection:: *)
@@ -106,7 +108,7 @@ forbiddenSecondEntries={{1,8},{1,9},{1,14},{1,15},{1,24},{1,25},{2,9},{2,10},{2,
 
 secondEntryEquations=weightLForbiddenSequencesEquationMatrix[{tensorLists[1]},forbiddenSecondEntries,31];
 {tensorLists[2],signs[2]}=determineNextWeightSymbols[tensorLists[1],signs[1],FtensorNonPlanar,alphabetSigns,secondEntryEquations];
-presentIntegrableSymbolsData[%]
+presentIntegrableSymbolsData[{tensorLists[2],signs[2]}]
 
 
 (* ::Subsubsection:: *)
@@ -114,7 +116,7 @@ presentIntegrableSymbolsData[%]
 
 
 {tensorListsNoSE[2],signsNoSE[2]}=determineNextWeightSymbols[tensorLists[1],signs[1],FtensorNonPlanar,alphabetSigns];
-presentIntegrableSymbolsData[%]
+presentIntegrableSymbolsData[{tensorListsNoSE[2],signsNoSE[2]}]
 
 
 (* ::Subsubsection:: *)
@@ -122,7 +124,7 @@ presentIntegrableSymbolsData[%]
 
 
 {tensorLists[3],signs[3]}=determineNextWeightSymbols[tensorLists[2],signs[2],FtensorNonPlanar,alphabetSigns];
-presentIntegrableSymbolsData[%]
+presentIntegrableSymbolsData[{tensorLists[3],signs[3]}]
 
 
 (* ::Subsubsection:: *)
@@ -130,11 +132,10 @@ presentIntegrableSymbolsData[%]
 
 
 {tensorLists[4],signs[4]}=determineNextWeightSymbols[tensorLists[3],signs[3],FtensorNonPlanar,alphabetSigns];
-presentIntegrableSymbolsData[%]
+presentIntegrableSymbolsData[{tensorLists[4],signs[4]}]
 
 
 timeMeasure=AbsoluteTime[];
-
 {tensorLists[5],signs[5]}=determineNextWeightSymbols[tensorLists[4],signs[4],FtensorNonPlanar,alphabetSigns];
 Export["~/packages/SymbolBuilding-development/ISData.txt",presentIntegrableSymbolsData[{tensorLists[5],signs[5]}]//InputForm//ToString];
 Print[AbsoluteTime[]-timeMeasure];
