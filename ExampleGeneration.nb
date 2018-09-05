@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     89673,       2034]
-NotebookOptionsPosition[     83444,       1915]
-NotebookOutlinePosition[     83827,       1932]
-CellTagsIndexPosition[     83784,       1929]
+NotebookDataLength[     91226,       2076]
+NotebookOptionsPosition[     84898,       1956]
+NotebookOutlinePosition[     85281,       1973]
+CellTagsIndexPosition[     85238,       1970]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1875,26 +1875,29 @@ Cell["The matrix that has to be row reduced", "Title",
 4a1f62cf917a"],
 
 Cell[BoxData[
- RowBox[{
-  RowBox[{"eqnWeight4", "=", 
-   RowBox[{"nextWeightSymbolsEquationMatrix", "[", 
-    RowBox[{
-     RowBox[{"tensorLists", "[", "3", "]"}], ",", "FtensorNonPlanar"}], 
-    "]"}]}], ";"}]], "Input",
- CellChangeTimes->{{3.744633496274432*^9, 
-  3.744633498951117*^9}},ExpressionUUID->"5289cda3-50bf-41f4-8a18-\
+ RowBox[{"(*", " ", 
+  RowBox[{
+   RowBox[{"eqnWeight4", "=", 
+    RowBox[{"nextWeightSymbolsEquationMatrix", "[", 
+     RowBox[{
+      RowBox[{"tensorLists", "[", "3", "]"}], ",", "FtensorNonPlanar"}], 
+     "]"}]}], ";"}], " ", "*)"}]], "Input",
+ CellChangeTimes->{{3.744633496274432*^9, 3.744633498951117*^9}, {
+  3.7451771433071413`*^9, 
+  3.745177145178196*^9}},ExpressionUUID->"5289cda3-50bf-41f4-8a18-\
 ff86df277521"],
 
 Cell[BoxData[
- RowBox[{
-  RowBox[{"eqnWeight5", "=", 
-   RowBox[{"nextWeightSymbolsEquationMatrix", "[", 
-    RowBox[{
-     RowBox[{"tensorLists", "[", "4", "]"}], ",", "FtensorNonPlanar"}], 
-    "]"}]}], ";"}]], "Input",
+ RowBox[{"(*", " ", 
+  RowBox[{
+   RowBox[{"eqnWeight5", "=", 
+    RowBox[{"nextWeightSymbolsEquationMatrix", "[", 
+     RowBox[{
+      RowBox[{"tensorLists", "[", "4", "]"}], ",", "FtensorNonPlanar"}], 
+     "]"}]}], ";"}], " ", "*)"}]], "Input",
  CellChangeTimes->{{3.743853166418583*^9, 3.743853177085507*^9}, {
-  3.743853252555957*^9, 
-  3.743853256976885*^9}},ExpressionUUID->"3e3b7b8c-f8d6-4f1a-867a-\
+  3.743853252555957*^9, 3.743853256976885*^9}, {3.745177147234435*^9, 
+  3.7451771501859207`*^9}},ExpressionUUID->"3e3b7b8c-f8d6-4f1a-867a-\
 723783477689"],
 
 Cell[BoxData[
@@ -1910,7 +1913,45 @@ Cell[BoxData[
     "my", " ", "system"}], " ", "*)"}], "\[IndentingNewLine]"}]], "Input",
  CellChangeTimes->{{3.743855495946663*^9, 
   3.743855561605335*^9}},ExpressionUUID->"b221e25b-3e19-40ad-98e0-\
-7d0e96bd9ad3"]
+7d0e96bd9ad3"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"timeMeasure", "=", 
+    RowBox[{"AbsoluteTime", "[", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"tensorLists", "[", "5", "]"}], ",", 
+     RowBox[{"signs", "[", "5", "]"}]}], "}"}], "=", 
+   RowBox[{"determineNextWeightSymbols", "[", 
+    RowBox[{
+     RowBox[{"tensorLists", "[", "4", "]"}], ",", 
+     RowBox[{"signs", "[", "4", "]"}], ",", "FtensorNonPlanar", ",", 
+     "alphabetSigns"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Export", "[", 
+   RowBox[{"\"\<~/packages/SymbolBuilding-development/ISData.txt\>\"", ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"presentIntegrableSymbolsData", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"tensorLists", "[", "5", "]"}], ",", 
+         RowBox[{"signs", "[", "5", "]"}]}], "}"}], "]"}], "//", 
+      "InputForm"}], "//", "ToString"}]}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{
+    RowBox[{"AbsoluteTime", "[", "]"}], "-", "timeMeasure"}], "]"}], 
+  ";"}], "\n"}], "Input",
+ CellChangeTimes->{{3.745177116877924*^9, 3.745177161745826*^9}, {
+  3.7451771924334383`*^9, 
+  3.7451772541668777`*^9}},ExpressionUUID->"78369620-e3c4-4ee0-9061-\
+57cddae01dec"]
 }, Open  ]]
 },
 WindowSize->{1855, 1028},
@@ -2032,9 +2073,10 @@ Cell[80530, 1838, 1292, 24, 78, "Print",ExpressionUUID->"91b0f006-3207-4530-85cd
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[81907, 1871, 184, 3, 123, "Title",ExpressionUUID->"088cd03e-7c69-43c4-b973-4a1f62cf917a"],
-Cell[82094, 1876, 347, 9, 37, "Input",ExpressionUUID->"5289cda3-50bf-41f4-8a18-ff86df277521"],
-Cell[82444, 1887, 396, 10, 37, "Input",ExpressionUUID->"3e3b7b8c-f8d6-4f1a-867a-723783477689"],
-Cell[82843, 1899, 585, 13, 90, "Input",ExpressionUUID->"b221e25b-3e19-40ad-98e0-7d0e96bd9ad3"]
+Cell[82094, 1876, 438, 11, 37, "Input",ExpressionUUID->"5289cda3-50bf-41f4-8a18-ff86df277521"],
+Cell[82535, 1889, 484, 11, 37, "Input",ExpressionUUID->"3e3b7b8c-f8d6-4f1a-867a-723783477689"],
+Cell[83022, 1902, 585, 13, 90, "Input",ExpressionUUID->"b221e25b-3e19-40ad-98e0-7d0e96bd9ad3"],
+Cell[83610, 1917, 1272, 36, 168, "Input",ExpressionUUID->"78369620-e3c4-4ee0-9061-57cddae01dec"]
 }, Open  ]]
 }
 ]
