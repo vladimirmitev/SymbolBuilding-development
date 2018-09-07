@@ -8,7 +8,7 @@
 (*Loading 'SymBuild' and *)
 
 
-Get["/Users/Beryllium/SymbolBuilding-development/SymBuild.wl"];
+Get["/home/zhang/packages/SymbolBuilding-development/SymBuild.wl"];
 
 
 (*---------------------------------------------------------------------------*)
@@ -32,8 +32,8 @@ globalVerbose=True;
 (*---------------------------------------------------------------------------*)
 (* Loading the package *) *)
 
-Import[$HomeDirectory<>"/Dropbox/packages/FF_lift/Eculidean_lift.wl"];
-Import[$HomeDirectory<>"/Dropbox/packages/FF_lift/FF_linear_algebra_v2.wl"];
+Import[$HomeDirectory<>"/packages/linear_algebra_tools/Eculidean_lift.wl"];
+Import[$HomeDirectory<>"/packages/linear_algebra_tools/FF_linear_algebra.wl"];
 
 (* The paths for SpaSM: exchange and bench *)
 SpaSMExchangePath = StringJoin[$HomeDirectory, "/exchange"]
