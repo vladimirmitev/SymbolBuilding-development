@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Title::Initialization:: *)
-(*(*(*(*Beginning/ First declarations *)*)*)*)
+(*(*Beginning/ First declarations*)*)
 
 
 (*----------------------------------------------------------------------------------------------------------------------------------*)
@@ -519,7 +519,7 @@ globalGetNullSpaceStep::usage=" This is a global parameter in the command 'getNu
 globalGetNullSpaceStep=200;
 
 globalGetNullSpaceSpaSMPrimes::usage=" This is a global parameter in the command 'getNullSpace'. It is the list of prime numbers that are given to SpaSM when 'getNullSpace' calls the command FFRREF. ";
-globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
+globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-8];
 
 
 
@@ -544,7 +544,7 @@ globalRowReduceOverPrimesMethod="Systematic";
 
 
 globalRowReduceMatrixSpaSMPrimes::usage=" This is a global parameter in the command 'rowReduceMatrix'. It specifies the primes that are used when calling the external program SpaSM.";
-globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
+globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-8];
 
 
 (* ::Section::Initialization:: *)
@@ -557,12 +557,12 @@ globalLowerThreshold=200;
 globalSpaSMThreshold=10000;
 globalGetNullSpaceStep=200;
 globalSpaSMListOfPrimes=Select[Range[2^14]+10000,PrimeQ];
-globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
+globalGetNullSpaceSpaSMPrimes=Take[globalSpaSMListOfPrimes,-8];
 globalSetOfBigPrimes=Select[2^63-Range[983],PrimeQ];
 globalRowReduceOverPrimesInitialNumberOfIterations=2;
 globalRowReduceOverPrimesMaxNumberOfIterations=10;
 globalRowReduceOverPrimesMethod="Random"; 
-globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-4];
+globalRowReduceMatrixSpaSMPrimes=Take[globalSpaSMListOfPrimes,-8];
 globalSpaSMSwitch=False;
 globalSymBuildParallelize=False;
 Return["The global variables have been reset to their standard values. "] 
